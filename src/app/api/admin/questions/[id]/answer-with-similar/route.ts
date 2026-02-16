@@ -3,7 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { sendMail } from "@/lib/mail";
 
-type Params = { params: Promise<{ id: string } }>;
+type Params = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, { params }: Params) {
   const admin = await requireAdminFromRequest(request);
