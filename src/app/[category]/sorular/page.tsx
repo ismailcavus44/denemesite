@@ -82,7 +82,7 @@ export default async function CategorySorularListPage({ params, searchParams }: 
                 key={q.id}
                 title={q.title}
                 slug={q.slug}
-                category={q.category}
+                category={Array.isArray(q.category) ? (q.category[0] ?? null) : q.category}
                 createdAt={q.created_at}
                 summaryText={(q as { ai_card_summary?: string | null }).ai_card_summary ?? null}
                 categorySlug={categorySlug}

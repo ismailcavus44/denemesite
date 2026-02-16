@@ -233,7 +233,6 @@ export const blogPosts: BlogPost[] = [
     summary: "Kira sözleşmesinin unsurları ve türleri.",
     category: "Konut",
     categorySlug: "gayrimenkul-hukuku",
-    categorySlug: "gayrimenkul-hukuku",
     date: "2026-02-09",
     readTime: "2 dk",
     content: [
@@ -245,7 +244,6 @@ export const blogPosts: BlogPost[] = [
     title: "Tahliye davası nedir?",
     summary: "Tahliye davasının ne zaman ve nasıl açıldığı.",
     category: "Konut",
-    categorySlug: "gayrimenkul-hukuku",
     categorySlug: "gayrimenkul-hukuku",
     date: "2026-02-09",
     readTime: "2 dk",

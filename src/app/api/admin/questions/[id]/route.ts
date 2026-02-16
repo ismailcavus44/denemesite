@@ -214,7 +214,8 @@ export async function PATCH(request: Request, { params }: Params) {
     const toEmail = (questionRow as { asker_email?: string | null })?.asker_email?.trim();
     if (toEmail) {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://yasalhaklariniz.com";
-      const catSlug = (questionRow as { category?: { slug: string } })?.category?.slug ?? "sorular";
+      const cat = (questionRow as { category?: { slug: string } | Array<{ slug: string }> })?.category;
+      const catSlug = (Array.isArray(cat) ? cat[0]?.slug : cat?.slug) ?? "sorular";
       const questionUrl = `${siteUrl}/${catSlug}/soru/${questionRow!.slug}`;
 
       try {

@@ -115,10 +115,10 @@ export default async function QuestionsPage({
             key={question.id}
             title={question.title}
             slug={question.slug}
-            category={question.category}
+            category={Array.isArray(question.category) ? (question.category[0] ?? null) : question.category}
             createdAt={question.created_at}
             summaryText={(question as { ai_card_summary?: string | null }).ai_card_summary ?? null}
-            categorySlug={(question as { category?: { slug: string } }).category?.slug ?? null}
+            categorySlug={(Array.isArray(question.category) ? question.category[0] : question.category)?.slug ?? null}
           />
         ))}
         {!questions?.length && (

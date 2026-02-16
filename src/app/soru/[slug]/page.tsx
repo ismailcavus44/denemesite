@@ -18,7 +18,8 @@ export default async function LegacyQuestionPage({ params }: PageProps) {
     .eq("status", "published")
     .maybeSingle();
 
-  const categorySlug = (data as { category?: { slug: string } })?.category?.slug;
+  const cat = (data as { category?: { slug: string } | Array<{ slug: string }> })?.category;
+  const categorySlug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
   if (categorySlug) {
     redirect(`/${categorySlug}/soru/${slug}`);
   }

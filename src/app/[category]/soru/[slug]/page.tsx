@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { getRelatedQuestions, getRelatedGuides } from "@/lib/content";
 import { QuestionDetail } from "@/components/question-detail";
@@ -23,7 +23,9 @@ export async function generateMetadata({
     .eq("status", "published")
     .maybeSingle();
 
-  if (!data || (data as { category?: { slug: string } }).category?.slug !== categorySlug) {
+  const cat = (data as { category?: { slug: string } | Array<{ slug: string }> }).category;
+  const catSlug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
+  if (!data || catSlug !== categorySlug) {
     return { title: "Soru bulunamadı" };
   }
 
@@ -87,7 +89,9 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
     .eq("status", "published")
     .maybeSingle();
 
-  if (!question || (question.category as { slug?: string })?.slug !== categorySlug) {
+  const qCat = question?.category as { slug?: string } | Array<{ slug?: string }> | undefined;
+  const qCatSlug = Array.isArray(qCat) ? qCat[0]?.slug : qCat?.slug;
+  if (!question || qCatSlug !== categorySlug) {
     notFound();
   }
 
@@ -96,6 +100,7 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
     getRelatedGuides(categorySlug, 5),
   ]);
 
+  const answer = Array.isArray(question.answer) ? question.answer[0] : question.answer;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "QAPage",
@@ -103,12 +108,12 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
       "@type": "Question",
       name: question.title,
       text: question.body,
-      answerCount: question.answer ? 1 : 0,
+      answerCount: answer ? 1 : 0,
       dateCreated: question.created_at,
-      acceptedAnswer: question.answer
+      acceptedAnswer: answer
         ? {
             "@type": "Answer",
-            text: question.answer.answer_text,
+            text: answer.answer_text,
             dateCreated: question.published_at ?? question.created_at,
           }
         : undefined,
@@ -120,9 +125,12 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
       <QuestionDetail
         title={question.title}
         body={question.body}
-        category={question.category}
-        answerText={question.answer?.answer_text ?? null}
-        related={related}
+        category={Array.isArray(question.category) ? (question.category[0] ?? null) : question.category}
+        answerText={answer?.answer_text ?? null}
+        related={related.map((q) => ({
+          ...q,
+          category: Array.isArray(q.category) ? (q.category[0] ?? null) : q.category,
+        }))}
         categoryGuides={categoryGuides.map((g) => ({ slug: g.slug, title: g.title, categorySlug: g.categorySlug }))}
         aiH1Summary={(question as { ai_h1_summary?: string | null }).ai_h1_summary ?? null}
         aiH1Enabled={(question as { ai_h1_enabled?: boolean | null }).ai_h1_enabled === true}
