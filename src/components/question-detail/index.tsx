@@ -8,7 +8,6 @@ import { AnswerCard, type GuideCta } from "./AnswerCard";
 import { StickyCTA } from "./StickyCTA";
 import { CategoryGuidesSidebar } from "./CategoryGuidesSidebar";
 import { SimilarQuestionsSection } from "./SimilarQuestionsSection";
-import { ReadingProgress } from "./ReadingProgress";
 
 type Category = { name: string; slug: string };
 type RelatedItem = {
@@ -74,7 +73,6 @@ export function QuestionDetail({
 
   return (
     <>
-      <ReadingProgress />
       <div className="min-h-screen bg-white pb-24 lg:pb-12">
         <div className="mx-auto max-w-6xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
