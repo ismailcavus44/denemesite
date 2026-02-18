@@ -97,7 +97,7 @@ export function AnswerCard({ answerHtml, guideCta }: AnswerCardProps) {
         </div>
 
         <div
-          className="mt-3 text-sm leading-7 text-slate-700 [&_a]:text-slate-800 [&_a]:underline"
+          className="mt-3 text-sm leading-7 text-slate-700 [&_a]:text-slate-800 [&_a]:underline [&_p]:text-justify [&_div]:text-justify [&_li]:text-justify"
           dangerouslySetInnerHTML={{ __html: sanitized }}
         />
 

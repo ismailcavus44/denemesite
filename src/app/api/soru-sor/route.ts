@@ -84,10 +84,20 @@ export async function POST(request: NextRequest) {
     }
 
     if (emailToSave) {
-      await supabase.from("email_subscribers").upsert(
-        { email: emailToSave.toLowerCase(), source: "soru_sor" },
-        { onConflict: "email" }
-      );
+      const { data: sub } = await supabase
+        .from("email_subscribers")
+        .upsert(
+          { email: emailToSave.toLowerCase(), source: "soru_sor" },
+          { onConflict: "email" }
+        )
+        .select("id")
+        .single();
+      if (sub?.id && categoryId) {
+        await supabase.from("email_subscriber_categories").upsert(
+          { subscriber_id: sub.id, category_id: categoryId },
+          { onConflict: "subscriber_id,category_id" }
+        );
+      }
     }
 
     await supabase.from("question_submission_log").insert({

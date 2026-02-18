@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { QuestionCard } from "@/components/question-card";
 import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
@@ -32,11 +33,11 @@ export default async function Home() {
               anlaşılır cevapları inceleyebilirsin.
             </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg">
+            <div className="flex flex-nowrap gap-2 sm:gap-3">
+              <Button asChild size="lg" className="shrink-0">
                 <Link href="/soru-sor">Hemen soru sor</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10">
+              <Button asChild variant="outline" size="lg" className="shrink-0 border-primary text-primary hover:bg-primary/10">
                 <Link href="/sorular">Yayındaki cevaplara göz at</Link>
               </Button>
             </div>
@@ -48,14 +49,18 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* Sağ: Görsel */}
-          <div className="hidden md:block">
-            <img
+          {/* Sağ: LCP görseli (desktop) — next/image ile AVIF/WebP, priority */}
+          <div className="hidden md:block relative aspect-[4/3] max-w-[800px] w-full">
+            <Image
               src="/yasalhaklariniz-avukata-soru-sor.webp"
               alt="YasalHaklariniz — Avukata soru sor"
               width={800}
               height={600}
-              className="rounded-2xl object-cover w-full"
+              priority
+              sizes="(max-width: 768px) 0px, (max-width: 1200px) 50vw, 800px"
+              className="rounded-2xl object-cover w-full h-full"
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBRIhMQYTQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ALnq2p3mn6ndW1rO0cMT7EUY4GKKKKVYz//Z"
             />
           </div>
         </div>
@@ -105,13 +110,15 @@ export default async function Home() {
             Sorun, editör incelemesinden geçtikten sonra anonim olarak yayınlanır ve benzer gerçek sorulara verilmiş sade açıklamalarla birlikte sunulur. Böylece yalnızca kendi durumunu değil, aynı konuda daha önce yaşanmış örnekleri de görebilirsin. Karmaşık hukuk dili, uzun kanun metinleri ve anlaşılmaz ifadeler yerine; seni neyin beklediğini, hangi risklerin olabileceğini ve nasıl bir yol izlenebileceğini açık ve sakin bir çerçevede değerlendirebilirsin.
           </p>
         </div>
-        <div className="overflow-hidden rounded-2xl">
-          <img
+        <div className="overflow-hidden rounded-2xl relative aspect-[4/3]">
+          <Image
             src="/avukata-sor.png"
             alt="Avukata sor görseli"
             width={800}
             height={600}
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="h-auto w-full object-cover"
+            loading="lazy"
           />
         </div>
       </section>

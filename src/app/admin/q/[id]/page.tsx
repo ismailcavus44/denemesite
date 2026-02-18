@@ -580,7 +580,7 @@ export default function AdminQuestionPage() {
             <Input
               value={relatedGuideUrl}
               onChange={(e) => setRelatedGuideUrl(e.target.value)}
-              placeholder="Örn. /hukuk-rehberi/rehber/kira-sorunlarinda-ilk-adimlar"
+              placeholder="Örn. /diger/rehber/kira-sorunlarinda-ilk-adimlar"
             />
             <Input
               value={relatedGuideLabel}

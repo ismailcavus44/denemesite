@@ -120,7 +120,7 @@ export function QuestionDetail({
               />
             </main>
 
-            <div className="lg:col-span-4 overflow-visible">
+            <div className="hidden lg:block lg:col-span-4 overflow-visible">
               <aside className="flex flex-col gap-6 overflow-visible lg:pl-2">
                 <StickyCTA />
                 {categoryGuides.length > 0 && categorySlug && (

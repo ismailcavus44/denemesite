@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
+type CategoryOption = { id: string; name: string };
+
 type QuestionRow = {
   id: string;
   title: string;
@@ -49,14 +51,33 @@ function statusLabel(s: string): string {
 
 export default function AdminSorularPage() {
   const [items, setItems] = useState<QuestionRow[]>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
-
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const loadCategories = async () => {
+    const token = getAccessToken();
+    if (!token) return;
+    try {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      const res = await fetch(`${url}/rest/v1/categories?select=id,name&order=name`, {
+        headers: { apikey: key, Authorization: `Bearer ${token}`, Accept: "application/json" },
+      });
+      if (res.ok) {
+        const data: CategoryOption[] = await res.json();
+        setCategories(data);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -74,11 +95,12 @@ export default function AdminSorularPage() {
       const to = from + PAGE_SIZE - 1;
 
       let listPath = `${url}/rest/v1/questions?select=id,title,slug,status,created_at,category:categories(name)&order=created_at.desc`;
-      if (statusFilter) {
-        listPath += `&status=eq.${statusFilter}`;
-      }
+      if (statusFilter) listPath += `&status=eq.${statusFilter}`;
+      if (categoryFilter) listPath += `&category_id=eq.${categoryFilter}`;
 
-      const countPath = `${url}/rest/v1/questions?select=id${statusFilter ? `&status=eq.${statusFilter}` : ""}`;
+      let countPath = `${url}/rest/v1/questions?select=id`;
+      if (statusFilter) countPath += `&status=eq.${statusFilter}`;
+      if (categoryFilter) countPath += `&category_id=eq.${categoryFilter}`;
       const [listRes, countRes] = await Promise.all([
         fetch(listPath, {
           headers: {
@@ -125,9 +147,13 @@ export default function AdminSorularPage() {
   };
 
   useEffect(() => {
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, statusFilter]);
+  }, [page, statusFilter, categoryFilter]);
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`"${title}" soruyu kalıcı olarak silmek istediğinize emin misiniz?`)) return;
@@ -195,19 +221,35 @@ export default function AdminSorularPage() {
         <div className="flex flex-wrap items-center gap-3">
           <label className="text-sm text-muted-foreground">Durum:</label>
           <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(1);
-          }}
-          className="h-9 rounded-md border bg-background px-3 text-sm"
-        >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value || "all"} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+          >
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value || "all"} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <label className="text-sm text-muted-foreground">Kategori:</label>
+          <select
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              setPage(1);
+            }}
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+          >
+            <option value="">Tümü</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
         <Button
           variant="destructive"

@@ -15,6 +15,7 @@ import { CategoryPillar } from "@/components/category/CategoryPillar";
 import { CategoryPillarDemo } from "@/components/category/CategoryPillarDemo";
 import { CategoryNavCards } from "@/components/category/CategoryNavCards";
 import { CategorySidebar } from "@/components/category/CategorySidebar";
+import { getStaticPillarMd } from "@/lib/category-pillars";
 
 type PageProps = {
   params: Promise<{ category: string }>;
@@ -121,11 +122,14 @@ export default async function CategoryPillarPage({ params }: PageProps) {
               </section>
 
               <section>
-                {category.pillar_md ? (
-                  <CategoryPillar pillarMd={category.pillar_md} />
-                ) : (
-                  <CategoryPillarDemo categoryName={category.name} />
-                )}
+                {(() => {
+                  const pillarMd = getStaticPillarMd(categorySlug) ?? category.pillar_md ?? null;
+                  return pillarMd ? (
+                    <CategoryPillar pillarMd={pillarMd} />
+                  ) : (
+                    <CategoryPillarDemo categoryName={category.name} />
+                  );
+                })()}
               </section>
             </div>
 

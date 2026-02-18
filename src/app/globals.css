@@ -2,37 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@font-face {
-  font-family: "Manrope";
-  src: url("/fonts/Manrope-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Manrope";
-  src: url("/fonts/Manrope-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Manrope";
-  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Manrope";
-  src: url("/fonts/Manrope-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* Manrope: next/font/local in layout (400, 600). Variable --font-manrope on html. */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -81,7 +51,6 @@
 
 :root {
   --radius: 0.625rem;
-  --font-manrope: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --background: #ffffff;
   --foreground: #2F2F2F;
   --card: #ffffff;

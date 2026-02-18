@@ -19,7 +19,6 @@ const KNOWN_CATEGORIES: Record<string, string> = {
   "gayrimenkul-hukuku": "Gayrimenkul Hukuku",
   "aile-hukuku": "Aile Hukuku",
   "diger": "Diğer",
-  "hukuk-rehberi": "Hukuk Rehberi",
 };
 
 export const KNOWN_CATEGORY_SLUGS = Object.keys(KNOWN_CATEGORIES);

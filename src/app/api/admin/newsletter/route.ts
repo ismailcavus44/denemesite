@@ -3,7 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { sendMail } from "@/lib/mail";
 
-/** Abone sayısı (admin). */
+/** Abone listesi (admin). ?category=slug ile kategori bazlı filtre. */
 export async function GET(request: Request) {
   const adminCheck = await requireAdminFromRequest(request);
   if (!adminCheck.ok) {
@@ -13,10 +13,42 @@ export async function GET(request: Request) {
     );
   }
 
+  const { searchParams } = new URL(request.url);
+  const categorySlug = searchParams.get("category")?.trim() || null;
+
   const supabase = createSupabaseAdminClient();
-  const { count, error } = await supabase
+
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id,name,slug")
+    .order("name");
+
+  let query = supabase
     .from("email_subscribers")
-    .select("*", { count: "exact", head: true });
+    .select("id,email,source,created_at")
+    .order("created_at", { ascending: false });
+
+  if (categorySlug) {
+    const { data: cat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", categorySlug)
+      .maybeSingle();
+    if (cat?.id) {
+      const { data: subIds } = await supabase
+        .from("email_subscriber_categories")
+        .select("subscriber_id")
+        .eq("category_id", cat.id);
+      const ids = (subIds ?? []).map((r) => (r as { subscriber_id: string }).subscriber_id);
+      if (ids.length > 0) {
+        query = query.in("id", ids);
+      } else {
+        query = query.eq("id", "00000000-0000-0000-0000-000000000000");
+      }
+    }
+  }
+
+  const { data: subscribers, error } = await query;
 
   if (error) {
     return NextResponse.json(
@@ -25,7 +57,12 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json({ count: count ?? 0 });
+  const list = (subscribers ?? []) as { id: string; email: string; source: string | null; created_at: string }[];
+  return NextResponse.json({
+    count: list.length,
+    subscribers: list,
+    categories: (categories ?? []) as { id: string; name: string; slug: string }[],
+  });
 }
 
 /** Toplu mail gönder (admin). Body: { subject, html }. */
@@ -38,7 +75,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { subject?: string; html?: string };
+  let body: { subject?: string; html?: string; recipientIds?: string[] };
   try {
     body = await request.json();
   } catch {
@@ -58,9 +95,12 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const { data: rows, error } = await supabase
-    .from("email_subscribers")
-    .select("email");
+  let query = supabase.from("email_subscribers").select("email");
+  const ids = Array.isArray(body.recipientIds) ? body.recipientIds.filter((id) => typeof id === "string") : [];
+  if (ids.length > 0) {
+    query = query.in("id", ids);
+  }
+  const { data: rows, error } = await query;
 
   if (error) {
     return NextResponse.json(

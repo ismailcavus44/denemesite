@@ -194,7 +194,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             </div>
           </article>
 
-          <div className="flex flex-col gap-6 overflow-visible">
+          <div className="hidden md:flex flex-col gap-6 overflow-visible">
             <StickyCTA />
             {categoryGuides.length > 0 && (
               <CategoryGuidesSidebar

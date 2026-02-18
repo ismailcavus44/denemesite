@@ -53,11 +53,7 @@ export async function generateMetadata({
 }
 
 /** Yanlış/yaygın slug varyantları → doğru slug (kategori bazında) */
-const SLUG_REDIRECTS: Record<string, Record<string, string>> = {
-  "hukuk-rehberi": {
-    "kira-sozlesmesi-bitmeden-evden-cikmak": "kira-sozlesmem-bitmeden-evden-cikarsam",
-  },
-};
+const SLUG_REDIRECTS: Record<string, Record<string, string>> = {};
 
 export default async function CategoryQuestionPage({ params }: PageProps) {
   const { category: categorySlug, slug } = await params;
