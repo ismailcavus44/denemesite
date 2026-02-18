@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Link2, X } from "lucide-react";
+import { blogPosts } from "@/lib/blog-data";
 
 type Category = { id: string; name: string };
 
@@ -92,6 +93,8 @@ export default function AdminQuestionPage() {
   const [similarQuestions, setSimilarQuestions] = useState<SimilarQuestion[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [answerWithSimilarLoading, setAnswerWithSimilarLoading] = useState<string | null>(null);
+  const [guideSearch, setGuideSearch] = useState("");
+  const [guidePickerOpen, setGuidePickerOpen] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -572,21 +575,109 @@ export default function AdminQuestionPage() {
               {aiCardSummaryLoading ? "..." : "AI Kart Özeti Oluştur"}
             </Button>
           </div>
-          <div className="space-y-2 rounded-lg border border-muted p-3">
-            <label className="text-sm font-medium">İç link (cevap sonunda CTA)</label>
+          <div className="space-y-3 rounded-lg border border-muted p-3">
+            <div className="flex items-center gap-2">
+              <Link2 className="size-4 text-muted-foreground" />
+              <label className="text-sm font-medium">İç link (cevap sonunda CTA)</label>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Soru detay sayfasında cevap kartının altında &quot;Sorunuzla ilgili rehber yazımızı inceleyebilirsiniz&quot; metni ve buton gösterilir.
+              Cevap kartının altında &quot;Sorunuzla ilgili rehber yazımızı inceleyebilirsiniz&quot; metni ve buton gösterilir. Rehber seçince buton metni otomatik olarak rehberin başlığı (H1) yapılır.
             </p>
-            <Input
-              value={relatedGuideUrl}
-              onChange={(e) => setRelatedGuideUrl(e.target.value)}
-              placeholder="Örn. /diger/rehber/kira-sorunlarinda-ilk-adimlar"
-            />
-            <Input
-              value={relatedGuideLabel}
-              onChange={(e) => setRelatedGuideLabel(e.target.value)}
-              placeholder="Buton metni (örn. Kira sorunlarında ilk adımlar)"
-            />
+            {relatedGuideUrl.trim() ? (
+              <div className="flex flex-wrap items-center gap-2 rounded-md bg-muted/50 p-2">
+                <span className="text-sm font-medium truncate flex-1 min-w-0" title={relatedGuideLabel || relatedGuideUrl}>
+                  {relatedGuideLabel || relatedGuideUrl}
+                </span>
+                <span className="text-xs text-muted-foreground shrink-0">{relatedGuideUrl}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 h-8 w-8 p-0"
+                  onClick={() => {
+                    setRelatedGuideUrl("");
+                    setRelatedGuideLabel("");
+                    setGuidePickerOpen(true);
+                  }}
+                  title="Seçimi kaldır"
+                >
+                  <X className="size-4" />
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setGuidePickerOpen((v) => !v)}>
+                  {guidePickerOpen ? "Listeyi kapat" : "Rehber değiştir"}
+                </Button>
+              </div>
+            ) : null}
+            {(guidePickerOpen || !relatedGuideUrl.trim()) && (
+              <div className="space-y-2">
+                <Input
+                  value={guideSearch}
+                  onChange={(e) => setGuideSearch(e.target.value)}
+                  placeholder="Rehber yazısı ara (başlık veya slug…)"
+                  className="text-sm"
+                />
+                <div className="max-h-48 overflow-auto rounded-md border bg-background">
+                  {(() => {
+                    const q = guideSearch.trim().toLowerCase();
+                    const filtered = q
+                      ? blogPosts.filter(
+                          (p) =>
+                            p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+                        )
+                      : blogPosts;
+                    if (!filtered.length) {
+                      return <p className="p-3 text-sm text-muted-foreground">Rehber bulunamadı.</p>;
+                    }
+                    return (
+                      <ul className="divide-y">
+                        {filtered.map((p) => {
+                          const url = `/${p.categorySlug}/rehber/${p.slug}`;
+                          const isSelected = relatedGuideUrl === url;
+                          return (
+                            <li key={`${p.categorySlug}-${p.slug}`}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRelatedGuideUrl(url);
+                                  setRelatedGuideLabel(p.title);
+                                  setGuidePickerOpen(false);
+                                  setGuideSearch("");
+                                  toast.success(`"${p.title}" eklendi. Buton metni: rehberin H1'i.`);
+                                }}
+                                className={`w-full text-left px-3 py-2.5 text-sm hover:bg-muted/70 transition-colors ${isSelected ? "bg-primary/10 ring-inset ring-1 ring-primary/30" : ""}`}
+                              >
+                                <span className="font-medium block">{p.title}</span>
+                                <span className="text-xs text-muted-foreground">{p.category} · /{p.categorySlug}/rehber/{p.slug}</span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">URL (isteğe bağlı düzenleme)</label>
+                <Input
+                  value={relatedGuideUrl}
+                  onChange={(e) => setRelatedGuideUrl(e.target.value)}
+                  placeholder="/kategori/rehber/slug"
+                  className="text-sm font-mono"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Buton metni / kanca (rehber H1)</label>
+                <Input
+                  value={relatedGuideLabel}
+                  onChange={(e) => setRelatedGuideLabel(e.target.value)}
+                  placeholder="Rehber başlığı"
+                  className="text-sm"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
