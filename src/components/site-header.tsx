@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,17 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-0 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto w-full max-w-6xl px-4 py-4">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-6 lg:gap-12 xl:gap-[200px]">
-            <Link href="/" className="shrink-0 text-lg font-semibold tracking-tight">
-              YasalHaklariniz
+          <div className="flex min-w-0 flex-none items-center gap-6 lg:gap-12 xl:gap-[200px] md:flex-1">
+            <Link href="/" className="shrink-0 flex items-center">
+              <Image
+                src="/hukuki-sor-logo.png"
+                alt="YasalHaklarınız"
+                width={200}
+                height={40}
+                className="h-12 w-auto object-contain"
+                priority
+                unoptimized
+              />
             </Link>
             <nav className="hidden items-center gap-6 text-sm font-medium text-foreground md:flex">
               {navLinks.map(({ href, label }) => (

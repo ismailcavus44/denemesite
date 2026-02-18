@@ -7,6 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-navy: var(--navy);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-manrope);
@@ -51,6 +52,7 @@
 
 :root {
   --radius: 0.625rem;
+  --navy: #1e3a5f;
   --background: #ffffff;
   --foreground: #2F2F2F;
   --card: #ffffff;
@@ -85,6 +87,7 @@
 }
 
 .dark {
+  --navy: #3b82c4;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

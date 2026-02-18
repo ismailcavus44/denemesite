@@ -56,7 +56,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
   }
 
   const [relatedQuestions, categoryGuides] = await Promise.all([
-    getRelatedQuestions(categorySlug, 5),
+    getRelatedQuestions(categorySlug, 2),
     getRelatedGuides(categorySlug, 5, slug),
   ]);
   const author = post.authorSlug ? getAuthorBySlug(post.authorSlug) : undefined;
@@ -216,7 +216,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               <span className="h-5 w-1 rounded-full bg-slate-800" />
               Bu Konuda Sorulan Sorular
             </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
               {relatedQuestions.map((q) => (
                 <QuestionCard
                   key={q.id}
@@ -226,14 +226,15 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   createdAt={q.created_at}
                   summaryText={(q as { ai_card_summary?: string | null }).ai_card_summary ?? null}
                   categorySlug={categorySlug}
+                  compact
                 />
               ))}
             </div>
             <Link
-              href={`/${categorySlug}`}
-              className="text-sm font-medium text-slate-700 underline"
+              href={`/${categorySlug}/sorular`}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-background px-4 text-sm font-medium text-slate-700 hover:bg-muted"
             >
-              Kategori sayfasına git
+              Devamını gör
             </Link>
           </section>
         )}

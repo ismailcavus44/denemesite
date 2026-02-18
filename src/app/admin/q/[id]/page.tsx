@@ -336,7 +336,8 @@ export default function AdminQuestionPage() {
         },
         body: JSON.stringify({
           question_text: body.trim(),
-          current_title: "",
+          current_title: (aiH1Summary.trim() || question?.title) ?? "",
+          question_id: questionId,
         }),
       });
       const data = await res.json().catch(() => ({}));
