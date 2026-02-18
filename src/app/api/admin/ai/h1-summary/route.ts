@@ -115,6 +115,9 @@ export async function POST(request: Request) {
   if (typeof result === "string") {
     return NextResponse.json({ message: result }, { status: 422 });
   }
+  if (!result.h1_summary) {
+    return NextResponse.json({ message: "h1_summary boş." }, { status: 422 });
+  }
 
   const normalizedNew = result.h1_summary.trim().toLowerCase();
   const isDuplicate = existingH1s.some(
