@@ -201,6 +201,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   width={1200}
                   height={630}
                   priority
+                  fetchPriority="high"
                   sizes="(max-width: 1152px) 100vw, 1152px"
                   className="h-full w-full object-cover"
                 />

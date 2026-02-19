@@ -25,6 +25,7 @@
     "tailwind-merge": "^3.4.0",
     "zod": "^3.25.76"
   },
+  "browserslist": [">0.5%", "last 2 versions", "not dead"],
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
