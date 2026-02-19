@@ -1,16 +1,125 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { blogPosts } from "@/lib/blog-data";
+import { blogPosts, type ContentBlock } from "@/lib/blog-data";
 import { getAuthorBySlug } from "@/lib/authors";
 import { getCategoryBySlug, getKnownCategoryName, getRelatedQuestions, getRelatedGuides } from "@/lib/content";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
-import { CategoryGuidesSidebar } from "@/components/question-detail/CategoryGuidesSidebar";
-import { StickyCTA } from "@/components/question-detail/StickyCTA";
-import { GuideToc } from "@/components/guide-toc";
 import { QuestionCard } from "@/components/question-card";
 import { siteConfig } from "@/lib/site";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ArticleSchema } from "@/components/schemas/ArticleSchema";
+import { FAQSchema } from "@/components/schemas/FAQSchema";
+import { GuideToc } from "@/components/guide-toc";
+
+const StickyCTA = dynamic(
+  () => import("@/components/question-detail/StickyCTA").then((m) => ({ default: m.StickyCTA })),
+  { ssr: true }
+);
+
+const CategoryGuidesSidebar = dynamic(
+  () =>
+    import("@/components/question-detail/CategoryGuidesSidebar").then((m) => ({
+      default: m.CategoryGuidesSidebar,
+    })),
+  { ssr: true }
+);
+
+/** Başlık metninden id üretir (Türkçe uyumlu, benzersiz). */
+function slugifyForId(text: string): string {
+  const t = text
+    .toLowerCase()
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/ı/g, "i")
+    .replace(/İ/g, "i")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  return t || "baslik";
+}
+
+type TocItem = { id: string; label: string; level: "h2" | "h3" };
+
+function getTocFromContentBlocks(blocks: ContentBlock[]): TocItem[] {
+  const items: TocItem[] = [];
+  const used = new Set<string>();
+  for (const b of blocks) {
+    if (b.t !== "h2" && b.t !== "h3") continue;
+    let id = slugifyForId(b.v);
+    if (used.has(id)) {
+      let n = 2;
+      while (used.has(`${id}-${n}`)) n++;
+      id = `${id}-${n}`;
+    }
+    used.add(id);
+    items.push({ id, label: b.v, level: b.t });
+  }
+  return items;
+}
+
+/** Metinde *...* arası bold; React node döndürür. */
+function renderWithBold(text: string, keyPrefix: string) {
+  const parts = text.split(/(\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return <strong key={`${keyPrefix}-${i}`}>{part.slice(1, -1)}</strong>;
+    }
+    return part;
+  });
+}
+
+function renderContentBlocks(blocks: ContentBlock[], slug: string, tocItems: TocItem[]) {
+  let tocIndex = 0;
+  return blocks.map((block, idx) => {
+    const key = `${slug}-${idx}`;
+    switch (block.t) {
+      case "h2": {
+        const item = tocItems[tocIndex++];
+        return (
+          <h2 key={key} id={item?.id} className="mt-8 text-[26px] font-semibold text-slate-900 scroll-mt-6">
+            {block.v}
+          </h2>
+        );
+      }
+      case "h3": {
+        const item = tocItems[tocIndex++];
+        return (
+          <h3 key={key} id={item?.id} className="mt-6 text-[22px] font-semibold text-slate-900 scroll-mt-6">
+            {block.v}
+          </h3>
+        );
+      }
+      case "p":
+        return (
+          <p key={key} className="leading-7">
+            {renderWithBold(block.v, key)}
+          </p>
+        );
+      case "ul":
+        return (
+          <ul key={key} className="list-inside list-disc space-y-2 pl-1">
+            {block.v.map((item, i) => (
+              <li key={`${key}-${i}`}>{renderWithBold(item, `${key}-${i}`)}</li>
+            ))}
+          </ul>
+        );
+      default:
+        return null;
+    }
+  });
+}
 
 type PageProps = {
   params: Promise<{ category: string; slug: string }>;
@@ -31,13 +140,13 @@ export async function generateMetadata({
     return { title: "Rehber bulunamadı" };
   }
 
-  const title = `${post.title} | ${siteConfig.name}`;
+  const title = post.seoTitle ?? `${post.title} | ${siteConfig.name}`;
   const description =
-    post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary;
+    post.seoDescription ?? (post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary);
   const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     openGraph: { title, description, url },
     alternates: { canonical: url },
@@ -61,34 +170,8 @@ export default async function CategoryGuidePage({ params }: PageProps) {
   ]);
   const author = post.authorSlug ? getAuthorBySlug(post.authorSlug) : undefined;
 
-  const tocItems =
-    post.slug === "kira-sorunlarinda-ilk-adimlar"
-      ? [
-          {
-            id: "kira-ilk-adimlar",
-            label: "Kira sorunlarında ilk adımlar",
-            level: "h2" as const,
-          },
-          {
-            id: "kira-belgeler-kayitlar",
-            label: "Belgeleri ve kayıtları hazırlama",
-            level: "h3" as const,
-          },
-          {
-            id: "kira-profesyonel-destek",
-            label: "Profesyonel destek alma",
-            level: "h3" as const,
-          },
-        ]
-      : undefined;
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.summary,
-    datePublished: post.date,
-  };
+  const articleUrl = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
+  const tocItems = post.contentBlocks ? getTocFromContentBlocks(post.contentBlocks) : [];
 
   return (
     <>
@@ -111,67 +194,85 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             </header>
 
             {post.image && (
-              <div className="overflow-hidden rounded-2xl bg-muted">
-                <img
+              <div className="relative overflow-hidden rounded-[8px] bg-muted aspect-[1200/630] w-full">
+                <Image
                   src={post.image}
                   alt={post.title}
-                  width={1074}
-                  height={240}
-                  className="h-auto w-full object-cover"
+                  width={1200}
+                  height={630}
+                  priority
+                  sizes="(max-width: 1152px) 100vw, 1152px"
+                  className="h-full w-full object-cover"
                 />
               </div>
             )}
 
-            {author && (
-              <div className="flex items-center gap-2">
-                <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
-                  {author.image ? (
-                    <Image
-                      src={author.image}
-                      alt={author.name}
-                      fill
-                      className="object-cover"
-                      sizes="36px"
-                    />
-                  ) : (
-                    <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
-                      {author.name.charAt(0)}
-                    </span>
-                  )}
-                </div>
-                <Link
-                  href={`/yazar/${author.slug}`}
-                  className="text-sm font-medium text-slate-900 hover:underline"
-                >
-                  {author.title ? `${author.title} ${author.name}` : author.name}
-                </Link>
-              </div>
-            )}
-
-            <GuideToc items={tocItems} />
-
-            <div id="rehber-icerik" className="space-y-4 text-[16px] leading-7 text-slate-700">
-              {post.slug === "kira-sorunlarinda-ilk-adimlar" ? (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              {author && (
                 <>
-                  <h2 id="kira-ilk-adimlar" className="text-[22px] font-semibold">
-                    Kira sorunlarında ilk adımlar
-                  </h2>
-                  <p>{post.content[0]}</p>
-                  <h3 id="kira-belgeler-kayitlar" className="text-[19px] font-semibold">
-                    Belgeleri ve kayıtları hazırlama
-                  </h3>
-                  <p>{post.content[1]}</p>
-                  <h3 id="kira-profesyonel-destek" className="text-[19px] font-semibold">
-                    Profesyonel destek alma
-                  </h3>
-                  <p>{post.content[2]}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                      {author.image ? (
+                        <Image
+                          src={author.image}
+                          alt={author.name}
+                          fill
+                          className="object-cover"
+                          sizes="36px"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
+                          {author.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      href={`/yazar/${author.slug}`}
+                      className="text-sm font-medium text-slate-900 hover:underline"
+                    >
+                      {author.title ? `${author.title} ${author.name}` : author.name}
+                    </Link>
+                  </div>
+                  <span className="text-slate-400">|</span>
                 </>
-              ) : (
-                post.content.map((paragraph, index) => (
-                  <p key={`${post.slug}-${index}`}>{paragraph}</p>
-                ))
               )}
+              <Link
+                href={`/${categorySlug}`}
+                className="text-sm font-medium text-slate-900 hover:underline"
+              >
+                {categoryName}
+              </Link>
             </div>
+
+            {tocItems.length > 0 && <GuideToc items={tocItems} />}
+
+            <div id="rehber-icerik" className="space-y-4 text-[16px] text-slate-700 text-justify">
+              {post.contentBlocks
+                ? renderContentBlocks(post.contentBlocks, post.slug, tocItems)
+                : post.content.map((paragraph, index) => (
+                    <p key={`${post.slug}-${index}`} className="text-justify">{paragraph}</p>
+                  ))}
+            </div>
+
+            {post.faq && post.faq.length > 0 && (
+              <section className="space-y-3">
+                <h3 className="text-[19px] font-bold text-slate-900">
+                  Sık Sorulan Sorular
+                </h3>
+                <Accordion type="single" collapsible className="w-full">
+                  {post.faq.map((item, i) => (
+                    <AccordionItem key={i} value={`faq-${i}`}>
+                      <AccordionTrigger className="text-left text-[15px] font-bold text-slate-900">
+                        {item.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-[15px] leading-7 text-slate-600">
+                        {item.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </section>
+            )}
 
             <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
               Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için
@@ -239,10 +340,16 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           </section>
         )}
       </div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <ArticleSchema
+        headline={post.title}
+        description={post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary}
+        datePublished={post.date}
+        url={articleUrl}
+        image={post.image ? `${siteConfig.url}${post.image}` : undefined}
       />
+      {post.faq && post.faq.length > 0 && (
+        <FAQSchema items={post.faq} />
+      )}
     </>
   );
 }

@@ -93,10 +93,14 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
           <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
             &quot;{query}&quot; aramasıyla eşleşen rehber yazısı bulunamadı.
           </p>
+        ) : totalItems === 0 ? (
+          <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+            Henüz rehber yazısı eklenmemiş.
+          </p>
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
             {visiblePosts.map((post) => (
-              <BlogTeaserCard key={post.slug} post={post} />
+              <BlogTeaserCard key={post.slug} post={post} useDetailImage />
             ))}
           </div>
         )}

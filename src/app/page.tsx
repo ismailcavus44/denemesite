@@ -3,7 +3,7 @@ import Image from "next/image";
 import { QuestionCard } from "@/components/question-card";
 import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
-import { blogPosts } from "@/lib/blog-data";
+import { blogPosts, HOMEPAGE_REHBER_SLUGS } from "@/lib/blog-data";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
 import { questionSummaries } from "@/lib/question-summaries";
 
@@ -129,9 +129,12 @@ export default async function Home() {
           Rehber
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          {blogPosts.slice(0, 3).map((post) => (
-            <BlogTeaserCard key={post.slug} post={post} />
-          ))}
+          {HOMEPAGE_REHBER_SLUGS.slice(0, 3)
+            .map((slug) => blogPosts.find((p) => p.slug === slug))
+            .filter((p): p is (typeof blogPosts)[number] => p != null)
+            .map((post) => (
+              <BlogTeaserCard key={post.slug} post={post} />
+            ))}
         </div>
         <div className="flex justify-center pt-2">
           <Button asChild size="lg">

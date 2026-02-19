@@ -5,10 +5,13 @@ type BlogTeaserCardProps = {
   post: BlogPost;
   /** Topic silo base path, örn. /miras-hukuku/rehber. Verilmezse /rehber/[slug]. */
   basePath?: string;
+  /** true = rehber listesinde, asıl (detay) görsel kullanılır. false = anasayfa, kart görseli (cardImage) kullanılır. */
+  useDetailImage?: boolean;
 };
 
-export function BlogTeaserCard({ post, basePath }: BlogTeaserCardProps) {
+export function BlogTeaserCard({ post, basePath, useDetailImage }: BlogTeaserCardProps) {
   const href = basePath ? `${basePath}/${post.slug}` : `/${post.categorySlug}/rehber/${post.slug}`;
+  const imageSrc = useDetailImage ? post.image : (post.cardImage ?? post.image);
   const teaser =
     post.summary.length > 150
       ? `${post.summary.slice(0, 147)}...`
@@ -22,10 +25,14 @@ export function BlogTeaserCard({ post, basePath }: BlogTeaserCardProps) {
       {/* Hover overlay – karttan biraz daha büyük, %25 civarı taşma efekti */}
       <span className="pointer-events-none absolute inset-0 -m-3 rounded-2xl bg-primary/5 opacity-0 transition group-hover:opacity-100" />
 
-      <div className="relative h-[106px] w-full overflow-hidden bg-muted">
-        {post.image ? (
+      <div
+        className={`relative w-full overflow-hidden rounded-[6px] bg-muted ${
+          useDetailImage ? "h-[180px]" : "h-[106px]"
+        }`}
+      >
+        {imageSrc ? (
           <img
-            src={post.image}
+            src={imageSrc}
             alt={post.title}
             className="h-full w-full object-cover"
           />

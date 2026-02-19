@@ -18,7 +18,7 @@ export function GuideToc({ items }: GuideTocProps) {
   const [open, setOpen] = useState(true);
 
   return (
-    <nav className="inline-block min-w-[220px] rounded-[4px] border bg-background px-3 py-2 text-[15px] text-foreground">
+    <nav className="inline-block min-w-[220px] rounded-[4px] border bg-background px-3 py-2 text-[14px] text-foreground">
       <div className="mb-1 flex items-center gap-2">
         <h2 className="text-[16px] font-semibold tracking-wide">
           İçindekiler
@@ -62,7 +62,7 @@ export function GuideToc({ items }: GuideTocProps) {
                 >
                   <a
                     href={`#${item.id}`}
-                    className="cursor-pointer text-[15px] underline-offset-4 hover:underline"
+                    className="cursor-pointer text-[14px] underline-offset-4 hover:underline"
                   >
                     <span className="mr-1">{numberPrefix}</span>
                     {item.label}
