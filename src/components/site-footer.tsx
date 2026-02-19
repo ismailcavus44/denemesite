@@ -29,8 +29,8 @@ export function SiteFooter() {
             </p>
           </div>
 
-          {/* Menü | Popüler Rehberler | İletişim — araları 24px */}
-          <div className="flex flex-wrap gap-[24px]">
+          {/* Menü | Popüler Rehberler | İletişim — mobilde Yasal Uyarı altında ortalı */}
+          <div className="flex flex-wrap justify-center gap-[24px] sm:justify-start">
             {/* Menü */}
             <div>
               <h3 className="mb-2 text-sm font-semibold text-slate-900">
@@ -86,15 +86,16 @@ export function SiteFooter() {
             </div>
           </div>
         </div>
-        <p className="mt-8 border-t border-slate-200 pt-6 text-center text-xs text-slate-500">
-          YasalHaklariniz — Genel bilgilendirme platformu
-          <span className="mx-2">·</span>
-          <Link href="/sorumluluk-reddi" className="hover:text-primary hover:underline">Sorumluluk Reddi</Link>
-          <span className="mx-2">·</span>
-          <Link href="/kvkk" className="hover:text-primary hover:underline">KVKK</Link>
-          <span className="mx-2">·</span>
-          <Link href="/gizlilik-sozlesmesi" className="hover:text-primary hover:underline">Gizlilik Sözleşmesi</Link>
-        </p>
+        <div className="mt-8 flex flex-col items-center gap-2 border-t border-slate-200 pt-6 text-center text-xs text-slate-500 sm:flex-row sm:justify-between sm:text-left">
+          <span className="sm:shrink-0">YasalHaklariniz — Genel bilgilendirme platformu</span>
+          <span className="flex flex-wrap items-center justify-center gap-x-0 gap-y-1 sm:justify-end">
+            <Link href="/sorumluluk-reddi" className="hover:text-primary hover:underline">Sorumluluk Reddi</Link>
+            <span className="mx-1.5 text-slate-400">|</span>
+            <Link href="/kvkk" className="hover:text-primary hover:underline">KVKK</Link>
+            <span className="mx-1.5 text-slate-400">|</span>
+            <Link href="/gizlilik-sozlesmesi" className="hover:text-primary hover:underline">Gizlilik Sözleşmesi</Link>
+          </span>
+        </div>
       </div>
     </footer>
   );

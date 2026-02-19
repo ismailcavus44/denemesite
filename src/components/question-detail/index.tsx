@@ -95,9 +95,9 @@ export function QuestionDetail({
                     >
                       <span>Sorunun devamı</span>
                       {showOriginal ? (
-                        <EyeOff className="size-4 text-slate-600" aria-hidden />
-                      ) : (
                         <Eye className="size-4 text-slate-600" aria-hidden />
+                      ) : (
+                        <EyeOff className="size-4 text-slate-600" aria-hidden />
                       )}
                     </button>
                     {showOriginal && (

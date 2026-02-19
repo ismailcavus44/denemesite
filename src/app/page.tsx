@@ -34,10 +34,10 @@ export default async function Home() {
             </p>
 
             <div className="flex flex-nowrap gap-2 sm:gap-3">
-              <Button asChild size="lg" className="shrink-0">
+              <Button asChild size="lg" className="shrink-0 bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
                 <Link href="/soru-sor">Hemen soru sor</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="shrink-0 border-primary text-primary hover:bg-primary/10">
+              <Button asChild variant="outline" size="lg" className="shrink-0 border-[#1d293d] text-[#1d293d] hover:bg-[#1d293d]/10 hover:border-[#1d293d] hover:text-[#1d293d]">
                 <Link href="/sorular">Yayındaki cevaplara göz at</Link>
               </Button>
             </div>
@@ -72,7 +72,7 @@ export default async function Home() {
             <span className="h-5 w-1 rounded-full bg-primary" />
             Trend Sorular
           </h2>
-          <Button asChild size="sm" className="shrink-0">
+          <Button asChild size="sm" className="shrink-0 bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
             <Link href="/sorular">Tümünü gör</Link>
           </Button>
         </div>
@@ -137,7 +137,7 @@ export default async function Home() {
             ))}
         </div>
         <div className="flex justify-center pt-2">
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
             <Link href="/rehber">Tümünü Gör</Link>
           </Button>
         </div>

@@ -20,10 +20,10 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-0 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto w-full max-w-6xl px-4 py-4">
+      <div className="mx-auto w-full max-w-6xl py-4 pl-0 pr-4 md:px-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-none items-center gap-6 lg:gap-12 xl:gap-[200px] md:flex-1">
-            <Link href="/" className="flex h-12 shrink-0 items-center" aria-label="YasalHaklarınız ana sayfa">
+            <Link href="/" className="-ml-1 flex h-12 shrink-0 items-center md:ml-0" aria-label="YasalHaklarınız ana sayfa">
               <Image
                 src="/hukuki-sor-logo.png"
                 alt="YasalHaklarınız"
@@ -122,11 +122,17 @@ export function SiteHeader() {
                 </Link>
               ))}
             </div>
-            <Button asChild className="mt-2 w-full justify-center bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="/soru-sor" onClick={() => setMobileOpen(false)}>
-                Soru Sor
-              </Link>
-            </Button>
+            <div className="mt-2 flex justify-center">
+              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Link
+                  href="/soru-sor"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center justify-center px-5 py-2.5 text-base"
+                >
+                  Soru Sor
+                </Link>
+              </Button>
+            </div>
           </nav>
         )}
       </div>

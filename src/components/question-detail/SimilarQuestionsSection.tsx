@@ -67,7 +67,7 @@ export function SimilarQuestionsSection({
 
       {categoryHubHref && (
         <div className="mt-4 flex justify-center">
-          <Button asChild variant="default" size="default">
+          <Button asChild variant="default" size="default" className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
             <Link href={categoryHubHref}>
               Tümünü Gör
             </Link>

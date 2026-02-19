@@ -18,7 +18,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { LEGAL_DISCLAIMER_TITLE, LEGAL_DISCLAIMER_TEXT } from "@/lib/legal-disclaimer";
+import {
+  LEGAL_DISCLAIMER_TITLE,
+  LEGAL_DISCLAIMER_TEXT,
+  LEGAL_DISCLAIMER_LIST_CEVAPLAR,
+  LEGAL_DISCLAIMER_LIST_KABUL,
+  LEGAL_DISCLAIMER_LIST_KABUL_SUFFIX,
+} from "@/lib/legal-disclaimer";
 import { toast } from "sonner";
 
 type Category = {
@@ -133,11 +139,13 @@ export function QuestionForm({ categories }: QuestionFormProps) {
             <SelectValue placeholder="Kategori seçin" />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
+            {[...categories]
+              .sort((a, b) => (a.name === "Diğer" ? 1 : b.name === "Diğer" ? -1 : 0))
+              .map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>
@@ -161,7 +169,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
         />
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading} className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
           {loading ? "Gönderiliyor..." : "Soruyu Gönder"}
         </Button>
         <label className="flex cursor-pointer items-center gap-2 text-sm">
@@ -207,7 +215,29 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto text-sm text-muted-foreground">
             {LEGAL_DISCLAIMER_TEXT.split("\n\n").map((p, i) => {
-              const isMaddeBaslik = /^\d+\.\s+.+/.test(p.trim());
+              const trimmed = p.trim();
+              if (trimmed === "__LIST_CEVAPLAR__") {
+                return (
+                  <ul key={i} className="mb-2 ml-4 list-disc space-y-1">
+                    {LEGAL_DISCLAIMER_LIST_CEVAPLAR.map((item, j) => (
+                      <li key={j}>{item}</li>
+                    ))}
+                  </ul>
+                );
+              }
+              if (trimmed === "__LIST_KABUL__") {
+                return (
+                  <div key={i} className="mb-2">
+                    <ul className="mb-2 ml-4 list-disc space-y-1">
+                      {LEGAL_DISCLAIMER_LIST_KABUL.map((item, j) => (
+                        <li key={j}>{item}</li>
+                      ))}
+                    </ul>
+                    <p className="mb-2">{LEGAL_DISCLAIMER_LIST_KABUL_SUFFIX}</p>
+                  </div>
+                );
+              }
+              const isMaddeBaslik = /^\d+\.\s+.+/.test(trimmed);
               return (
                 <p
                   key={i}
@@ -217,7 +247,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
                       : "mb-2"
                   }
                 >
-                  {p.trim()}
+                  {trimmed}
                 </p>
               );
             })}

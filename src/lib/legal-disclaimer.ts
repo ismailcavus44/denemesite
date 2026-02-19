@@ -23,13 +23,7 @@ Platform üzerinden yöneltilen sorulara verilen yanıtlar, kullanıcının payl
 
 Her somut olay, kendi özel koşulları, delil durumu, taraf ilişkileri ve uygulanacak mevzuat çerçevesinde ayrıca değerlendirilmelidir. Bu nedenle platformda verilen cevaplar:
 
-Kesin hukuki görüş değildir,
-
-Bağlayıcı hukuki mütalaa değildir,
-
-Resmi danışmanlık niteliği taşımaz,
-
-Mahkemeler, idari makamlar veya üçüncü kişiler bakımından herhangi bir hukuki sonuç doğurmaz.
+__LIST_CEVAPLAR__
 
 Kullanıcı, yalnızca platformda yer alan bilgilere dayanarak işlem tesis etmeyeceğini kabul eder.
 
@@ -53,14 +47,24 @@ Platform üzerinden alınan bilgiler, profesyonel hukuki destek yerine geçmez.
 
 Platformu kullanan her kullanıcı;
 
-Bu sorumluluk reddi metnini okuduğunu,
+__LIST_KABUL__`;
 
-Anladığını,
+/** Madde 3: Platformda verilen cevapların niteliği maddeleri */
+export const LEGAL_DISCLAIMER_LIST_CEVAPLAR = [
+  "Kesin hukuki görüş değildir",
+  "Bağlayıcı hukuki mütalaa değildir",
+  "Resmi danışmanlık niteliği taşımaz",
+  "Mahkemeler, idari makamlar veya üçüncü kişiler bakımından herhangi bir hukuki sonuç doğurmaz",
+] as const;
 
-İçeriğini kabul ettiğini,
+/** Madde 6: Kullanıcı kabul beyanı maddeleri */
+export const LEGAL_DISCLAIMER_LIST_KABUL = [
+  "Bu sorumluluk reddi metnini okuduğunu",
+  "Anladığını",
+  "İçeriğini kabul ettiğini",
+  "Platform ile arasında avukat-müvekkil ilişkisi doğmadığını",
+  "Platformun hukuki danışmanlık hizmeti sunmadığını",
+] as const;
 
-Platform ile arasında avukat-müvekkil ilişkisi doğmadığını,
-
-Platformun hukuki danışmanlık hizmeti sunmadığını
-
-peşinen kabul, beyan ve taahhüt eder.`;
+export const LEGAL_DISCLAIMER_LIST_KABUL_SUFFIX =
+  "peşinen kabul, beyan ve taahhüt eder.";
