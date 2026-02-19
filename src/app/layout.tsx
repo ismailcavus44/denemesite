@@ -37,10 +37,6 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
   other: { "theme-color": "#ffffff" },
-  links: [
-    { rel: "preload", href: "/hukuki-sor-logo.png", as: "image" },
-    ...(supabaseOrigin ? [{ rel: "preconnect", href: supabaseOrigin }] : []),
-  ],
 };
 
 export default function RootLayout({
@@ -50,6 +46,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" suppressHydrationWarning className={manrope.variable}>
+      <head>
+        <link rel="preload" href="/hukuki-sor-logo.png" as="image" />
+        {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
+      </head>
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SiteShell>
