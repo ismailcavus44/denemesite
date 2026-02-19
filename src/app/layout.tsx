@@ -37,9 +37,10 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
   other: { "theme-color": "#ffffff" },
-  ...(supabaseOrigin && {
-    links: [{ rel: "preconnect", href: supabaseOrigin }],
-  }),
+  links: [
+    { rel: "preload", href: "/hukuki-sor-logo.png", as: "image" },
+    ...(supabaseOrigin ? [{ rel: "preconnect", href: supabaseOrigin }] : []),
+  ],
 };
 
 export default function RootLayout({

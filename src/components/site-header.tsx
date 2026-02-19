@@ -23,7 +23,7 @@ export function SiteHeader() {
       <div className="mx-auto w-full max-w-6xl px-4 py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-none items-center gap-6 lg:gap-12 xl:gap-[200px] md:flex-1">
-            <Link href="/" className="shrink-0 flex items-center">
+            <Link href="/" className="flex h-12 shrink-0 items-center" aria-label="YasalHaklarınız ana sayfa">
               <Image
                 src="/hukuki-sor-logo.png"
                 alt="YasalHaklarınız"
@@ -31,6 +31,7 @@ export function SiteHeader() {
                 height={40}
                 className="h-12 w-auto object-contain"
                 priority
+                fetchPriority="high"
                 unoptimized
               />
             </Link>
