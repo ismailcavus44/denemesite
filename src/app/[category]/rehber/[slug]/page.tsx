@@ -125,7 +125,10 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>;
 };
 
-export const revalidate = 3600;
+/** Tüm rehber sayfaları build zamanında SSG ile üretilir; revalidate yok, tam statik. */
+export function generateStaticParams() {
+  return blogPosts.map((p) => ({ category: p.categorySlug, slug: p.slug }));
+}
 
 export async function generateMetadata({
   params,
