@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Pencil, ArrowRight, FileDown } from "lucide-react";
 import { BasvuruForm } from "@/components/kariyer/BasvuruForm";
+import { JobPostingSchema } from "@/components/schemas/JobPostingSchema";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Editör Başvurusu",
@@ -9,9 +11,24 @@ export const metadata: Metadata = {
     "YasalHaklarınız ekibine gönüllü editör olarak başvurun. İçerikleri düzenleyen ve yayına hazırlayan editörler için başvuru bilgileri.",
 };
 
+const EDITOR_JOB_DESCRIPTION = [
+  "YasalHaklarınız platformunda yayımlanan içeriklerin doğruluğu, güncelliği ve dil standardı editöryal denetim sürecinden geçmektedir.",
+  "Editör başvuruları hukuki yeterlilik ve yayın disiplini esas alınarak değerlendirilir.",
+  "Aranan nitelikler: Hukuk fakültesi mezunu olmak (avukatlık ruhsatı tercih sebebi), mevzuat okuma ve hukuki metin analiz yetkinliği, yargı kararlarını değerlendirme kabiliyeti, dil ve anlatım standardı oluşturma yeteneği, meslek etiği ve reklam yasağı hassasiyeti. Dijital içerik yönetimi ve SEO bilgisi tercih sebebidir.",
+  "Pozisyon gönüllülük esaslıdır; başvurular editoryal kurul tarafından değerlendirilir.",
+].join(" ");
+
 export default function EditorBasvurusuPage() {
+  const pageUrl = `${siteConfig.url.replace(/\/$/, "")}/kariyer/editor-basvurusu`;
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+    <>
+      <JobPostingSchema
+        title="Gönüllü Editör"
+        description={EDITOR_JOB_DESCRIPTION}
+        url={pageUrl}
+      />
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="space-y-8">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground">Anasayfa</Link>
@@ -108,5 +125,6 @@ export default function EditorBasvurusuPage() {
         </Link>
       </div>
     </div>
+    </>
   );
 }

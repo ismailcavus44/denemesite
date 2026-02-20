@@ -6,6 +6,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
 import { blogPosts, HOMEPAGE_REHBER_SLUGS } from "@/lib/blog-data";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
 import { questionSummaries } from "@/lib/question-summaries";
+import { OrganizationSchema } from "@/components/schemas/OrganizationSchema";
+import { WebSiteSchema } from "@/components/schemas/WebSiteSchema";
 
 export default async function Home() {
   const supabase = createSupabaseServerClient();
@@ -18,7 +20,10 @@ export default async function Home() {
 
 
   return (
-    <div className="space-y-14">
+    <>
+      <OrganizationSchema />
+      <WebSiteSchema />
+      <div className="space-y-14">
       <section className="relative overflow-hidden py-8 md:py-16">
         <div className="grid items-center gap-10 md:grid-cols-2">
           {/* Sol: İçerik */}
@@ -144,5 +149,6 @@ export default async function Home() {
       </section>
 
     </div>
+    </>
   );
 }

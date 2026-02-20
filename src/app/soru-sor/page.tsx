@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { QuestionForm } from "@/components/question-form";
+import { WebPageSchema } from "@/components/schemas/WebPageSchema";
+import { siteConfig } from "@/lib/site";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
 import {
   Accordion,
@@ -21,8 +23,16 @@ export default async function AskQuestionPage() {
     .select("id,name")
     .order("name");
 
+  const pageUrl = `${siteConfig.url.replace(/\/$/, "")}/soru-sor`;
+
   return (
-    <div className="mx-auto max-w-[728px] space-y-10">
+    <>
+      <WebPageSchema
+        name="Soru Sor"
+        description="Hukuki sorununu detaylı yaz; editör incelemesinden sonra anonim yayımlansın. Miras, boşanma, iş hukuku ve icra konularında sade cevaplar."
+        url={pageUrl}
+      />
+      <div className="mx-auto max-w-[728px] space-y-10">
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Hukuki Soru Sor</h1>
         <p className="text-sm text-muted-foreground">
@@ -107,5 +117,6 @@ export default async function AskQuestionPage() {
         </Accordion>
       </section>
     </div>
+    </>
   );
 }

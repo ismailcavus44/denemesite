@@ -10,6 +10,7 @@ import {
 } from "@/lib/content";
 import type { CategoryRow } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
+import { CategoryHubSchemas } from "@/components/schemas/CategoryHubSchemas";
 import { CategoryHero } from "@/components/category/CategoryHero";
 import { CategoryPillar } from "@/components/category/CategoryPillar";
 import { CategoryPillarDemo } from "@/components/category/CategoryPillarDemo";
@@ -84,27 +85,15 @@ export default async function CategoryPillarPage({ params }: PageProps) {
     { label: category.name },
   ];
 
-  const canonicalUrl = `${siteConfig.url}/${categorySlug}`;
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Anasayfa", item: siteConfig.url },
-      { "@type": "ListItem", position: 2, name: category.name, item: canonicalUrl },
-    ],
-  };
-  const webPageSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: `${category.name} | ${siteConfig.name}`,
-    description: category.intro ?? undefined,
-    url: canonicalUrl,
-  };
+  const canonicalUrl = `${siteConfig.url.replace(/\/$/, "")}/${categorySlug}`;
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
+      <CategoryHubSchemas
+        categoryName={category.name}
+        categoryUrl={canonicalUrl}
+        description={category.intro}
+      />
       <div className="min-h-screen bg-white px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 lg:grid-cols-[1fr_320px]">

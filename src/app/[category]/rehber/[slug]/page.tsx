@@ -16,6 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ArticleSchema } from "@/components/schemas/ArticleSchema";
+import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema";
 import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
 
@@ -173,11 +174,20 @@ export default async function CategoryGuidePage({ params }: PageProps) {
   ]);
   const author = post.authorSlug ? getAuthorBySlug(post.authorSlug) : undefined;
 
-  const articleUrl = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
+  const baseUrl = siteConfig.url.replace(/\/$/, "");
+  const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
   const tocItems = post.contentBlocks ? getTocFromContentBlocks(post.contentBlocks) : [];
 
   return (
     <>
+      <BreadcrumbListSchema
+        items={[
+          { name: "Anasayfa", url: baseUrl },
+          { name: categoryName, url: `${baseUrl}/${categorySlug}` },
+          { name: "Rehber", url: `${baseUrl}/${categorySlug}/rehber` },
+          { name: post.title, url: articleUrl },
+        ]}
+      />
       <div className="mx-auto max-w-6xl space-y-6 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
         <BreadcrumbBlock
           items={[
@@ -349,7 +359,15 @@ export default async function CategoryGuidePage({ params }: PageProps) {
         description={post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary}
         datePublished={post.date}
         url={articleUrl}
-        image={post.image ? `${siteConfig.url}${post.image}` : undefined}
+        image={post.image ? `${baseUrl}${post.image}` : undefined}
+        author={
+          author
+            ? {
+                name: author.title ? `${author.title} ${author.name}` : author.name,
+                url: `${baseUrl}/yazar/${author.slug}`,
+              }
+            : undefined
+        }
       />
       {post.faq && post.faq.length > 0 && (
         <FAQSchema items={post.faq} />

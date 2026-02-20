@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { getRelatedQuestions, getRelatedGuides } from "@/lib/content";
 import { QuestionDetail } from "@/components/question-detail";
+import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema";
+import { QAPageSchema } from "@/components/schemas/QAPageSchema";
 import { siteConfig } from "@/lib/site";
 
 type PageProps = {
@@ -97,27 +99,37 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
   ]);
 
   const answer = Array.isArray(question.answer) ? question.answer[0] : question.answer;
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "QAPage",
-    mainEntity: {
-      "@type": "Question",
-      name: question.title,
-      text: question.body,
-      answerCount: answer ? 1 : 0,
-      dateCreated: question.created_at,
-      acceptedAnswer: answer
-        ? {
-            "@type": "Answer",
-            text: answer.answer_text,
-            dateCreated: question.published_at ?? question.created_at,
-          }
-        : undefined,
-    },
-  };
+  const baseUrl = siteConfig.url.replace(/\/$/, "");
+  const questionUrl = `${baseUrl}/${categorySlug}/soru/${slug}`;
+  const displayTitle =
+    (question as { ai_h1_enabled?: boolean | null }).ai_h1_enabled === true &&
+    (question as { ai_h1_summary?: string | null }).ai_h1_summary?.trim()
+      ? (question as { ai_h1_summary: string }).ai_h1_summary.trim()
+      : question.title;
 
   return (
     <>
+      <BreadcrumbListSchema
+        items={[
+          { name: "Anasayfa", url: baseUrl },
+          { name: category.name, url: `${baseUrl}/${categorySlug}` },
+          { name: "Sorular", url: `${baseUrl}/${categorySlug}/sorular` },
+          { name: displayTitle, url: questionUrl },
+        ]}
+      />
+      <QAPageSchema
+        questionName={question.title}
+        questionText={question.body}
+        dateCreated={question.created_at}
+        acceptedAnswer={
+          answer
+            ? {
+                text: answer.answer_text,
+                dateCreated: (question as { published_at?: string | null }).published_at ?? question.created_at,
+              }
+            : null
+        }
+      />
       <QuestionDetail
         title={question.title}
         body={question.body}
@@ -140,10 +152,6 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
               : null;
           })()
         }
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
     </>
   );

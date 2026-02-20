@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AboutPageSchema } from "@/components/schemas/AboutPageSchema";
 
 export const metadata: Metadata = {
   title: "Hakkımızda",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="space-y-20">
+    <>
+      <AboutPageSchema />
+      <div className="space-y-20">
       {/* Üst görsel alanı — public/avukata-sor-hakkimizda.png (1905×675) */}
       <section className="w-full">
         <img
@@ -148,5 +151,6 @@ export default function AboutPage() {
         {/* Diğer bölümler buraya eklenebilir */}
       </div>
     </div>
+    </>
   );
 }

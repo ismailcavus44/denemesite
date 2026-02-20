@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PenLine, ArrowRight, FileDown } from "lucide-react";
 import { BasvuruForm } from "@/components/kariyer/BasvuruForm";
+import { JobPostingSchema } from "@/components/schemas/JobPostingSchema";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Yazar Başvurusu",
@@ -9,9 +11,24 @@ export const metadata: Metadata = {
     "YasalHaklarınız ekibine gönüllü yazar olarak başvurun. Hukuki rehber ve bilgilendirme yazıları yazmak isteyenler için başvuru bilgileri.",
 };
 
+const YAZAR_JOB_DESCRIPTION = [
+  "YasalHaklarınız platformu hukuki bilgiyi sade ve anlaşılır şekilde kamuoyuna ulaştırmayı amaçlayan bağımsız bir dijital içerik platformudur.",
+  "Yazarlık başvuruları mesleki ve editoryal yeterlilikler dikkate alınarak değerlendirilir.",
+  "Aranan nitelikler: Hukuk fakültesi mezunu veya avukatlık stajı tamamlamış olmak, temel mevzuat ve yargı uygulamalarına hâkimiyet, hukuki konuları sade dille aktarabilme, meslek kurallarına ve reklam yasağına uygun içerik üretme bilinci, güncellik ve doğruluk hassasiyeti.",
+  "Pozisyon gönüllülük esaslıdır; başvurular editör kurulu tarafından incelenir.",
+].join(" ");
+
 export default function YazarBasvurusuPage() {
+  const pageUrl = `${siteConfig.url.replace(/\/$/, "")}/kariyer/yazar-basvurusu`;
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+    <>
+      <JobPostingSchema
+        title="Gönüllü Yazar"
+        description={YAZAR_JOB_DESCRIPTION}
+        url={pageUrl}
+      />
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="space-y-8">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground">Anasayfa</Link>
@@ -108,5 +125,6 @@ export default function YazarBasvurusuPage() {
         </Link>
       </div>
     </div>
+    </>
   );
 }
