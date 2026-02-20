@@ -185,7 +185,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           ]}
         />
 
-        <div className="grid gap-10 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="grid gap-10 grid-cols-1 md:grid-cols-[minmax(0,2fr)_300px]">
           <article className="space-y-6">
             <header className="space-y-3">
               <h1 className="text-3xl font-semibold text-slate-900">

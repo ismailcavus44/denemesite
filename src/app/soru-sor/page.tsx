@@ -22,7 +22,7 @@ export default async function AskQuestionPage() {
     .order("name");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-10">
+    <div className="mx-auto max-w-[728px] space-y-10">
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Hukuki Soru Sor</h1>
         <p className="text-sm text-muted-foreground">

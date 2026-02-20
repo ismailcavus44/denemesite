@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { siteConfig } from "@/lib/site";
 
 export default function ContactPage() {
   return (
@@ -71,8 +72,8 @@ export default function ContactPage() {
             </h2>
             <p className="text-xs text-muted-foreground sm:text-sm">
               Öneri, görüş ve taleplerinizi bize iletmek için mail adresimizden iletişime geçebilirsiniz.{" "}
-              <a href="mailto:info@yasalhaklariniz.com" className="inline-block text-primary underline underline-offset-2 text-xs whitespace-nowrap sm:text-sm">
-                info@yasalhaklariniz.com
+              <a href={`mailto:${siteConfig.contactEmail}`} className="inline-block text-primary underline underline-offset-2 text-xs whitespace-nowrap sm:text-sm">
+                {siteConfig.contactEmail}
               </a>
             </p>
           </div>

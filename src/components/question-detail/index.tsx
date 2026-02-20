@@ -75,8 +75,8 @@ export function QuestionDetail({
     <>
       <div className="min-h-screen bg-white pb-24 lg:pb-12">
         <div className="mx-auto max-w-6xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
-            <main className="space-y-8 lg:col-span-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[728px_1fr] lg:gap-10">
+            <main className="min-w-0 space-y-8">
               <QuestionHero
                 title={displayTitle}
                 category={category}
@@ -118,7 +118,7 @@ export function QuestionDetail({
               />
             </main>
 
-            <div className="hidden lg:block lg:col-span-4 overflow-visible">
+            <div className="hidden min-w-0 lg:block overflow-visible">
               <aside className="flex flex-col gap-6 overflow-visible lg:pl-2">
                 <StickyCTA />
                 {categoryGuides.length > 0 && categorySlug && (

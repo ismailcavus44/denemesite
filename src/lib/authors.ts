@@ -31,10 +31,9 @@ export const authors: Author[] = [
     name: "Kaan Karayaka",
     title: "Av.",
     image: "/av-kaan-karayaka.png",
-    bio: "Hukuk alanında rehber yazıları kaleme almaktadır.",
+    bio: "Hukuk dünyasındaki gelişmeleri yakından takip eden Av. Kaan Karayaka, özellikle İş ve Aile Hukuku disiplinlerinde edindiği tecrübeyi akademik bir titizlikle pratiğe dökmektedir. Hazırladığı rehber yazılarla toplumu hukuki hakları konusunda bilinçlendirmeyi görev edinen Karayaka, uyuşmazlıkların çözümünde stratejik ve sonuç odaklı bir yaklaşım benimsemektedir.",
     socials: {
-      linkedin: "https://linkedin.com/in",
-      instagram: "https://instagram.com",
+      linkedin: "https://www.linkedin.com/in/avukat-kaan-karayaka/",
       whatsapp: "https://wa.me/90",
     },
   },

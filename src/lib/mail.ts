@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { siteConfig } from "@/lib/site";
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
@@ -25,7 +26,7 @@ export async function sendMail({ to, subject, html, attachments }: SendMailOptio
 
   try {
     await transporter.sendMail({
-      from: `"${process.env.SMTP_SENDER_NAME || "YasalHaklariniz"}" <${process.env.SMTP_SENDER_EMAIL || process.env.SMTP_USER}>`,
+      from: `"${process.env.SMTP_SENDER_NAME || siteConfig.name}" <${process.env.SMTP_SENDER_EMAIL || process.env.SMTP_USER}>`,
       to,
       subject,
       html,

@@ -90,6 +90,9 @@ export default function AdminQuestionPage() {
   const [aiSeoLoading, setAiSeoLoading] = useState(false);
   const [aiCardSummaryLoading, setAiCardSummaryLoading] = useState(false);
   const [aiH1Loading, setAiH1Loading] = useState(false);
+  const [aiKeywordsLoading, setAiKeywordsLoading] = useState(false);
+  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
+  const [aiHukukiUyusmazlik, setAiHukukiUyusmazlik] = useState("");
   const [similarQuestions, setSimilarQuestions] = useState<SimilarQuestion[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [answerWithSimilarLoading, setAnswerWithSimilarLoading] = useState<string | null>(null);
@@ -362,6 +365,45 @@ export default function AdminQuestionPage() {
     }
   };
 
+  const handleAiKeywords = async () => {
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    if (!body.trim()) {
+      toast.error("Soru metni gerekli.");
+      return;
+    }
+    setAiKeywordsLoading(true);
+    setAiKeywords([]);
+    setAiHukukiUyusmazlik("");
+    try {
+      const res = await fetch("/api/admin/ai/keywords", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ question_text: body.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error((data.message as string) ?? "Anahtar kelimeler alınamadı.");
+        return;
+      }
+      if (Array.isArray(data.keywords) && data.keywords.length === 2 && data.hukuki_uyusmazlik) {
+        setAiKeywords(data.keywords);
+        setAiHukukiUyusmazlik(String(data.hukuki_uyusmazlik).trim());
+        toast.success("2 anahtar kelime + hukuki uyuşmazlık oluşturuldu.");
+      }
+    } catch {
+      toast.error("Anahtar kelimeler oluşturulurken hata oluştu.");
+    } finally {
+      setAiKeywordsLoading(false);
+    }
+  };
+
   const handleAiSeo = async () => {
     const token = getAccessToken();
     if (!token) {
@@ -547,6 +589,32 @@ export default function AdminQuestionPage() {
               placeholder="8–14 kelime, soruyu özetleyen başlık"
               className="min-h-[56px] text-sm"
             />
+            <div className="border-t border-muted pt-3 mt-3">
+              <p className="text-xs text-muted-foreground mb-2">Soru metninden 2 anahtar kelime + hukuki uyuşmazlık (iç link için, sadece görüntüleme)</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={aiKeywordsLoading}
+                  onClick={handleAiKeywords}
+                >
+                  {aiKeywordsLoading && <Loader2 className="size-4 animate-spin" />}
+                  {aiKeywordsLoading ? "..." : "2 Anahtar + Hukuki Uyuşmazlık"}
+                </Button>
+                {aiKeywords.length === 2 && (
+                  <span className="flex flex-wrap gap-1.5 text-sm">
+                    {aiKeywords.map((k, i) => (
+                      <Badge key={i} variant="secondary">{k}</Badge>
+                    ))}
+                  </span>
+                )}
+                {aiHukukiUyusmazlik && (
+                  <p className="w-full text-sm text-muted-foreground mt-1.5">
+                    <span className="font-medium text-foreground">Hukuki uyuşmazlık:</span> {aiHukukiUyusmazlik}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -659,25 +727,14 @@ export default function AdminQuestionPage() {
                 </div>
               </div>
             )}
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">URL (isteğe bağlı düzenleme)</label>
-                <Input
-                  value={relatedGuideUrl}
-                  onChange={(e) => setRelatedGuideUrl(e.target.value)}
-                  placeholder="/kategori/rehber/slug"
-                  className="text-sm font-mono"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Buton metni / kanca (rehber H1)</label>
-                <Input
-                  value={relatedGuideLabel}
-                  onChange={(e) => setRelatedGuideLabel(e.target.value)}
-                  placeholder="Rehber başlığı"
-                  className="text-sm"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Buton metni / kanca (rehber H1)</label>
+              <Input
+                value={relatedGuideLabel}
+                onChange={(e) => setRelatedGuideLabel(e.target.value)}
+                placeholder="Rehber başlığı"
+                className="text-sm"
+              />
             </div>
           </div>
         </div>
