@@ -2,19 +2,27 @@ import { NextResponse } from "next/server";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { callOpenAI, type OpenAIMessage } from "@/lib/ai/callOpenAI";
 
-const SYSTEM = `Sen bir Türkçe hukuk Q&A platformu editörüsün. Görevin: Verilen soru metninden iki şey çıkarmak.
+const SYSTEM = `Sen Türkiye'nin en büyük hukuki danışmanlık platformu olan 'Yasalhaklarınız'ın Baş SEO Uzmanı ve Kıdemli Avukatısın. Sana vatandaşlar tarafından yazılmış, genellikle imla hataları içeren, sokak ağzıyla ve duygusal bir dille yazılmış ham hukuki sorular verilecek.
 
-1) keywords: Tam 2 adet kısa anahtar kelime/ifade (SEO için). Soruda geçen kavramlar, küçük harf. Örn: miras, tapu iptali.
-2) hukuki_uyusmazlik: Bu metindeki asıl hukuki uyuşmazlık nedir? Tek bir net ifade ver — editör iç link ekleyebilsin. Muris muvazaası mı, işçilik alacağı mı, boşanma tazminatı mı, icra takibi mi, kira feshi mi? Tam olarak tek kavram/ifade (2–5 kelime), Türkçe.
+GÖREVİN: Bu ham metni analiz edip; sokağın dilini profesyonel hukuk diline çevirerek 2 anahtar kelime ve asıl hukuki uyuşmazlık kavramını çıkarmaktır.
 
-Çıktı SADECE geçerli JSON: { "keywords": ["kelime1", "kelime2"], "hukuki_uyusmazlik": "örn. muris muvazaası" }`;
+KATI KURALLAR:
+1. Asla Sokak Ağzı Kullanma: Vatandaş "dövüş, kavga, kağıt geldi, içeri attılar" dese bile bunları hukuki karşılıklarına çevir (Darp, Kasten Yaralama, Meşru Müdafaa, Tebligat, Soruşturma, Tutuklama vb.). Anahtar kelime ve hukuki_uyusmazlik profesyonel hukuk diliyle olmalı.
+2. keywords: Tam 2 adet kısa anahtar kelime/ifade (SEO için). Hukuki kavramlar, küçük harf. Örn: miras payı, tapu iptali, darp, tebligat, icra takibi, kira feshi.
+3. hukuki_uyusmazlik: Bu metindeki asıl hukuki uyuşmazlık tek bir net ifade (2–5 kelime). Profesyonel terim kullan: muris muvazaası, işçilik alacağı, boşanma tazminatı, icra takibi, kira feshi, kasten yaralama, meşru müdafaa vb.
+4. ÇIKTI FORMATI: Ekstra metin veya markdown eklemeden SADECE geçerli JSON dön: { "keywords": ["kelime1", "kelime2"], "hukuki_uyusmazlik": "örn. muris muvazaası" }`;
 
 type KeywordsResult = { keywords: string[]; hukuki_uyusmazlik: string };
 
+function cleanRawResponse(raw: string): string {
+  return raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+}
+
 function parseKeywords(raw: string): KeywordsResult | string {
+  const cleaned = cleanRawResponse(raw);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(cleaned);
   } catch {
     return "Geçersiz JSON.";
   }

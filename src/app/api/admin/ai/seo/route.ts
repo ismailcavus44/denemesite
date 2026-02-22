@@ -2,34 +2,54 @@ import { NextResponse } from "next/server";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { callOpenAI, type OpenAIMessage } from "@/lib/ai/callOpenAI";
 
-const SEO_SYSTEM = `Sen bir SEO editörüsün. Sadece aşağıdaki 3 alanı Türkçe ve kurallara uygun üret. Başka hiçbir şey yazma. Çıktı SADECE geçerli JSON olsun.
+const SEO_SYSTEM = `Sen Türkiye'nin en büyük hukuki danışmanlık platformu olan 'Yasalhaklarınız'ın Baş SEO Uzmanı ve Kıdemli Avukatısın. Sana vatandaşlar tarafından yazılmış, genellikle imla hataları içeren, sokak ağzıyla ve duygusal bir dille yazılmış ham hukuki sorular verilecek.
+GÖREVİN: Bu ham metni analiz edip; sokağın dilini profesyonel hukuk diline çevirerek kusursuz SEO alanları (Title, Description, Slug) oluşturmaktır.
+KATI KURALLAR:
+1. Asla Sokak Ağzı Kullanma: Vatandaş 'dövüş, kavga, kağıt geldi, içeri attılar' dese bile bunları hukuki karşılıklarına çevir (Örn: Darp, Kasten Yaralama, Meşru Müdafaa, Tebligat, Soruşturma, Tutuklama).
+2. Meta Title: Maksimum 60 karakter. Hukuki sorunun özünü yansıtan, profesyonel ve ilgi çekici bir başlık olmalı.
+3. Meta Description: 140-160 karakter. Durumu özetleyen ve tıkla-oku hissi uyandıran hukuki bir ön açıklama olmalı.
+4. SEO Slug: Sadece küçük harf, Türkçe karakter içermeyen, boşluklar yerine tire (-) kullanılan URL uzantısı.
+5. ÇIKTI FORMATI: Ekstra hiçbir metin, markdown (\`\`\`json) veya açıklama eklemeden SADECE aşağıdaki yapıda geçerli bir JSON objesi dön:
+{"slug": "olusturulan-slug", "metaTitle": "Oluşturulan Başlık", "metaDescription": "Oluşturulan açıklama"}`;
 
-Kurallar:
-- slug: Türkçe, küçük harf, tire ile ayrılmış, 4–8 kelime, arama niyetini yansıtsın, stopword doldurma yok.
-- meta_title: Türkçe, 45–60 karakter, doğal bir soru, gerçek kullanıcı aramasına yakın. Emoji ve kanun/madde numarası yok.
-- meta_description: Türkçe, 140–160 karakter, bilgilendirici, sakin, nötr. Sayfanın neye cevap verdiğini anlat, "kesin çözüm" gibi vaat yok. Emoji ve kanun/madde numarası yok.`;
-
-function buildUserPrompt(questionText: string, answerText: string | undefined): string {
-  let out = `SORU METNİ:\n${questionText}`;
+function buildUserMessage(questionText: string, answerText: string | undefined): string {
+  let out = questionText;
   if (answerText?.trim()) {
-    out += `\n\nCEVAP METNİ (isteğe bağlı, sayfa içeriğini yansıtmak için kullan):\n${answerText.trim()}`;
+    out += `\n\nCEVAP (sayfa içeriğini yansıtmak için):\n${answerText.trim()}`;
   }
-  out += `\n\nYanıtı SADECE şu JSON formatında ver:\n{"slug":"...","meta_title":"...","meta_description":"..."}`;
   return out;
 }
 
-function parseAndValidate(body: string): { slug: string; meta_title: string; meta_description: string } | string {
+function cleanRawResponse(raw: string): string {
+  return raw
+    .replace(/```json\s*/gi, "")
+    .replace(/```\s*/g, "")
+    .trim();
+}
+
+function parseAndValidate(
+  body: string
+): { slug: string; meta_title: string; meta_description: string } | string {
+  const cleaned = cleanRawResponse(body);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(body);
+    parsed = JSON.parse(cleaned);
   } catch {
     return "Geçersiz JSON.";
   }
   if (!parsed || typeof parsed !== "object") return "Geçersiz JSON.";
   const o = parsed as Record<string, unknown>;
   const slug = typeof o.slug === "string" ? o.slug.trim() : "";
-  const meta_title = typeof o.meta_title === "string" ? o.meta_title.trim() : "";
-  const meta_description = typeof o.meta_description === "string" ? o.meta_description.trim() : "";
+  const meta_title =
+    (typeof o.meta_title === "string" ? o.meta_title : typeof o.metaTitle === "string" ? o.metaTitle : "").trim();
+  const meta_description =
+    (
+      typeof o.meta_description === "string"
+        ? o.meta_description
+        : typeof o.metaDescription === "string"
+          ? o.metaDescription
+          : ""
+    ).trim();
   if (!slug) return "slug boş olamaz.";
   if (!meta_title) return "meta_title boş olamaz.";
   if (!meta_description) return "meta_description boş olamaz.";
@@ -60,7 +80,7 @@ export async function POST(request: Request) {
 
   const messages: OpenAIMessage[] = [
     { role: "system", content: SEO_SYSTEM },
-    { role: "user", content: buildUserPrompt(questionText, answerText) },
+    { role: "user", content: buildUserMessage(questionText, answerText) },
   ];
 
   let raw: string;

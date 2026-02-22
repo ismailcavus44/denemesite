@@ -3,25 +3,28 @@ import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { callOpenAI, type OpenAIMessage } from "@/lib/ai/callOpenAI";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 
-const H1_SYSTEM = `Sen bir Türkçe hukuk Q&A platformu editörüsün. Görevin: Soruyu özetleyen kısa bir BAŞLIK (H1) üretmek. Bu başlık sayfada H1 olarak kullanılır; asıl soru metni "Sorunun devamı" bloğunda gösterilir.
+const H1_SYSTEM = `Sen Türkiye'nin en büyük hukuki danışmanlık platformu olan 'Yasalhaklarınız'ın Baş SEO Uzmanı ve Kıdemli Avukatısın. Sana vatandaşlar tarafından yazılmış, genellikle imla hataları içeren, sokak ağzıyla ve duygusal bir dille yazılmış ham hukuki sorular verilecek.
 
-İki durumda başlık üretmek gerekir:
-1) Mevcut başlık çok uzunsa (>180 karakter) → kısa referans başlık üret, should_apply=true.
-2) Başlık yoksa veya çok kısaysa / soruyla alakasızsa → sorudan başlık üret, should_apply=true.
-Mevcut başlık zaten kısa (≤180 karakter) ve soruyla uyumluysa should_apply=false döndür, yine de h1_summary alanında alternatif bir başlık öner (admin isterse kullanır).
+GÖREVİN: Bu ham metni analiz edip; sokağın dilini profesyonel hukuk diline çevirerek sayfada kullanılacak H1 başlığını (h1_summary) oluşturmaktır.
 
-Kurallar:
-- h1_summary: Türkçe, 8–14 kelime, doğal soru cümlesi. Orijinal niyeti koru. Emoji ve kanun/madde numarası yok. Varsa ana kavramları ekle (miras, tapu, kira, icra vb.).
-- should_apply: true = mevcut başlık uzun/eksik/alakasız, başlık değiştirilmeli; false = mevcut başlık yeterli, yine de h1_summary öneri olarak dolu olabilir.
-- ÖNEMLİ: "Sitede zaten kullanılan H1 başlıkları" listesi verilirse, üreteceğin başlık bu listedekilerle aynı veya çok benzer OLMAMALI. Farklı ve özgün bir ifade üret; kopya veya tekrar etme.
-- Çıktı SADECE geçerli JSON: { "h1_summary": "...", "should_apply": true/false }`;
+KATI KURALLAR:
+1. Asla Sokak Ağzı Kullanma: Vatandaş "dövüş, kavga, kağıt geldi, içeri attılar" dese bile bunları hukuki karşılıklarına çevir (Örn: Darp, Kasten Yaralama, Meşru Müdafaa, Tebligat, Soruşturma, Tutuklama). Başlık profesyonel hukuk diliyle yazılmalı.
+2. h1_summary: Türkçe, 8–14 kelime, doğal soru cümlesi. Hukuki kavramları kullan (miras, tapu, kira, icra, darp, tebligat vb.). Emoji ve kanun/madde numarası yok. Maksimum 110 karakter.
+3. should_apply: true = mevcut başlık uzun/eksik/alakasız veya sokak ağzı içeriyor, başlık değiştirilmeli; false = mevcut başlık zaten kısa ve profesyonel, yine de h1_summary öneri olarak dolu olabilir.
+4. "Sitede zaten kullanılan H1 başlıkları" listesi verilirse, üreteceğin başlık bu listedekilerle aynı veya çok benzer OLMAMALI. Farklı ve özgün bir ifade üret.
+5. ÇIKTI FORMATI: Ekstra metin veya markdown eklemeden SADECE geçerli JSON dön: { "h1_summary": "...", "should_apply": true veya false }`;
+
+function cleanRawResponse(raw: string): string {
+  return raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+}
 
 function parseAndValidate(
   raw: string
 ): { h1_summary: string | null; should_apply: boolean } | string {
+  const cleaned = cleanRawResponse(raw);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(cleaned);
   } catch {
     return "Geçersiz JSON.";
   }

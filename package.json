@@ -10,6 +10,11 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
+    "@tiptap/extension-link": "^3.20.0",
+    "@tiptap/extension-placeholder": "^3.20.0",
+    "@tiptap/pm": "^3.20.0",
+    "@tiptap/react": "^3.20.0",
+    "@tiptap/starter-kit": "^3.20.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.0",
@@ -25,7 +30,11 @@
     "tailwind-merge": "^3.4.0",
     "zod": "^3.25.76"
   },
-  "browserslist": [">0.5%", "last 2 versions", "not dead"],
+  "browserslist": [
+    ">0.5%",
+    "last 2 versions",
+    "not dead"
+  ],
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

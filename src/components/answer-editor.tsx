@@ -1,6 +1,9 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { blogPosts } from "@/lib/blog-data";
-import { Link2 } from "lucide-react";
+import { Bold, Link2, List, ListOrdered } from "lucide-react";
 import { toast } from "sonner";
 
 type AnswerEditorProps = {
@@ -21,6 +24,10 @@ type AnswerEditorProps = {
   minHeight?: string;
 };
 
+function cn(...classes: (string | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
 export function AnswerEditor({
   value,
   onChange,
@@ -28,99 +35,59 @@ export function AnswerEditor({
   className,
   minHeight = "280px",
 }: AnswerEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const lastValueRef = useRef<string>(value);
-  const valueFromEditorRef = useRef(false);
-  const savedRangeRef = useRef<Range | null>(null);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [rehberFilter, setRehberFilter] = useState("");
 
-  const syncFromProp = useCallback(() => {
-    if (!editorRef.current) return;
-    if (valueFromEditorRef.current && value === lastValueRef.current) {
-      valueFromEditorRef.current = false;
-      return;
-    }
-    if (value === lastValueRef.current) return;
-    valueFromEditorRef.current = false;
-    let html = value || "";
-    if (html && !html.trim().includes("<")) {
-      html = html.replace(/\n/g, "<br>");
-    }
-    editorRef.current.innerHTML = html;
-    lastValueRef.current = value;
-  }, [value]);
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        heading: false,
+        blockquote: false,
+        codeBlock: false,
+        code: false,
+        horizontalRule: false,
+        link: {
+          openOnClick: false,
+          HTMLAttributes: { target: "_self", rel: "" },
+        },
+      }),
+      Placeholder.configure({ placeholder }),
+    ],
+    content: value || "",
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    editorProps: {
+      attributes: {
+        class: "focus:outline-none min-h-[200px] text-slate-700 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5",
+      },
+    },
+  });
 
-  useEffect(syncFromProp, [syncFromProp, value]);
-
-  const saveSelection = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || !editorRef.current) return;
-    const range = sel.getRangeAt(0);
-    if (!editorRef.current.contains(range.commonAncestorContainer)) return;
-    if (range.collapsed) return;
-    savedRangeRef.current = range.cloneRange();
-  }, []);
-
-  const handleInput = useCallback(() => {
-    if (!editorRef.current) return;
-    const html = editorRef.current.innerHTML;
-    valueFromEditorRef.current = true;
-    lastValueRef.current = html;
-    onChange(html);
-  }, [onChange]);
+  useEffect(() => {
+    if (!editor || value === undefined) return;
+    const current = editor.getHTML();
+    if (current === value) return;
+    editor.commands.setContent(value, { emitUpdate: false });
+  }, [value, editor]);
 
   const openLinkDialog = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-    const range = sel.getRangeAt(0);
-    if (!editorRef.current?.contains(range.commonAncestorContainer)) return;
-    if (range.collapsed) return;
-    savedRangeRef.current = range.cloneRange();
+    if (!editor) return;
+    const { from, to } = editor.state.selection;
+    if (from === to) {
+      toast.info("Önce link vermek istediğiniz kelimeyi veya cümleyi seçin.");
+      return;
+    }
     setRehberFilter("");
     setLinkDialogOpen(true);
-  }, []);
+  }, [editor]);
 
-  const hasSelection = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return false;
-    const range = sel.getRangeAt(0);
-    return !range.collapsed && editorRef.current?.contains(range.commonAncestorContainer);
-  }, []);
-
-  const insertLink = useCallback(
+  const insertRehberLink = useCallback(
     (href: string) => {
-      const range = savedRangeRef.current;
-      const editor = editorRef.current;
-      if (!range || !editor) return;
-
-      try {
-        const sel = window.getSelection();
-        if (sel) {
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-
-        const a = document.createElement("a");
-        a.href = href;
-        try {
-          range.surroundContents(a);
-        } catch {
-          const frag = range.extractContents();
-          a.appendChild(frag);
-          range.insertNode(a);
-        }
-
-        const html = editor.innerHTML;
-        valueFromEditorRef.current = true;
-        lastValueRef.current = html;
-        onChange(html);
-      } finally {
-        savedRangeRef.current = null;
-        setLinkDialogOpen(false);
-      }
+      if (!editor) return;
+      editor.chain().focus().setLink({ href }).run();
+      setLinkDialogOpen(false);
     },
-    [onChange]
+    [editor]
   );
 
   const filteredRehber = rehberFilter.trim()
@@ -131,6 +98,8 @@ export function AnswerEditor({
       )
     : blogPosts;
 
+  if (!editor) return null;
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -138,34 +107,62 @@ export function AnswerEditor({
           type="button"
           variant="outline"
           size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            if (hasSelection()) openLinkDialog();
-            else toast.info("Önce link vermek istediğiniz kelimeyi veya cümleyi seçin.");
-          }}
-          className="gap-1.5"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          className={editor.isActive("bold") ? "bg-muted" : ""}
+          title="Kalın"
+        >
+          <Bold className="size-4" />
+          Kalın
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={editor.isActive("bulletList") ? "bg-muted" : ""}
+          title="Madde listesi"
+        >
+          <List className="size-4" />
+          Madde
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={editor.isActive("orderedList") ? "bg-muted" : ""}
+          title="Numaralı liste"
+        >
+          <ListOrdered className="size-4" />
+          Numaralı
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={openLinkDialog}
+          title="Rehberden link ekle"
         >
           <Link2 className="size-4" />
           Rehberden link ekle
         </Button>
         <span className="text-xs text-muted-foreground">
-          Metni seçip butona tıklayın, listeden rehber yazısını seçin.
+          Link için metni seçip rehber seçin.
         </span>
       </div>
       <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        onMouseUp={saveSelection}
-        onKeyUp={saveSelection}
-        data-placeholder={placeholder}
         className={cn(
-          "rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring [&:empty::before]:text-muted-foreground [&:empty::before]:content-[attr(data-placeholder)]",
+          "rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-ring [&_.tiptap]:outline-none [&_.tiptap_.is-empty::before]:text-muted-foreground [&_.tiptap_.is-empty::before]:content-[attr(data-placeholder)]",
           className
         )}
         style={{ minHeight }}
-      />
+      >
+        <EditorContent editor={editor} />
+      </div>
 
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
         <DialogContent className="max-h-[80vh] flex flex-col sm:max-w-md">
@@ -184,7 +181,7 @@ export function AnswerEditor({
                 <button
                   type="button"
                   className="w-full text-left rounded px-3 py-2 text-sm hover:bg-muted"
-                  onClick={() => insertLink(`/rehber/${post.slug}`)}
+                  onClick={() => insertRehberLink(`/rehber/${post.slug}`)}
                 >
                   <span className="font-medium">{post.title}</span>
                   <span className="ml-2 text-xs text-muted-foreground">
@@ -203,8 +200,4 @@ export function AnswerEditor({
       </Dialog>
     </div>
   );
-}
-
-function cn(...classes: (string | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
 }

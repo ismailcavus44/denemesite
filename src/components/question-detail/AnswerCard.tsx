@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Copy, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { sanitizeAnswerHtml } from "@/lib/sanitize-answer-html";
 
 export type GuideCta = { href: string; label: string };
 
@@ -31,11 +30,10 @@ function estimateReadingMinutes(html: string): number {
 export function AnswerCard({ answerHtml, guideCta }: AnswerCardProps) {
   const [copied, setCopied] = useState(false);
   const hasAnswer = answerHtml?.trim().length > 0;
-  const sanitized = sanitizeAnswerHtml(answerHtml ?? "");
-  const readingMin = estimateReadingMinutes(sanitized); // şu an sadece istenirse gösterilebilir
+  const readingMin = estimateReadingMinutes(answerHtml ?? "");
 
   const handleCopy = async () => {
-    const text = sanitized.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "");
+    const text = (answerHtml ?? "").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "");
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -97,8 +95,8 @@ export function AnswerCard({ answerHtml, guideCta }: AnswerCardProps) {
         </div>
 
         <div
-          className="mt-3 text-sm leading-7 text-slate-700 [&_a]:text-slate-800 [&_a]:underline [&_p]:text-justify [&_div]:text-justify [&_li]:text-justify"
-          dangerouslySetInnerHTML={{ __html: sanitized }}
+          className="mt-3 text-sm text-slate-700 leading-relaxed [&_p]:mb-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_li]:mb-2 [&_strong]:font-bold [&_a]:text-blue-600 [&_a]:underline"
+          dangerouslySetInnerHTML={{ __html: answerHtml }}
         />
 
         {guideCta?.href && guideCta?.label ? (
