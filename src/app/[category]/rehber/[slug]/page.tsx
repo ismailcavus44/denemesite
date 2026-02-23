@@ -3,6 +3,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
+import { addHeadingIdsAndGetToc } from "@/lib/articleHtml";
 import { blogPosts, type ContentBlock } from "@/lib/blog-data";
 import { getAuthorBySlug } from "@/lib/authors";
 import { getCategoryBySlug, getKnownCategoryName, getRelatedQuestions, getRelatedGuides } from "@/lib/content";
@@ -126,45 +128,188 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>;
 };
 
-/** Tüm rehber sayfaları build zamanında SSG ile üretilir; revalidate yok, tam statik. */
+type AuthorRow = { id: string; name: string; slug: string; photo_url: string | null };
+type ArticleWithAuthor = {
+  id: string;
+  title: string;
+  slug: string;
+  category: string | null;
+  content: string;
+  meta_title: string | null;
+  meta_description: string | null;
+  featured_image_url: string | null;
+  featured_image_alt: string | null;
+  created_at: string;
+  author_id: string | null;
+  authors: AuthorRow | null;
+};
+
+/** Supabase: slug + category ile yayındaki makale + yazar (server-side). */
+async function getArticleByCategoryAndSlug(category: string, slug: string): Promise<ArticleWithAuthor | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("articles")
+    .select("id,title,slug,category,content,meta_title,meta_description,featured_image_url,featured_image_alt,created_at,author_id,authors(id,name,slug,photo_url)")
+    .eq("slug", slug)
+    .eq("category", category)
+    .eq("status", "published")
+    .maybeSingle();
+  if (error || !data) return null;
+  const row = data as Record<string, unknown>;
+  const authors = row.authors as AuthorRow | null;
+  return {
+    ...row,
+    authors: authors ?? null,
+  } as ArticleWithAuthor;
+}
+
+/** Tüm rehber sayfaları: statik blog + DB makaleleri için params. */
 export function generateStaticParams() {
   return blogPosts.map((p) => ({ category: p.categorySlug, slug: p.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export const revalidate = 3600;
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category: categorySlug, slug } = await params;
-  const category = await getCategoryBySlug(categorySlug);
-  const fallbackName = getKnownCategoryName(categorySlug);
-  const post = blogPosts.find((p) => p.slug === slug);
-  const categoryOk = category ?? fallbackName;
-
-  if (!post || post.categorySlug !== categorySlug || !categoryOk) {
-    return { title: "Rehber bulunamadı" };
+  const dbArticle = await getArticleByCategoryAndSlug(categorySlug, slug);
+  if (dbArticle) {
+    const title = dbArticle.meta_title?.trim() || dbArticle.title;
+    const description = dbArticle.meta_description?.trim() || undefined;
+    const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
+    return { title: { absolute: title }, description, openGraph: { title, description, url }, alternates: { canonical: url } };
   }
-
+  const post = blogPosts.find((p) => p.slug === slug && p.categorySlug === categorySlug);
+  if (!post) return { title: "Rehber bulunamadı" };
   const title = post.seoTitle ?? `${post.title} | ${siteConfig.name}`;
-  const description =
-    post.seoDescription ?? (post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary);
+  const description = post.seoDescription ?? (post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary);
   const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
-
-  return {
-    title: { absolute: title },
-    description,
-    openGraph: { title, description, url },
-    alternates: { canonical: url },
-  };
+  return { title: { absolute: title }, description, openGraph: { title, description, url }, alternates: { canonical: url } };
 }
 
 export default async function CategoryGuidePage({ params }: PageProps) {
   const { category: categorySlug, slug } = await params;
-  const category = await getCategoryBySlug(categorySlug);
-  const fallbackName = getKnownCategoryName(categorySlug);
-  const post = blogPosts.find((p) => p.slug === slug);
-  const categoryName = category?.name ?? fallbackName;
+  const [dbArticle, categoryRow] = await Promise.all([
+    getArticleByCategoryAndSlug(categorySlug, slug),
+    getCategoryBySlug(categorySlug),
+  ]);
+  const categoryName = categoryRow?.name ?? getKnownCategoryName(categorySlug) ?? categorySlug;
 
-  if (!post || post.categorySlug !== categorySlug || !categoryName) {
+  if (dbArticle) {
+    const baseUrl = siteConfig.url.replace(/\/$/, "");
+    const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
+    const { html: contentWithIds, tocItems } = addHeadingIdsAndGetToc(dbArticle.content);
+    const categoryGuides = await getRelatedGuides(categorySlug, 5, slug);
+
+    return (
+      <>
+        <BreadcrumbListSchema
+          items={[
+            { name: "Anasayfa", url: baseUrl },
+            { name: categoryName, url: `${baseUrl}/${categorySlug}` },
+            { name: "Rehber", url: `${baseUrl}/${categorySlug}/rehber` },
+            { name: dbArticle.title, url: articleUrl },
+          ]}
+        />
+        <div className="mx-auto max-w-6xl space-y-6 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
+          <BreadcrumbBlock
+            items={[
+              { label: "Anasayfa", href: "/" },
+              { label: categoryName, href: `/${categorySlug}` },
+              { label: "Rehber", href: `/${categorySlug}/rehber` },
+              { label: dbArticle.title },
+            ]}
+          />
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,2fr)_300px]">
+            <article className="space-y-6">
+              <header className="space-y-3">
+                <h1 className="text-3xl font-semibold text-slate-900">{dbArticle.title}</h1>
+              </header>
+              {dbArticle.authors && (
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link
+                    href={`/yazar/${dbArticle.authors.slug}`}
+                    className="flex items-center gap-2 rounded-full pr-2 transition hover:opacity-90"
+                  >
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                      {dbArticle.authors.photo_url ? (
+                        <Image
+                          src={dbArticle.authors.photo_url}
+                          alt={dbArticle.authors.name}
+                          fill
+                          className="object-cover"
+                          sizes="36px"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
+                          {dbArticle.authors.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-slate-900">{dbArticle.authors.name}</span>
+                  </Link>
+                  <span className="text-slate-400">|</span>
+                  <Link href={`/${categorySlug}`} className="text-sm font-medium text-slate-900 hover:underline">
+                    {categoryName}
+                  </Link>
+                </div>
+              )}
+              {dbArticle.featured_image_url && (
+                <div className="relative aspect-[1200/630] w-full overflow-hidden rounded-[8px] bg-muted">
+                  <Image
+                    src={dbArticle.featured_image_url}
+                    alt={dbArticle.featured_image_alt ?? dbArticle.title}
+                    fill
+                    priority
+                    fetchPriority="high"
+                    sizes="(max-width: 1152px) 100vw, 1152px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              {tocItems.length > 0 && <GuideToc items={tocItems} />}
+              <div
+                id="rehber-icerik"
+                className="rehber-icerik space-y-4 text-[16px] text-slate-700 text-justify"
+                dangerouslySetInnerHTML={{ __html: contentWithIds }}
+              />
+              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
+                Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <Link href={`/${categorySlug}`} className="text-sm text-muted-foreground hover:text-foreground">
+                  Kategoriye dön
+                </Link>
+                <Link href="/soru-sor" className="inline-flex h-10 items-center justify-center rounded-md bg-slate-800 px-4 text-sm text-white">
+                  Soru Sor
+                </Link>
+              </div>
+            </article>
+            <div className="hidden md:flex flex-col gap-6 overflow-visible">
+              <StickyCTA />
+              {categoryGuides.length > 0 && (
+                <CategoryGuidesSidebar
+                  guides={categoryGuides.map((g) => ({ title: g.title, href: `/${g.categorySlug}/rehber/${g.slug}`, slug: g.slug }))}
+                  currentSlug={slug}
+                  allGuidesUrl={`/${categorySlug}/rehber`}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+        <ArticleSchema
+          headline={dbArticle.title}
+          description={dbArticle.meta_description?.trim() || dbArticle.title}
+          datePublished={dbArticle.created_at?.slice(0, 10) ?? ""}
+          url={articleUrl}
+          image={dbArticle.featured_image_url?.startsWith("http") ? dbArticle.featured_image_url : undefined}
+        />
+      </>
+    );
+  }
+
+  const post = blogPosts.find((p) => p.slug === slug && p.categorySlug === categorySlug);
+  if (!post || !categoryName) {
     notFound();
   }
 
@@ -201,9 +346,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
         <div className="grid gap-10 grid-cols-1 md:grid-cols-[minmax(0,2fr)_300px]">
           <article className="space-y-6">
             <header className="space-y-3">
-              <h1 className="text-3xl font-semibold text-slate-900">
-                {post.title}
-              </h1>
+              <h1 className="text-3xl font-semibold text-slate-900">{post.title}</h1>
             </header>
 
             {post.image && (
@@ -227,33 +370,21 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   <div className="flex items-center gap-2">
                     <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
                       {author.image ? (
-                        <Image
-                          src={author.image}
-                          alt={author.name}
-                          fill
-                          className="object-cover"
-                          sizes="36px"
-                        />
+                        <Image src={author.image} alt={author.name} fill className="object-cover" sizes="36px" />
                       ) : (
                         <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
                           {author.name.charAt(0)}
                         </span>
                       )}
                     </div>
-                    <Link
-                      href={`/yazar/${author.slug}`}
-                      className="text-sm font-medium text-slate-900 hover:underline"
-                    >
+                    <Link href={`/yazar/${author.slug}`} className="text-sm font-medium text-slate-900 hover:underline">
                       {author.title ? `${author.title} ${author.name}` : author.name}
                     </Link>
                   </div>
                   <span className="text-slate-400">|</span>
                 </>
               )}
-              <Link
-                href={`/${categorySlug}`}
-                className="text-sm font-medium text-slate-900 hover:underline"
-              >
+              <Link href={`/${categorySlug}`} className="text-sm font-medium text-slate-900 hover:underline">
                 {categoryName}
               </Link>
             </div>
@@ -270,18 +401,12 @@ export default async function CategoryGuidePage({ params }: PageProps) {
 
             {post.faq && post.faq.length > 0 && (
               <section className="space-y-3">
-                <h3 className="text-[19px] font-bold text-slate-900">
-                  Sık Sorulan Sorular
-                </h3>
+                <h3 className="text-[19px] font-bold text-slate-900">Sık Sorulan Sorular</h3>
                 <Accordion type="single" collapsible className="w-full">
                   {post.faq.map((item, i) => (
                     <AccordionItem key={i} value={`faq-${i}`}>
-                      <AccordionTrigger className="text-left text-[15px] font-bold text-slate-900">
-                        {item.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-[15px] leading-7 text-slate-600">
-                        {item.answer}
-                      </AccordionContent>
+                      <AccordionTrigger className="text-left text-[15px] font-bold text-slate-900">{item.question}</AccordionTrigger>
+                      <AccordionContent className="text-[15px] leading-7 text-slate-600">{item.answer}</AccordionContent>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -289,21 +414,14 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             )}
 
             <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
-              Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için
-              profesyonel destek almanız önerilir.
+              Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link
-                href={`/${categorySlug}`}
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
+              <Link href={`/${categorySlug}`} className="text-sm text-muted-foreground hover:text-foreground">
                 Kategoriye dön
               </Link>
-              <Link
-                href="/soru-sor"
-                className="inline-flex h-10 items-center justify-center rounded-md bg-slate-800 px-4 text-sm text-white"
-              >
+              <Link href="/soru-sor" className="inline-flex h-10 items-center justify-center rounded-md bg-slate-800 px-4 text-sm text-white">
                 Soru Sor
               </Link>
             </div>
@@ -313,11 +431,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             <StickyCTA />
             {categoryGuides.length > 0 && (
               <CategoryGuidesSidebar
-                guides={categoryGuides.map((g) => ({
-                  title: g.title,
-                  href: `/${g.categorySlug}/rehber/${g.slug}`,
-                  slug: g.slug,
-                }))}
+                guides={categoryGuides.map((g) => ({ title: g.title, href: `/${g.categorySlug}/rehber/${g.slug}`, slug: g.slug }))}
                 currentSlug={slug}
                 allGuidesUrl={`/${categorySlug}/rehber`}
               />
@@ -362,16 +476,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
         image={post.image ? `${baseUrl}${post.image}` : undefined}
         author={
           author
-            ? {
-                name: author.title ? `${author.title} ${author.name}` : author.name,
-                url: `${baseUrl}/yazar/${author.slug}`,
-              }
+            ? { name: author.title ? `${author.title} ${author.name}` : author.name, url: `${baseUrl}/yazar/${author.slug}` }
             : undefined
         }
       />
-      {post.faq && post.faq.length > 0 && (
-        <FAQSchema items={post.faq} />
-      )}
+      {post.faq && post.faq.length > 0 && <FAQSchema items={post.faq} />}
     </>
   );
 }

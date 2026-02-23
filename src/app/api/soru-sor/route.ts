@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { slugify } from "@/lib/slugify";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const MAX_QUESTIONS_PER_HOUR = 1;
 
@@ -18,10 +19,11 @@ function getClientIp(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { body: questionBody, category_id: categoryId, email: askerEmail } = body as {
+    const { body: questionBody, category_id: categoryId, email: askerEmail, phone: askerPhone } = body as {
       body?: string;
       category_id?: string;
       email?: string;
+      phone?: string;
     };
 
     if (!questionBody?.trim() || !categoryId) {
@@ -33,6 +35,7 @@ export async function POST(request: NextRequest) {
 
     const emailTrimmed = typeof askerEmail === "string" ? askerEmail.trim() : "";
     const emailToSave = emailTrimmed && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed) ? emailTrimmed : null;
+    const phoneToSave = formatPhoneNumber(typeof askerPhone === "string" ? askerPhone : "");
 
     const ip = getClientIp(request);
     const supabase = createSupabaseAdminClient();
@@ -73,6 +76,7 @@ export async function POST(request: NextRequest) {
       slug,
       category_id: categoryId,
       ...(emailToSave ? { asker_email: emailToSave } : {}),
+      ...(phoneToSave ? { phone_number: phoneToSave } : {}),
     });
 
     if (insertError) {

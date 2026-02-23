@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { sendMail } from "@/lib/mail";
 import { getOpenAIEmbedding } from "@/lib/ai/embedding";
+import { sendWhatsAppNotification } from "@/lib/twilio";
 
 function escapeRegex(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -207,7 +208,7 @@ export async function PATCH(request: Request, { params }: Params) {
   if (body.status === "published") {
     const { data: questionRow } = await supabase
       .from("questions")
-      .select("asker_email,title,slug,category_id,category:categories(slug)")
+      .select("asker_email,phone_number,title,slug,category_id,category:categories(slug)")
       .eq("id", id)
       .maybeSingle();
 
@@ -240,6 +241,20 @@ export async function PATCH(request: Request, { params }: Params) {
         });
       } catch (err) {
         console.warn("[mail] Cevaplandı bildirimi gönderilemedi:", err);
+      }
+    }
+
+    const toPhone = (questionRow as { phone_number?: string | null })?.phone_number?.trim();
+    if (toPhone) {
+      const cat = (questionRow as { category?: { slug: string } | Array<{ slug: string }> })?.category;
+      const catSlug = (Array.isArray(cat) ? cat[0]?.slug : cat?.slug) ?? undefined;
+      try {
+        const result = await sendWhatsAppNotification(toPhone, questionRow!.slug, catSlug);
+        if (!result.ok) {
+          console.warn("[whatsapp] Bildirim gönderilemedi:", result.error);
+        }
+      } catch (err) {
+        console.warn("[whatsapp] Bildirim gönderilemedi:", err);
       }
     }
   }

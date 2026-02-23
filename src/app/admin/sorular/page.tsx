@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Search, ChevronLeft, ChevronRight, Trash2, Pencil } from "lucide-react";
 
 type CategoryOption = { id: string; name: string };
 
@@ -49,6 +48,20 @@ function statusLabel(s: string): string {
   return t[s] ?? s;
 }
 
+function statusBadgeClass(s: string): string {
+  const base = "rounded-full px-3 py-1 text-xs font-medium ";
+  switch (s) {
+    case "published":
+      return base + "bg-emerald-100 text-emerald-700";
+    case "pending":
+      return base + "bg-amber-100 text-amber-700";
+    case "rejected":
+      return base + "bg-red-100 text-red-700";
+    default:
+      return base + "bg-slate-100 text-slate-600";
+  }
+}
+
 export default function AdminSorularPage() {
   const [items, setItems] = useState<QuestionRow[]>([]);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
@@ -59,7 +72,14 @@ export default function AdminSorularPage() {
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
+  const [search, setSearch] = useState("");
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const filteredItems = useMemo(() => {
+    if (!search.trim()) return items;
+    const q = search.toLowerCase().trim();
+    return items.filter((row) => row.title?.toLowerCase().includes(q));
+  }, [items, search]);
 
   const loadCategories = async () => {
     const token = getAccessToken();
@@ -207,103 +227,124 @@ export default function AdminSorularPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Tüm Sorular</h1>
-          <p className="text-sm text-muted-foreground">
-            Tüm soruları listele, düzenle veya sil.
+          <h1 className="text-2xl font-bold text-slate-800">Tüm Sorular</h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            Toplam {total} soru
           </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              placeholder="Ara..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-10 w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
+          </div>
+          <button
+            type="button"
+            disabled={loading || total === 0 || deletingAll}
+            onClick={handleDeleteAll}
+            className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:border-red-300 hover:text-red-500 disabled:opacity-50"
+          >
+            <Trash2 className="size-4" />
+            {deletingAll ? "Siliniyor…" : "Tümünü sil"}
+          </button>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="text-sm text-muted-foreground">Durum:</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
-            className="h-9 rounded-md border bg-background px-3 text-sm"
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value || "all"} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <label className="text-sm text-muted-foreground">Kategori:</label>
-          <select
-            value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setPage(1);
-            }}
-            className="h-9 rounded-md border bg-background px-3 text-sm"
-          >
-            <option value="">Tümü</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Button
-          variant="destructive"
-          size="sm"
-          disabled={loading || total === 0 || deletingAll}
-          onClick={handleDeleteAll}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <label className="text-sm text-slate-500">Durum:</label>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+          className="h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"
         >
-          {deletingAll ? "Siliniyor…" : "Tümünü sil"}
-        </Button>
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value || "all"} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <label className="text-sm text-slate-500">Kategori:</label>
+        <select
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setPage(1);
+          }}
+          className="h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"
+        >
+          <option value="">Tümü</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading ? (
-        <div className="text-sm text-muted-foreground">Yükleniyor...</div>
+        <div className="py-12 text-sm text-slate-500">Yükleniyor...</div>
       ) : (
         <>
-          <div className="overflow-x-auto rounded-xl border">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] text-left text-sm">
               <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="p-3 font-medium">Başlık</th>
-                  <th className="p-3 font-medium">Kategori</th>
-                  <th className="p-3 font-medium">Durum</th>
-                  <th className="p-3 font-medium">Tarih</th>
-                  <th className="p-3 font-medium text-right">İşlem</th>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Başlık</th>
+                  <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Kategori</th>
+                  <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Durum</th>
+                  <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Tarih</th>
+                  <th className="pb-3 pt-0 pr-0 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">İşlem</th>
                 </tr>
               </thead>
               <tbody>
-                {items.map((q) => (
-                  <tr key={q.id} className="border-b last:border-0">
-                    <td className="max-w-[240px] truncate p-3 font-medium" title={q.title}>
+                {filteredItems.map((q) => (
+                  <tr
+                    key={q.id}
+                    className="border-b border-slate-50 transition-colors duration-200 hover:bg-indigo-50/50"
+                  >
+                    <td className="max-w-[240px] truncate py-3 pr-4 font-medium text-slate-800" title={q.title}>
                       {q.title}
                     </td>
-                    <td className="p-3 text-muted-foreground">
+                    <td className="py-3 pr-4 text-slate-500">
                       {q.category?.name ?? "—"}
                     </td>
-                    <td className="p-3">
-                      <Badge variant="outline">{statusLabel(q.status)}</Badge>
+                    <td className="py-3 pr-4">
+                      <span className={statusBadgeClass(q.status)}>
+                        {statusLabel(q.status)}
+                      </span>
                     </td>
-                    <td className="p-3 text-muted-foreground">
+                    <td className="py-3 pr-4 text-slate-500">
                       {new Date(q.created_at).toLocaleDateString("tr-TR")}
                     </td>
-                    <td className="p-3 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button asChild variant="outline" size="sm">
-                          <Link href={`/admin/q/${q.id}`}>Düzenle</Link>
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
+                    <td className="py-3 text-right">
+                      <div className="flex justify-end gap-3">
+                        <Link
+                          href={`/admin/q/${q.id}`}
+                          className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"
+                        >
+                          <Pencil className="size-4" />
+                          Düzenle
+                        </Link>
+                        <button
+                          type="button"
                           disabled={deletingId === q.id}
                           onClick={() => handleDelete(q.id, q.title)}
+                          className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-red-500 disabled:opacity-50"
                         >
+                          <Trash2 className="size-4" />
                           {deletingId === q.id ? "..." : "Sil"}
-                        </Button>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -313,33 +354,41 @@ export default function AdminSorularPage() {
           </div>
 
           {!items.length && (
-            <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-              {statusFilter ? "Bu filtreye uygun soru yok." : "Henüz soru yok."}
+            <div className="border-b border-slate-50 py-8 text-center text-sm text-slate-500">
+              {statusFilter || categoryFilter ? "Bu filtreye uygun soru yok." : "Henüz soru yok."}
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
+          {items.length > 0 && !filteredItems.length && (
+            <p className="py-6 text-center text-sm text-slate-500">Arama sonucu bulunamadı.</p>
+          )}
+
+          {totalPages > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4 text-sm text-slate-500">
               <span>
-                Toplam {total} soru • Sayfa {page} / {totalPages}
+                Sayfa {page} / {totalPages} · Toplam {total} soru
               </span>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
+              <div className="flex items-center gap-2">
+                <span className="text-slate-400">Rows per page:</span>
+                <span className="font-medium text-slate-600">{PAGE_SIZE}</span>
+                <button
+                  type="button"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+                  aria-label="Önceki"
                 >
-                  Önceki
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
+                  <ChevronLeft className="size-5" />
+                </button>
+                <button
+                  type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+                  aria-label="Sonraki"
                 >
-                  Sonraki
-                </Button>
+                  <ChevronRight className="size-5" />
+                </button>
               </div>
             </div>
           )}

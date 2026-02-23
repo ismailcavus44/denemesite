@@ -181,11 +181,11 @@ export function AnswerEditor({
                 <button
                   type="button"
                   className="w-full text-left rounded px-3 py-2 text-sm hover:bg-muted"
-                  onClick={() => insertRehberLink(`/rehber/${post.slug}`)}
+                  onClick={() => insertRehberLink(`/${post.categorySlug}/rehber/${post.slug}`)}
                 >
                   <span className="font-medium">{post.title}</span>
                   <span className="ml-2 text-xs text-muted-foreground">
-                    /rehber/{post.slug}
+                    /{post.categorySlug}/rehber/{post.slug}
                   </span>
                 </button>
               </li>

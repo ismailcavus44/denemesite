@@ -34,6 +34,12 @@ export function AdminHeader() {
             <Link href="/admin/toplu-email" className="hover:text-foreground">
               Toplu E-posta
             </Link>
+            <Link href="/admin/articles" className="hover:text-foreground">
+              Makaleler
+            </Link>
+            <Link href="/admin/authors" className="hover:text-foreground">
+              Yazarlar
+            </Link>
           </nav>
         </div>
         <Button variant="outline" onClick={handleSignOut}>

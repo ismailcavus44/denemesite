@@ -116,36 +116,38 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Kategoriler</h1>
-        <p className="text-sm text-muted-foreground">
-          Kategori ekleyin, güncelleyin, silin.
+    <div className="rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-800">Kategoriler</h1>
+        <p className="mt-0.5 text-sm text-slate-500">
+          Toplam {categories.length} kategori · Ekleyin, güncelleyin, silin.
         </p>
       </div>
 
-      <div className="grid gap-3 rounded-xl border p-4 md:grid-cols-3">
+      <div className="mb-6 grid gap-3 rounded-xl bg-slate-50/80 p-4 md:grid-cols-3">
         <Input
           placeholder="Kategori adı"
           value={name}
           onChange={(event) => setName(event.target.value)}
+          className="rounded-xl border-slate-200 bg-white"
         />
         <Input
           placeholder="slug"
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
+          className="rounded-xl border-slate-200 bg-white"
         />
-        <Button onClick={handleCreate}>Ekle</Button>
+        <Button onClick={handleCreate} className="rounded-xl">Ekle</Button>
       </div>
 
       {loading ? (
-        <div className="text-sm text-muted-foreground">Yükleniyor...</div>
+        <div className="py-12 text-sm text-slate-500">Yükleniyor...</div>
       ) : (
-        <div className="space-y-3">
+        <div className="overflow-hidden rounded-xl border border-slate-100">
           {categories.map((category, index) => (
             <div
               key={category.id}
-              className="grid gap-2 rounded-xl border p-4 md:grid-cols-[1fr_1fr_auto_auto]"
+              className="grid gap-3 border-b border-slate-50 p-4 transition-colors duration-200 hover:bg-slate-50/50 md:grid-cols-[1fr_1fr_auto_auto]"
             >
               <Input
                 value={category.name}
@@ -154,6 +156,7 @@ export default function AdminCategoriesPage() {
                   updated[index] = { ...category, name: event.target.value };
                   setCategories(updated);
                 }}
+                className="rounded-xl border-slate-200 bg-white"
               />
               <Input
                 value={category.slug}
@@ -162,20 +165,26 @@ export default function AdminCategoriesPage() {
                   updated[index] = { ...category, slug: event.target.value };
                   setCategories(updated);
                 }}
+                className="rounded-xl border-slate-200 bg-white"
               />
-              <Button variant="outline" onClick={() => handleUpdate(category)}>
+              <button
+                type="button"
+                onClick={() => handleUpdate(category)}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-indigo-300 hover:text-indigo-600"
+              >
                 Kaydet
-              </Button>
-              <Button
-                variant="destructive"
+              </button>
+              <button
+                type="button"
                 onClick={() => handleDelete(category.id)}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-red-200 hover:text-red-500"
               >
                 Sil
-              </Button>
+              </button>
             </div>
           ))}
           {!categories.length && (
-            <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+            <div className="border-b border-slate-50 p-8 text-center text-sm text-slate-500">
               Henüz kategori yok.
             </div>
           )}

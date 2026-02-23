@@ -5,7 +5,8 @@ import { SiteShell } from "@/components/site-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/lib/site";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteFooter } from "@/components/site-footer";
+import { ConditionalSiteFooter } from "@/components/conditional-site-footer";
+import { ConditionalMain } from "@/components/conditional-main";
 
 const manrope = localFont({
   src: [
@@ -53,11 +54,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SiteShell>
-            <main className="mx-auto w-full max-w-6xl overflow-x-hidden px-4 pt-4 pb-8 lg:py-8">
-              {children}
-            </main>
+            <ConditionalMain>{children}</ConditionalMain>
           </SiteShell>
-          <SiteFooter />
+          <ConditionalSiteFooter />
           <Toaster richColors />
         </ThemeProvider>
       </body>

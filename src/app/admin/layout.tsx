@@ -13,7 +13,7 @@ export default function AdminLayout({
   return (
     <AdminGuard>
       <AdminShell>
-        <main className="mx-auto w-full max-w-6xl px-4 py-8">{children}</main>
+        <div className="w-full">{children}</div>
       </AdminShell>
     </AdminGuard>
   );

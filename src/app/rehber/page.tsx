@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
+import { getKnownCategoryName } from "@/lib/content";
 import { blogPosts, type BlogPost } from "@/lib/blog-data";
 import { SearchBar } from "@/components/search-bar";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
@@ -11,9 +13,57 @@ export const metadata: Metadata = {
     "Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır hukuki rehber yazıları. Editör onaylı bilgilendirme içerikleri.",
 };
 
+export const revalidate = 3600;
+
 type GuidePageProps = {
   searchParams?: Promise<{ page?: string; q?: string }>;
 };
+
+/** Kartta kullanılacak ortak tip: statik blog veya Supabase makalesi */
+type GuideListItem = Pick<BlogPost, "slug" | "title" | "summary" | "categorySlug" | "image" | "cardImage"> & {
+  category: string;
+  sortDate: string;
+};
+
+/** Supabase'den yayındaki makaleleri çeker (kategorisi olanlar). */
+async function getPublishedArticles(): Promise<GuideListItem[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data } = await supabase
+    .from("articles")
+    .select("title, slug, category, meta_description, featured_image_url, updated_at")
+    .eq("status", "published")
+    .not("category", "is", null)
+    .order("updated_at", { ascending: false });
+  if (!data?.length) return [];
+  return data.map((a) => {
+    const category = (a as { category: string }).category;
+    const summary = (a as { meta_description?: string | null }).meta_description?.trim() || "";
+    return {
+      slug: (a as { slug: string }).slug,
+      title: (a as { title: string }).title,
+      summary: summary.length > 160 ? `${summary.slice(0, 157)}...` : summary,
+      category: getKnownCategoryName(category) ?? category,
+      categorySlug: category,
+      image: (a as { featured_image_url?: string | null }).featured_image_url ?? undefined,
+      cardImage: (a as { featured_image_url?: string | null }).featured_image_url ?? undefined,
+      sortDate: (a as { updated_at: string }).updated_at ?? new Date().toISOString(),
+    };
+  });
+}
+
+/** Statik blog listesini kart tipine çevirir. */
+function blogPostsToGuideList(posts: BlogPost[]): GuideListItem[] {
+  return posts.map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    summary: p.summary.length > 160 ? `${p.summary.slice(0, 157)}...` : p.summary,
+    category: p.category,
+    categorySlug: p.categorySlug,
+    image: p.image,
+    cardImage: p.cardImage ?? p.image,
+    sortDate: p.date,
+  }));
+}
 
 /** Arama için Türkçe karakterleri ASCII karşılıklarına çevirir (ş→s, ı→i vb.) */
 function normalizeForSearch(s: string): string {
@@ -30,20 +80,15 @@ function normalizeForSearch(s: string): string {
     .replace(/İ/g, "i");
 }
 
-function filterPostsByQuery(posts: BlogPost[], q: string): BlogPost[] {
+function filterByQuery(items: GuideListItem[], q: string): GuideListItem[] {
   const term = normalizeForSearch(q.trim());
-  if (!term) return posts;
-  return posts.filter((post) => {
-    const title = normalizeForSearch(post.title);
-    const summary = normalizeForSearch(post.summary);
-    const category = normalizeForSearch(post.category);
-    const inTitle = title.includes(term);
-    const inSummary = summary.includes(term);
-    const inCategory = category.includes(term);
-    const inContent = post.content.some((p) =>
-      normalizeForSearch(p).includes(term),
-    );
-    return inTitle || inSummary || inCategory || inContent;
+  if (!term) return items;
+  return items.filter((item) => {
+    const title = normalizeForSearch(item.title);
+    const summary = normalizeForSearch(item.summary);
+    const category = normalizeForSearch(item.category);
+    const slug = normalizeForSearch(item.slug);
+    return title.includes(term) || summary.includes(term) || category.includes(term) || slug.includes(term);
   });
 }
 
@@ -51,11 +96,17 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
   const params = await searchParams;
   const pageSize = 6;
   const query = (params?.q ?? "").trim();
-  const filteredPosts = filterPostsByQuery(blogPosts, query);
-  const currentPage = Math.max(
-    1,
-    Number(params?.page ?? "1") || 1,
+
+  const [dbItems, staticItems] = await Promise.all([
+    getPublishedArticles(),
+    Promise.resolve(blogPostsToGuideList(blogPosts)),
+  ]);
+  const merged = [...dbItems, ...staticItems].sort(
+    (a, b) => new Date(b.sortDate).getTime() - new Date(a.sortDate).getTime()
   );
+  const filteredPosts = filterByQuery(merged, query);
+
+  const currentPage = Math.max(1, Number(params?.page ?? "1") || 1);
   const totalItems = filteredPosts.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const start = (currentPage - 1) * pageSize;
@@ -100,7 +151,7 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
             {visiblePosts.map((post) => (
-              <BlogTeaserCard key={post.slug} post={post} useDetailImage />
+              <BlogTeaserCard key={`${post.categorySlug}-${post.slug}`} post={post} useDetailImage />
             ))}
           </div>
         )}

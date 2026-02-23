@@ -40,6 +40,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
   const [body, setBody] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
@@ -69,6 +70,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           body: body.trim(),
           category_id: categoryId,
           ...(email.trim() ? { email: email.trim() } : {}),
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
         }),
       });
 
@@ -121,6 +123,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
               setBody("");
               setCategoryId("");
               setEmail("");
+              setPhone("");
             }}
           >
             Tekrar sor
@@ -156,6 +159,16 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Cevaplandığında bilgi almak isterseniz girebilirsiniz"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">WhatsApp bildirim numarası (isteğe bağlı)</label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Örn: 0531 234 56 78"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>

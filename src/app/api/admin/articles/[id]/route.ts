@@ -1,0 +1,68 @@
+import { NextResponse } from "next/server";
+import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
+import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
+import type { ArticleUpdate } from "@/types/article";
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const admin = await requireAdminFromRequest(request);
+  if (!admin.ok) {
+    return NextResponse.json({ message: admin.message }, { status: admin.status });
+  }
+
+  const { id } = await params;
+  if (!id) {
+    return NextResponse.json({ message: "ID gerekli." }, { status: 400 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ message: "Geçersiz JSON." }, { status: 400 });
+  }
+
+  const b = body as Record<string, unknown>;
+  const row: ArticleUpdate = {};
+
+  if (typeof b.title === "string") row.title = b.title.trim();
+  if (typeof b.slug === "string") row.slug = b.slug.trim().toLowerCase().replace(/\s+/g, "-");
+  if (b.category !== undefined)
+    row.category = typeof b.category === "string" && b.category.trim() ? b.category.trim() : null;
+  if (b.author_id !== undefined)
+    row.author_id = typeof b.author_id === "string" && b.author_id.trim() ? b.author_id.trim() : null;
+  if (typeof b.content === "string") row.content = b.content;
+  if (b.meta_title !== undefined)
+    row.meta_title = typeof b.meta_title === "string" ? b.meta_title.trim() || null : null;
+  if (b.meta_description !== undefined)
+    row.meta_description =
+      typeof b.meta_description === "string" ? b.meta_description.trim() || null : null;
+  if (b.featured_image_url !== undefined)
+    row.featured_image_url =
+      typeof b.featured_image_url === "string" ? b.featured_image_url || null : null;
+  if (b.featured_image_alt !== undefined)
+    row.featured_image_alt =
+      typeof b.featured_image_alt === "string" ? b.featured_image_alt.trim() || null : null;
+  if (b.status === "published" || b.status === "draft") row.status = b.status;
+
+  if (Object.keys(row).length === 0) {
+    return NextResponse.json({ message: "Güncellenecek alan yok." }, { status: 400 });
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("articles").update(row).eq("id", id);
+
+  if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json({ message: "Bu slug zaten kullanılıyor." }, { status: 409 });
+    }
+    return NextResponse.json(
+      { message: error.message ?? "Güncellenemedi." },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ ok: true });
+}

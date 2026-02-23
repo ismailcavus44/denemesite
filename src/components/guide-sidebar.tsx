@@ -63,7 +63,7 @@ export function GuideSidebar({ category, dateLabel, readTime }: GuideSidebarProp
                 <span className="mt-0 h-2 w-2 rounded-full bg-primary" />
               </div>
               <Link
-                href={`/rehber/${post.slug}`}
+                href={`/${post.categorySlug}/rehber/${post.slug}`}
                 className="cursor-pointer text-[16px] underline-offset-4 hover:underline"
               >
                 {post.title}

@@ -42,13 +42,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   });
 
-  // ——— Rehber (blog) sayfaları: /[category]/rehber/[slug] ———
-  const rehberEntries: SitemapEntry[] = blogPosts.map((post) => ({
+  // ——— Rehber: statik blog + DB makaleleri /[category]/rehber/[slug] ———
+  const rehberStatic: SitemapEntry[] = blogPosts.map((post) => ({
     url: `${base}/${post.categorySlug}/rehber/${post.slug}`,
     lastModified: post.date ? new Date(post.date) : new Date(),
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
+  const { data: articles } = await supabase
+    .from("articles")
+    .select("slug, category, updated_at")
+    .eq("status", "published")
+    .not("category", "is", null);
+  const rehberDb: SitemapEntry[] = (articles ?? []).map((a) => ({
+    url: `${base}/${(a as { category: string }).category}/rehber/${(a as { slug: string }).slug}`,
+    lastModified: (a as { updated_at?: string }).updated_at ? new Date((a as { updated_at: string }).updated_at) : new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+  const rehberEntries = [...rehberStatic, ...rehberDb];
 
   // ——— Sorular: /[category]/soru/[slug] (canonical) ———
   const { data: questions } = await supabase

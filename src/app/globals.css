@@ -146,3 +146,42 @@
     @apply cursor-text;
   }
 }
+
+/* Rehber makale içeriği: madde ve numaralı listeler (preflight override) */
+.rehber-icerik ul {
+  list-style-type: disc;
+  list-style-position: outside;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.rehber-icerik ul li {
+  margin: 0.25rem 0;
+}
+.rehber-icerik ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.rehber-icerik ol li {
+  margin: 0.25rem 0;
+}
+.rehber-icerik ul ul,
+.rehber-icerik ol ol,
+.rehber-icerik ul ol,
+.rehber-icerik ol ul {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.rehber-icerik p {
+  line-height: 1.75;
+  margin: 0.5rem 0;
+}
+.rehber-icerik a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rehber-icerik strong {
+  font-weight: 600;
+}

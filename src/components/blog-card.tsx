@@ -17,7 +17,7 @@ export function BlogCard({ post }: BlogCardProps) {
           <span>{dateLabel}</span>
           <span>{post.readTime}</span>
         </div>
-        <Link href={`/rehber/${post.slug}`} className="text-lg font-semibold">
+        <Link href={`/${post.categorySlug}/rehber/${post.slug}`} className="text-lg font-semibold">
           {post.title}
         </Link>
       </CardHeader>
@@ -26,7 +26,7 @@ export function BlogCard({ post }: BlogCardProps) {
         <div className="flex items-center justify-between">
           <Badge variant="secondary">{post.category}</Badge>
           <Link
-            href={`/rehber/${post.slug}`}
+            href={`/${post.categorySlug}/rehber/${post.slug}`}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
             Devamını oku →
