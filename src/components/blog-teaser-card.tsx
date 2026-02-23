@@ -1,8 +1,11 @@
 import Link from "next/link";
 import type { BlogPost } from "@/lib/blog-data";
 
+/** Kartın gerçekten kullandığı alanlar; BlogPost veya GuideListItem uyumlu. */
+type TeaserPost = Pick<BlogPost, "slug" | "title" | "summary" | "categorySlug" | "image" | "cardImage">;
+
 type BlogTeaserCardProps = {
-  post: BlogPost;
+  post: TeaserPost;
   /** Topic silo base path, örn. /miras-hukuku/rehber. Verilmezse /rehber/[slug]. */
   basePath?: string;
   /** true = rehber listesinde, asıl (detay) görsel kullanılır. false = anasayfa, kart görseli (cardImage) kullanılır. */
