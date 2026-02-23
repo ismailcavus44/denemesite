@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendMail } from "@/lib/mail";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 
 const ALLOWED_MIME =
@@ -16,24 +15,8 @@ function getClientIp(request: NextRequest): string {
   return "unknown";
 }
 
-function safeAttachmentFilename(name: string | null): string {
-  if (!name?.trim()) return "basvuru.docx";
-  const base = name.replace(/^.*[/\\]/, "").trim();
-  const safe = base.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
-  return safe.endsWith(".docx") ? safe : safe ? `${safe}.docx` : "basvuru.docx";
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const basvuruEmail = process.env.BASVURU_EMAIL?.trim();
-    if (!basvuruEmail) {
-      console.error("[basvuru] BASVURU_EMAIL ortam değişkeni tanımlı değil.");
-      return NextResponse.json(
-        { error: "Başvuru alınamıyor. Lütfen daha sonra deneyin." },
-        { status: 503 }
-      );
-    }
-
     const ip = getClientIp(request);
     const supabase = createSupabaseAdminClient();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -99,27 +82,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const buffer = Buffer.from(await cv.arrayBuffer());
-    const subject =
-      type === "yazar"
-        ? "Gönüllü Yazar Başvurusu"
-        : "Gönüllü Editör Başvurusu";
-
-    const html = `
-      <p><strong>Başvuru türü:</strong> ${type === "yazar" ? "Yazar" : "Editör"}</p>
-      <p><strong>Ad Soyad:</strong> ${escapeHtml(name.trim())}</p>
-      <p><strong>E-posta:</strong> ${escapeHtml(email.trim())}</p>
-      <p><strong>Telefon:</strong> ${escapeHtml(phone.trim())}</p>
-      <p>CV dosyası ektedir.</p>
-    `;
-
-    await sendMail({
-      to: basvuruEmail,
-      subject,
-      html,
-      attachments: [{ filename: safeAttachmentFilename(cv.name), content: buffer }],
-    });
-
     await supabase.from("basvuru_log").insert({
       ip_address: ip,
       submitted_at: new Date().toISOString(),
@@ -135,10 +97,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}

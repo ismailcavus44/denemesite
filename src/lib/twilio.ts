@@ -1,5 +1,11 @@
 import twilio from "twilio";
 
+console.log("🕵️‍♂️ TWILIO ENV DURUMU:", {
+  sid: !!process.env.TWILIO_ACCOUNT_SID,
+  token: !!process.env.TWILIO_AUTH_TOKEN,
+  no: !!process.env.TWILIO_WHATSAPP_NUMBER,
+});
+
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER;
@@ -17,8 +23,7 @@ export async function sendWhatsAppNotification(
   const questionUrl = categorySlug
     ? `${baseUrl}/${categorySlug}/soru/${questionSlug}`
     : `${baseUrl}/soru/${questionSlug}`;
-  const searchUrl = "https://www.google.com/search?q=yasalhaklariniz.com";
-  const body = `Merhaba, ${searchUrl} adresinde sorduğunuz soru uzman ekibimiz tarafından yanıtlanmıştır. Cevabınızı hemen okumak için linke tıklayın: ${questionUrl}`;
+  const body = `Merhaba, Yasal Haklarınız Platformuna sorduğunuz soru uzman ekibimiz tarafından yanıtlanmıştır. Cevabınızı hemen okumak için linke tıklayın: ${questionUrl}`;
 
   try {
     const client = twilio(accountSid, authToken);

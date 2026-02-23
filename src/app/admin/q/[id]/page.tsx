@@ -26,7 +26,6 @@ type QuestionData = {
   body: string;
   status: string;
   category_id: string | null;
-  asker_email: string | null;
   answer?: { answer_text: string } | { answer_text: string }[] | null;
   ai_title: string | null;
   ai_answer_draft: string | null;
@@ -53,7 +52,7 @@ type SimilarQuestion = {
 };
 
 const QUESTION_SELECT =
-  "id,title,body,status,category_id,asker_email,ai_title,ai_answer_draft,ai_main_concept,ai_pillar_slug,ai_pillar_url,ai_category,ai_card_summary,seo_slug,seo_title,seo_description,ai_h1_summary,ai_h1_enabled,related_guide_url,related_guide_label,answer:answers(answer_text)";
+  "id,title,body,status,category_id,ai_title,ai_answer_draft,ai_main_concept,ai_pillar_slug,ai_pillar_url,ai_category,ai_card_summary,seo_slug,seo_title,seo_description,ai_h1_summary,ai_h1_enabled,related_guide_url,related_guide_label,answer:answers(answer_text)";
 
 function getAccessToken(): string | null {
   try {
@@ -246,11 +245,7 @@ export default function AdminQuestionPage() {
         toast.error((data.message as string) ?? "İşlem başarısız.");
         return;
       }
-      if (data.email_sent) {
-        toast.success("Soru reddedildi, kullanıcıya benzer cevap e-postayla gönderildi.");
-      } else {
-        toast.success("Soru reddedildi. E-posta yok, mail gönderilmedi; isterseniz manuel silin.");
-      }
+      toast.success("Soru reddedildi.");
       loadData();
     } catch {
       toast.error("İşlem sırasında hata oluştu.");
@@ -459,9 +454,6 @@ export default function AdminQuestionPage() {
           <h1 className="text-2xl font-semibold">Soru Düzenle</h1>
           <div className="text-xs text-muted-foreground">
             Durum: <Badge variant="outline">{question.status}</Badge>
-            {question.asker_email && (
-              <span className="ml-2"> · E-posta: {question.asker_email}</span>
-            )}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -482,16 +474,7 @@ export default function AdminQuestionPage() {
 
       {/* Benzer sorular — en üstte */}
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold">Benzer sorular</h2>
-          <span className="text-sm">
-            E-posta: {question.asker_email ? (
-            <span className="text-green-600">{question.asker_email}</span>
-            ) : (
-              <span className="text-amber-600">yok</span>
-            )}
-          </span>
-        </div>
+        <h2 className="text-lg font-semibold">Benzer sorular</h2>
         {similarLoading ? (
           <p className="text-sm text-muted-foreground">Benzer sorular yükleniyor…</p>
         ) : similarQuestions.length > 0 ? (

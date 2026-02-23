@@ -31,9 +31,6 @@ export function AdminHeader() {
             <Link href="/admin/categories" className="hover:text-foreground">
               Kategoriler
             </Link>
-            <Link href="/admin/toplu-email" className="hover:text-foreground">
-              Toplu E-posta
-            </Link>
             <Link href="/admin/articles" className="hover:text-foreground">
               Makaleler
             </Link>

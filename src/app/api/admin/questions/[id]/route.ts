@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
-import { sendMail } from "@/lib/mail";
 import { getOpenAIEmbedding } from "@/lib/ai/embedding";
 import { sendWhatsAppNotification } from "@/lib/twilio";
+
+export const runtime = "nodejs";
 
 function escapeRegex(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -204,45 +205,13 @@ export async function PATCH(request: Request, { params }: Params) {
     }
   }
 
-  /* Soru yayınlandığında, soruda e-posta varsa cevaplandı bildirimi gönder */
+  /* Soru yayınlandığında, phone_number varsa WhatsApp bildirimi gönder */
   if (body.status === "published") {
     const { data: questionRow } = await supabase
       .from("questions")
-      .select("asker_email,phone_number,title,slug,category_id,category:categories(slug)")
+      .select("phone_number,title,slug,category_id,category:categories(slug)")
       .eq("id", id)
       .maybeSingle();
-
-    const toEmail = (questionRow as { asker_email?: string | null })?.asker_email?.trim();
-    if (toEmail) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://yasalhaklariniz.com";
-      const cat = (questionRow as { category?: { slug: string } | Array<{ slug: string }> })?.category;
-      const catSlug = (Array.isArray(cat) ? cat[0]?.slug : cat?.slug) ?? "sorular";
-      const questionUrl = `${siteUrl}/${catSlug}/soru/${questionRow!.slug}`;
-
-      try {
-        await sendMail({
-          to: toEmail,
-          subject: "Sorunuz cevaplandı — YasalHaklariniz",
-          html: `
-            <div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#1a1a1a">
-              <h2 style="margin:0 0 16px;font-size:20px;color:#111">Sorunuz cevaplandı</h2>
-              <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#333">
-                <strong>"${questionRow!.title}"</strong> başlıklı sorunuz editör ekibi tarafından cevaplandı ve yayınlandı.
-              </p>
-              <a href="${questionUrl}" style="display:inline-block;margin:16px 0;padding:10px 24px;background:#111;color:#fff;text-decoration:none;border-radius:6px;font-size:14px">
-                Cevabı Görüntüle
-              </a>
-              <hr style="margin:24px 0;border:none;border-top:1px solid #e5e5e5" />
-              <p style="margin:0;font-size:12px;color:#999">
-                Bu e-posta YasalHaklariniz tarafından gönderilmiştir.
-              </p>
-            </div>
-          `,
-        });
-      } catch (err) {
-        console.warn("[mail] Cevaplandı bildirimi gönderilemedi:", err);
-      }
-    }
 
     const toPhone = (questionRow as { phone_number?: string | null })?.phone_number?.trim();
     if (toPhone) {

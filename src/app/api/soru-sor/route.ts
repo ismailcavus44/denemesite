@@ -19,10 +19,9 @@ function getClientIp(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { body: questionBody, category_id: categoryId, email: askerEmail, phone: askerPhone } = body as {
+    const { body: questionBody, category_id: categoryId, phone: askerPhone } = body as {
       body?: string;
       category_id?: string;
-      email?: string;
       phone?: string;
     };
 
@@ -33,8 +32,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const emailTrimmed = typeof askerEmail === "string" ? askerEmail.trim() : "";
-    const emailToSave = emailTrimmed && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed) ? emailTrimmed : null;
     const phoneToSave = formatPhoneNumber(typeof askerPhone === "string" ? askerPhone : "");
 
     const ip = getClientIp(request);
@@ -75,7 +72,6 @@ export async function POST(request: NextRequest) {
       body: questionBody.trim(),
       slug,
       category_id: categoryId,
-      ...(emailToSave ? { asker_email: emailToSave } : {}),
       ...(phoneToSave ? { phone_number: phoneToSave } : {}),
     });
 
@@ -85,23 +81,6 @@ export async function POST(request: NextRequest) {
         { error: insertError.message || "Soru kaydedilemedi." },
         { status: 500 }
       );
-    }
-
-    if (emailToSave) {
-      const { data: sub } = await supabase
-        .from("email_subscribers")
-        .upsert(
-          { email: emailToSave.toLowerCase(), source: "soru_sor" },
-          { onConflict: "email" }
-        )
-        .select("id")
-        .single();
-      if (sub?.id && categoryId) {
-        await supabase.from("email_subscriber_categories").upsert(
-          { subscriber_id: sub.id, category_id: categoryId },
-          { onConflict: "subscriber_id,category_id" }
-        );
-      }
     }
 
     await supabase.from("question_submission_log").insert({

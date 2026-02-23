@@ -8,7 +8,6 @@ import {
   Inbox,
   FileText,
   FolderTree,
-  Mail,
   Loader2,
   ArrowRight,
 } from "lucide-react";
@@ -116,13 +115,6 @@ export default function AdminDashboardPage() {
       description: "Kategori yönetimi",
       icon: FolderTree,
       stat: stats?.categories,
-      accent: "muted",
-    },
-    {
-      href: "/admin/toplu-email",
-      label: "Toplu E-posta",
-      description: "Reklam / bilgilendirme maili",
-      icon: Mail,
       accent: "muted",
     },
   ];
