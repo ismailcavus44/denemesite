@@ -9,6 +9,8 @@ export type CategoryRow = {
   intro?: string | null;
   pillar_md?: string | null;
   updated_at?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
 };
 
 const KNOWN_CATEGORIES: Record<string, string> = {
@@ -47,7 +49,7 @@ export async function getCategoryBySlug(
     const supabase = createSupabaseAdminClient();
     const { data } = await supabase
       .from("categories")
-      .select("id,name,slug,intro,pillar_md,updated_at")
+      .select("id,name,slug,intro,pillar_md,updated_at,meta_title,meta_description")
       .eq("slug", slug)
       .maybeSingle();
     return data as CategoryRow | null;
@@ -68,7 +70,7 @@ export async function getTopLinksForCategory(
 
   const [questions, guides] = await Promise.all([
     getRelatedQuestions(categorySlug, limit),
-    Promise.resolve(getRelatedGuides(categorySlug, limit)),
+    getRelatedGuides(categorySlug, limit),
   ]);
 
   const fromQuestions: TopLinkItem[] = (questions ?? []).map((q) => ({
@@ -153,29 +155,81 @@ export async function getRelatedQuestionsPaginated(
   return { questions: (data ?? []) as Awaited<ReturnType<typeof getRelatedQuestions>>, total };
 }
 
-/** Rehber (blog) yazıları kategori slug ile filtreler. categorySlug blog-data'daki categorySlug ile eşleşir. */
-export function getRelatedGuides(
+/** Liste/sidebar için rehber öğesi (statik + DB birleşik). */
+export type GuideListItem = {
+  slug: string;
+  title: string;
+  summary: string;
+  categorySlug: string;
+  image?: string;
+  cardImage?: string;
+};
+
+/** DB'den yayındaki makaleleri kategori slug ile çeker (sıralama için created_at dahil). */
+async function getArticlesByCategory(categorySlug: string): Promise<(GuideListItem & { _sortDate: string })[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data } = await supabase
+    .from("articles")
+    .select("title, slug, meta_description, featured_image_url, created_at")
+    .eq("category", categorySlug)
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+  if (!data?.length) return [];
+  return data.map((a) => {
+    const row = a as { title: string; slug: string; meta_description?: string | null; featured_image_url?: string | null; created_at: string };
+    const summary = row.meta_description?.trim() || "";
+    return {
+      slug: row.slug,
+      title: row.title,
+      summary: summary.length > 160 ? `${summary.slice(0, 157)}...` : summary,
+      categorySlug,
+      image: row.featured_image_url ?? undefined,
+      cardImage: row.featured_image_url ?? undefined,
+      _sortDate: row.created_at,
+    };
+  });
+}
+
+/** Statik + DB rehberleri birleştirir, tarihe göre sıralar (yeni önce). */
+async function getMergedGuidesForCategory(categorySlug: string): Promise<(GuideListItem & { _sortDate: string })[]> {
+  const staticPosts = blogPosts
+    .filter((p) => p.categorySlug === categorySlug)
+    .map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      summary: p.summary.length > 160 ? `${p.summary.slice(0, 157)}...` : p.summary,
+      categorySlug: p.categorySlug,
+      image: p.image,
+      cardImage: p.cardImage ?? p.image,
+      _sortDate: p.date,
+    }));
+  const dbArticles = await getArticlesByCategory(categorySlug);
+  const merged = [...staticPosts, ...dbArticles];
+  merged.sort((a, b) => (b._sortDate < a._sortDate ? -1 : b._sortDate > a._sortDate ? 1 : 0));
+  return merged;
+}
+
+/** Rehber (blog) yazıları kategori slug ile filtreler; statik + DB birleşik. */
+export async function getRelatedGuides(
   categorySlug: string,
   limit: number,
   excludeSlug?: string
-) {
-  const withSlug = blogPosts.filter((p) => p.categorySlug === categorySlug);
-  const filtered = excludeSlug
-    ? withSlug.filter((p) => p.slug !== excludeSlug)
-    : withSlug;
-  return filtered.slice(0, limit);
+): Promise<GuideListItem[]> {
+  const merged = await getMergedGuidesForCategory(categorySlug);
+  const filtered = excludeSlug ? merged.filter((p) => p.slug !== excludeSlug) : merged;
+  return filtered.slice(0, limit).map(({ _sortDate: _, ...rest }) => rest);
 }
 
-/** Rehber listesi sayfalama: sayfa başına pageSize adet, toplam ile birlikte. */
-export function getRelatedGuidesPaginated(
+/** Rehber listesi sayfalama: statik + DB birleşik, sayfa başına pageSize adet. */
+export async function getRelatedGuidesPaginated(
   categorySlug: string,
   page: number,
   pageSize: number
-): { guides: ReturnType<typeof getRelatedGuides>; total: number } {
-  const withSlug = blogPosts.filter((p) => p.categorySlug === categorySlug);
-  const total = withSlug.length;
+): Promise<{ guides: GuideListItem[]; total: number }> {
+  const merged = await getMergedGuidesForCategory(categorySlug);
+  const total = merged.length;
   const from = (page - 1) * pageSize;
-  const guides = withSlug.slice(from, from + pageSize);
+  const guides = merged.slice(from, from + pageSize).map(({ _sortDate: _, ...rest }) => rest);
   return { guides, total };
 }
 

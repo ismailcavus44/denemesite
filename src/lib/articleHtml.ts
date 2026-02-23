@@ -50,7 +50,7 @@ export function addHeadingIdsAndGetToc(html: string): { html: string; tocItems: 
     const label = stripTags(inner);
     const id = makeId(label);
     tocItems.push({ id, label, level: "h2" });
-    return `<h2 id="${id}" class="mt-8 text-[26px] font-semibold text-slate-900 scroll-mt-6">${inner}</h2>`;
+    return `<h2 id="${id}" class="mt-5 text-[26px] font-semibold text-slate-900 scroll-mt-6">${inner}</h2>`;
   });
 
   // h3
@@ -58,7 +58,7 @@ export function addHeadingIdsAndGetToc(html: string): { html: string; tocItems: 
     const label = stripTags(inner);
     const id = makeId(label);
     tocItems.push({ id, label, level: "h3" });
-    return `<h3 id="${id}" class="mt-6 text-[22px] font-semibold text-slate-900 scroll-mt-6">${inner}</h3>`;
+    return `<h3 id="${id}" class="mt-4 text-[22px] font-semibold text-slate-900 scroll-mt-6">${inner}</h3>`;
   });
 
   return { html: out, tocItems };

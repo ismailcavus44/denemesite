@@ -3,12 +3,16 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 type Category = {
   id: string;
   name: string;
   slug: string;
+  meta_title: string | null;
+  meta_description: string | null;
 };
 
 function getAccessToken(): string | null {
@@ -28,18 +32,23 @@ export default function AdminCategoriesPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [loading, setLoading] = useState(true);
+  const [openMetaId, setOpenMetaId] = useState<string | null>(null);
 
   const loadCategories = async () => {
     setLoading(true);
     try {
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-      const res = await fetch(
-        `${url}/rest/v1/categories?select=id,name,slug&order=name`,
-        { headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/json" } }
-      );
+      const token = getAccessToken();
+      if (!token) {
+        setCategories([]);
+        setLoading(false);
+        return;
+      }
+      const res = await fetch("/api/admin/categories", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data: Category[] = res.ok ? await res.json() : [];
-      setCategories(data);
+      setCategories(Array.isArray(data) ? data : []);
     } catch {
       toast.error("Kategoriler getirilemedi.");
       setCategories([]);
@@ -58,16 +67,19 @@ export default function AdminCategoriesPage() {
       return;
     }
     const token = getAccessToken();
-    if (!token) { toast.error("Oturum bulunamadı."); return; }
-    const response = await fetch("/api/admin/categories", {
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    const res = await fetch("/api/admin/categories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name: name.trim(), slug: slug.trim() }),
+      body: JSON.stringify({ name: name.trim(), slug: slug.trim().toLowerCase().replace(/\s+/g, "-") }),
     });
-    if (!response.ok) {
+    if (!res.ok) {
       toast.error("Kategori eklenemedi.");
       return;
     }
@@ -79,16 +91,25 @@ export default function AdminCategoriesPage() {
 
   const handleUpdate = async (category: Category) => {
     const token = getAccessToken();
-    if (!token) { toast.error("Oturum bulunamadı."); return; }
-    const response = await fetch("/api/admin/categories", {
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    const res = await fetch("/api/admin/categories", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(category),
+      body: JSON.stringify({
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        meta_title: category.meta_title ?? null,
+        meta_description: category.meta_description ?? null,
+      }),
     });
-    if (!response.ok) {
+    if (!res.ok) {
       toast.error("Kategori güncellenemedi.");
       return;
     }
@@ -98,8 +119,11 @@ export default function AdminCategoriesPage() {
 
   const handleDelete = async (id: string) => {
     const token = getAccessToken();
-    if (!token) { toast.error("Oturum bulunamadı."); return; }
-    const response = await fetch("/api/admin/categories", {
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    const res = await fetch("/api/admin/categories", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -107,7 +131,7 @@ export default function AdminCategoriesPage() {
       },
       body: JSON.stringify({ id }),
     });
-    if (!response.ok) {
+    if (!res.ok) {
       toast.error("Kategori silinemedi.");
       return;
     }
@@ -115,79 +139,124 @@ export default function AdminCategoriesPage() {
     loadCategories();
   };
 
+  const setCategory = (index: number, patch: Partial<Category>) => {
+    const next = [...categories];
+    next[index] = { ...next[index], ...patch };
+    setCategories(next);
+  };
+
   return (
-    <div className="rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">Kategoriler</h1>
-        <p className="mt-0.5 text-sm text-slate-500">
-          Toplam {categories.length} kategori · Ekleyin, güncelleyin, silin.
-        </p>
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="mb-4">
+        <h1 className="text-lg font-semibold text-slate-800 sm:text-xl">Kategoriler</h1>
+        <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">{categories.length} kategori</p>
       </div>
 
-      <div className="mb-6 grid gap-3 rounded-xl bg-slate-50/80 p-4 md:grid-cols-3">
+      {/* Ekle */}
+      <div className="mb-6 flex flex-wrap items-end gap-2 sm:gap-3">
         <Input
           placeholder="Kategori adı"
           value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="rounded-xl border-slate-200 bg-white"
+          onChange={(e) => setName(e.target.value)}
+          className="h-9 w-full min-w-0 max-w-[180px] rounded-lg border-slate-200 text-sm sm:max-w-[200px]"
         />
         <Input
           placeholder="slug"
           value={slug}
-          onChange={(event) => setSlug(event.target.value)}
-          className="rounded-xl border-slate-200 bg-white"
+          onChange={(e) => setSlug(e.target.value)}
+          className="h-9 w-full min-w-0 max-w-[140px] rounded-lg border-slate-200 font-mono text-sm sm:max-w-[160px]"
         />
-        <Button onClick={handleCreate} className="rounded-xl">Ekle</Button>
+        <Button onClick={handleCreate} size="sm" className="h-9 rounded-lg px-3 text-sm">
+          Ekle
+        </Button>
       </div>
 
       {loading ? (
-        <div className="py-12 text-sm text-slate-500">Yükleniyor...</div>
+        <p className="py-8 text-center text-sm text-slate-500">Yükleniyor…</p>
+      ) : categories.length === 0 ? (
+        <p className="py-8 text-center text-sm text-slate-500">Henüz kategori yok.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-100">
-          {categories.map((category, index) => (
-            <div
-              key={category.id}
-              className="grid gap-3 border-b border-slate-50 p-4 transition-colors duration-200 hover:bg-slate-50/50 md:grid-cols-[1fr_1fr_auto_auto]"
-            >
-              <Input
-                value={category.name}
-                onChange={(event) => {
-                  const updated = [...categories];
-                  updated[index] = { ...category, name: event.target.value };
-                  setCategories(updated);
-                }}
-                className="rounded-xl border-slate-200 bg-white"
-              />
-              <Input
-                value={category.slug}
-                onChange={(event) => {
-                  const updated = [...categories];
-                  updated[index] = { ...category, slug: event.target.value };
-                  setCategories(updated);
-                }}
-                className="rounded-xl border-slate-200 bg-white"
-              />
-              <button
-                type="button"
-                onClick={() => handleUpdate(category)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-indigo-300 hover:text-indigo-600"
+        <div className="space-y-4">
+          {categories.map((category, index) => {
+            const isMetaOpen = openMetaId === category.id;
+            return (
+              <div
+                key={category.id}
+                className="rounded-lg border border-slate-100 bg-slate-50/50 p-3 sm:p-4"
               >
-                Kaydet
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(category.id)}
-                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-red-200 hover:text-red-500"
-              >
-                Sil
-              </button>
-            </div>
-          ))}
-          {!categories.length && (
-            <div className="border-b border-slate-50 p-8 text-center text-sm text-slate-500">
-              Henüz kategori yok.
-            </div>
-          )}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setOpenMetaId(isMetaOpen ? null : category.id)}
+                    className="flex h-8 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-200/60 hover:text-slate-600"
+                    aria-expanded={isMetaOpen}
+                    title={isMetaOpen ? "Meta alanlarını kapat" : "Meta alanlarını aç"}
+                  >
+                    {isMetaOpen ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+                  </button>
+                  <Input
+                    value={category.name}
+                    onChange={(e) => setCategory(index, { name: e.target.value })}
+                    placeholder="Ad"
+                    className="h-8 w-full min-w-0 max-w-[160px] rounded border-slate-200 text-sm sm:max-w-[180px]"
+                  />
+                  <Input
+                    value={category.slug}
+                    onChange={(e) => setCategory(index, { slug: e.target.value })}
+                    placeholder="slug"
+                    className="h-8 w-full min-w-0 max-w-[120px] rounded border-slate-200 font-mono text-xs sm:max-w-[140px]"
+                  />
+                  <div className="flex shrink-0 gap-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded px-2 text-xs"
+                      onClick={() => handleUpdate(categories[index])}
+                    >
+                      Kaydet
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => handleDelete(category.id)}
+                    >
+                      Sil
+                    </Button>
+                  </div>
+                </div>
+                {isMetaOpen && (
+                  <div className="mt-3 border-t border-slate-200 pt-3">
+                    <p className="mb-2 text-xs font-medium text-slate-600">SEO / Meta</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-0.5 block text-xs font-medium text-slate-500">Meta başlık</label>
+                        <Input
+                          value={category.meta_title ?? ""}
+                          onChange={(e) => setCategory(index, { meta_title: e.target.value })}
+                          placeholder="Tarayıcı sekmesi başlığı"
+                          className="h-8 rounded border-slate-200 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-0.5 block text-xs font-medium text-slate-500">Meta açıklama</label>
+                        <Textarea
+                          value={category.meta_description ?? ""}
+                          onChange={(e) => setCategory(index, { meta_description: e.target.value })}
+                          placeholder="Arama sonucu açıklaması (~160 karakter)"
+                          rows={2}
+                          className="min-h-0 resize-none rounded border-slate-200 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[10px] text-slate-400">Değişiklikten sonra Kaydet’e basın.</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

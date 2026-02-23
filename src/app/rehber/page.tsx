@@ -150,8 +150,8 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
           </p>
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
-            {visiblePosts.map((post) => (
-              <BlogTeaserCard key={`${post.categorySlug}-${post.slug}`} post={post} useDetailImage />
+            {visiblePosts.map((post, i) => (
+              <BlogTeaserCard key={`${post.categorySlug}-${post.slug}-${start + i}`} post={post} useDetailImage />
             ))}
           </div>
         )}

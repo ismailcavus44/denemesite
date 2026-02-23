@@ -53,8 +53,8 @@ export function CategoryPillar({ pillarMd }: CategoryPillarProps) {
       <Accordion type="single" collapsible className="w-full">
         {sections.map((section, i) => (
           <AccordionItem key={i} value={`pillar-${i}`}>
-            <AccordionTrigger className="text-left text-base font-semibold text-slate-900">
-              {section.title}
+            <AccordionTrigger className="text-left">
+              <h3 className="m-0 text-base font-semibold text-slate-900">{section.title}</h3>
             </AccordionTrigger>
             <AccordionContent>
               <div className="max-w-none text-slate-600">

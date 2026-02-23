@@ -71,10 +71,11 @@ export default function ContactPage() {
               İletişime geçin
             </h2>
             <p className="text-xs text-muted-foreground sm:text-sm">
-              Öneri, görüş ve taleplerinizi bize iletmek için mail adresimizden iletişime geçebilirsiniz.{" "}
+              Öneri, görüş ve taleplerinizi bize iletmek için{" "}
               <a href={`mailto:${siteConfig.contactEmail}`} className="inline-block text-primary underline underline-offset-2 text-xs whitespace-nowrap sm:text-sm">
                 {siteConfig.contactEmail}
               </a>
+              {" "}adresinden iletişime geçebilirsiniz.
             </p>
           </div>
           <div className="relative h-[200px] w-1/2 shrink-0 overflow-hidden md:h-full md:min-h-0">

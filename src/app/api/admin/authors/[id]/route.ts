@@ -53,3 +53,30 @@ export async function PATCH(
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const admin = await requireAdminFromRequest(_request);
+  if (!admin.ok) {
+    return NextResponse.json({ message: admin.message }, { status: admin.status });
+  }
+
+  const { id } = await params;
+  if (!id) {
+    return NextResponse.json({ message: "ID gerekli." }, { status: 400 });
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("authors").delete().eq("id", id);
+
+  if (error) {
+    return NextResponse.json(
+      { message: error.message ?? "Yazar silinemedi." },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ ok: true });
+}

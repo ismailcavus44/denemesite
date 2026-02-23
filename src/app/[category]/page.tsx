@@ -38,8 +38,9 @@ export async function generateMetadata({
   if (!category) {
     return { title: "Kategori bulunamadı" };
   }
-  const title = category.name;
+  const title = category.meta_title?.trim() || category.name;
   const description =
+    category.meta_description?.trim() ||
     (category.intro && category.intro.slice(0, 150).trim()) ||
     `${category.name} kategorisinde hukuki rehber ve cevaplanmış sorular. Sade ve anlaşılır bilgilendirme.`;
   const url = `${siteConfig.url}/${slug}`;

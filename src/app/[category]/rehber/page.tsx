@@ -44,12 +44,12 @@ export default async function CategoryRehberListPage({ params, searchParams }: P
   if (!categoryName) notFound();
 
   const page = Math.max(1, parseInt(String(pageParam), 10) || 1);
-  const { guides, total } = getRelatedGuidesPaginated(categorySlug, page, PAGE_SIZE);
+  const { guides, total } = await getRelatedGuidesPaginated(categorySlug, page, PAGE_SIZE);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const toShow =
     currentPage !== page
-      ? getRelatedGuidesPaginated(categorySlug, currentPage, PAGE_SIZE).guides
+      ? (await getRelatedGuidesPaginated(categorySlug, currentPage, PAGE_SIZE)).guides
       : guides;
 
   const breadcrumbItems = [

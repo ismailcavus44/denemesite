@@ -4,15 +4,56 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 import type { Author } from "@/types/author";
-import { Plus, Pencil, Loader2, Search } from "lucide-react";
+import { Plus, Pencil, Loader2, Search, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const ROWS_PER_PAGE = 10;
+
+function getAccessToken(): string | null {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const projectRef = new URL(url).hostname.split(".")[0];
+    const raw = typeof window !== "undefined" ? localStorage.getItem(`sb-${projectRef}-auth-token`) : null;
+    if (!raw) return null;
+    return JSON.parse(raw).access_token ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export default function AdminAuthorsPage() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`"${name}" yazarını kalıcı olarak silmek istediğinize emin misiniz? Bu yazara atanmış makalelerde yazar alanı boşalır.`)) return;
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı. Yeniden giriş yapın.");
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/authors/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error((data.message as string) || "Yazar silinemedi.");
+        return;
+      }
+      setAuthors((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Yazar silindi.");
+    } catch {
+      toast.error("Yazar silinemedi.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     async function load() {
@@ -88,7 +129,7 @@ export default function AdminAuthorsPage() {
                 <tr className="border-b border-slate-100">
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">İsim</th>
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Slug</th>
-                  <th className="w-24 pb-3 pt-0 pr-0 text-right text-xs font-semibold uppercase tracking-wider text-slate-400" />
+                  <th className="w-40 pb-3 pt-0 pr-0 text-right text-xs font-semibold uppercase tracking-wider text-slate-400" />
                 </tr>
               </thead>
               <tbody>
@@ -100,13 +141,28 @@ export default function AdminAuthorsPage() {
                     <td className="py-3 pr-4 font-medium text-slate-800">{a.name}</td>
                     <td className="py-3 pr-4 text-slate-500">{a.slug}</td>
                     <td className="py-3 text-right">
-                      <Link
-                        href={`/admin/authors/${a.id}/edit`}
-                        className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"
-                      >
-                        <Pencil className="size-4" />
-                        Düzenle
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/admin/authors/${a.id}/edit`}
+                          className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"
+                        >
+                          <Pencil className="size-4" />
+                          Düzenle
+                        </Link>
+                        <button
+                          type="button"
+                          disabled={deletingId === a.id}
+                          onClick={() => handleDelete(a.id, a.name ?? "")}
+                          className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-red-600 disabled:opacity-50"
+                        >
+                          {deletingId === a.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                          Sil
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

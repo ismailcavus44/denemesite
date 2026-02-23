@@ -175,7 +175,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dbArticle = await getArticleByCategoryAndSlug(categorySlug, slug);
   if (dbArticle) {
     const title = dbArticle.meta_title?.trim() || dbArticle.title;
-    const description = dbArticle.meta_description?.trim() || undefined;
+    const rawDesc = dbArticle.meta_description?.trim();
+    const description = rawDesc ? `${rawDesc} | YasalHaklarınız` : undefined;
     const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
     return { title: { absolute: title }, description, openGraph: { title, description, url }, alternates: { canonical: url } };
   }
@@ -225,35 +226,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               <header className="space-y-3">
                 <h1 className="text-3xl font-semibold text-slate-900">{dbArticle.title}</h1>
               </header>
-              {dbArticle.authors && (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link
-                    href={`/yazar/${dbArticle.authors.slug}`}
-                    className="flex items-center gap-2 rounded-full pr-2 transition hover:opacity-90"
-                  >
-                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
-                      {dbArticle.authors.photo_url ? (
-                        <Image
-                          src={dbArticle.authors.photo_url}
-                          alt={dbArticle.authors.name}
-                          fill
-                          className="object-cover"
-                          sizes="36px"
-                        />
-                      ) : (
-                        <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
-                          {dbArticle.authors.name.charAt(0)}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-sm font-medium text-slate-900">{dbArticle.authors.name}</span>
-                  </Link>
-                  <span className="text-slate-400">|</span>
-                  <Link href={`/${categorySlug}`} className="text-sm font-medium text-slate-900 hover:underline">
-                    {categoryName}
-                  </Link>
-                </div>
-              )}
               {dbArticle.featured_image_url && (
                 <div className="relative aspect-[1200/630] w-full overflow-hidden rounded-[8px] bg-muted">
                   <Image
@@ -267,7 +239,54 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   />
                 </div>
               )}
+              {(dbArticle.authors || categoryName) && (
+                <div className="flex flex-wrap items-center gap-1">
+                  {dbArticle.authors && (
+                    <>
+                      <Link
+                        href={`/yazar/${dbArticle.authors.slug}`}
+                        className="flex items-center gap-2 rounded-full pr-1 transition hover:underline underline-offset-2"
+                      >
+                        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                          {dbArticle.authors.photo_url ? (
+                            <Image
+                              src={dbArticle.authors.photo_url}
+                              alt={dbArticle.authors.name}
+                              fill
+                              className="object-cover"
+                              sizes="36px"
+                            />
+                          ) : (
+                            <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
+                              {dbArticle.authors.name.charAt(0)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm font-medium text-slate-900">{dbArticle.authors.name}</span>
+                      </Link>
+                      {categoryName && <span className="text-slate-400"> | </span>}
+                    </>
+                  )}
+                  {categoryName && (
+                    <Link href={`/${categorySlug}`} className="text-sm font-medium text-slate-900 hover:underline underline-offset-2">
+                      {categoryName}
+                    </Link>
+                  )}
+                </div>
+              )}
               {tocItems.length > 0 && <GuideToc items={tocItems} />}
+              <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
+                <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
+                <p className="mt-0.5 text-xs text-slate-600 leading-snug">
+                  Uzman ekibimize iletin; yayınlanan cevaplardan faydalanın.
+                </p>
+                <Link
+                  href="/soru-sor"
+                  className="mt-3 flex w-full items-center justify-center rounded-[8px] bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-900"
+                >
+                  Soru sor
+                </Link>
+              </aside>
               <div
                 id="rehber-icerik"
                 className="rehber-icerik space-y-4 text-[16px] text-slate-700 text-justify"
@@ -299,7 +318,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
         </div>
         <ArticleSchema
           headline={dbArticle.title}
-          description={dbArticle.meta_description?.trim() || dbArticle.title}
+          description={
+            dbArticle.meta_description?.trim()
+              ? `${dbArticle.meta_description.trim()} | YasalHaklarınız`
+              : dbArticle.title
+          }
           datePublished={dbArticle.created_at?.slice(0, 10) ?? ""}
           url={articleUrl}
           image={dbArticle.featured_image_url?.startsWith("http") ? dbArticle.featured_image_url : undefined}
@@ -390,6 +413,19 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             </div>
 
             {tocItems.length > 0 && <GuideToc items={tocItems} />}
+
+            <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
+              <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
+              <p className="mt-0.5 text-xs text-slate-600 leading-snug">
+                Uzman ekibimize iletin; yayınlanan cevaplardan faydalanın.
+              </p>
+              <Link
+                href="/soru-sor"
+                className="mt-3 flex w-full items-center justify-center rounded-[8px] bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-900"
+              >
+                Soru sor
+              </Link>
+            </aside>
 
             <div id="rehber-icerik" className="space-y-4 text-[16px] text-slate-700 text-justify">
               {post.contentBlocks

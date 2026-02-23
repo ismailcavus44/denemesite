@@ -228,179 +228,197 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/admin/articles" aria-label="Makalelere dön">
             <ArrowLeft className="size-4" />
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-xl font-semibold sm:text-2xl">
           {isEdit ? "Makaleyi Düzenle" : "Yeni Makale"}
         </h1>
       </div>
 
-      <div className="grid gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Başlık</label>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Makale başlığı"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Slug</label>
-            <Button type="button" variant="outline" size="sm" onClick={generateSlug}>
-              Başlıktan oluştur
-            </Button>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,6fr)_minmax(0,3fr)] lg:gap-6">
+        {/* Sol: Editör (mobilde altta) — toolbar sabit, içerik scroll */}
+        <div className="order-2 min-w-0 lg:order-1 flex flex-col min-h-[420px] lg:min-h-[calc(100vh-10rem)] lg:max-h-[calc(100vh-6rem)]">
+          <div className="flex-1 min-h-0 flex flex-col">
+            <ArticleEditor
+              value={content}
+              onChange={setContent}
+              placeholder="Makale içeriği (H2, H3, kalın, liste, link kullanabilirsiniz)"
+              minHeight="280px"
+              className="h-full flex flex-col min-h-0"
+            />
           </div>
-          <Input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="url-slug"
-          />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Kategori</label>
-          <Select value={category || "none"} onValueChange={(v) => setCategory(v === "none" ? "" : v)}>
-            <SelectTrigger className="w-full max-w-xs">
-              <SelectValue placeholder="Kategori seçin (URL: /[kategori]/rehber/[slug])" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Kategori seçin</SelectItem>
-              {ARTICLE_CATEGORIES.map((c) => (
-                <SelectItem key={c.value} value={c.value}>
-                  {c.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            URL: /{category || "[kategori]"}/rehber/{slug || "[slug]"}
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Yazar</label>
-          <Select value={authorId || "none"} onValueChange={(v) => setAuthorId(v === "none" ? "" : v)}>
-            <SelectTrigger className="w-full max-w-xs">
-              <SelectValue placeholder="Yazar seçin" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Yazar yok</SelectItem>
-              {authors.map((a) => (
-                <SelectItem key={a.id} value={a.id}>
-                  {a.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Meta Title (SEO)</label>
-          <Input
-            value={metaTitle}
-            onChange={(e) => setMetaTitle(e.target.value)}
-            placeholder="Tarayıcı sekmesi / arama sonucu başlığı"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Meta Description (SEO)</label>
-          <Textarea
-            value={metaDescription}
-            onChange={(e) => setMetaDescription(e.target.value)}
-            placeholder="Kısa açıklama (140–160 karakter)"
-            rows={2}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Kapak görseli</label>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
+        {/* Sağ: Tüm girdiler (mobilde üstte) */}
+        <aside className="order-1 flex flex-col gap-4 lg:order-2 lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-4 shadow-sm">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">Başlık</label>
               <Input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={uploading}
-                className="max-w-xs"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Makale başlığı"
+                className="h-9"
               />
-              {uploading && (
-                <Loader2 className="size-4 animate-spin text-muted-foreground" />
-              )}
             </div>
-            {featuredImageUrl ? (
-              <div className="space-y-2">
-                <div className="relative h-48 w-full max-w-md overflow-hidden rounded-md border bg-muted">
-                  <Image
-                    src={featuredImageUrl}
-                    alt={featuredImageAlt || "Kapak"}
-                    fill
-                    className="object-cover"
-                    unoptimized={
-                      featuredImageUrl.startsWith(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
-                    }
-                  />
-                </div>
-                <Input
-                  value={featuredImageAlt}
-                  onChange={(e) => setFeaturedImageAlt(e.target.value)}
-                  placeholder="Görsel alt etiketi (erişilebilirlik)"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setFeaturedImageUrl(null);
-                    setFeaturedImageAlt("");
-                  }}
-                >
-                  Görseli kaldır
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-sm font-medium text-slate-700">Slug</label>
+                <Button type="button" variant="outline" size="sm" className="h-7 text-xs shrink-0" onClick={generateSlug}>
+                  Başlıktan
                 </Button>
               </div>
-            ) : (
-              <div className="flex h-24 w-full max-w-md items-center justify-center rounded-md border border-dashed bg-muted/50 text-muted-foreground">
-                <span className="flex items-center gap-2 text-sm">
-                  <ImageIcon className="size-4" />
-                  Görsel yükleyin veya sonra ekleyin
-                </span>
+              <Input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="url-slug"
+                className="h-9 font-mono text-sm"
+              />
+              <p className="text-[11px] text-slate-500 truncate">
+                /{category || "…"}/rehber/{slug || "…"}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">Kategori</label>
+              <Select value={category || "none"} onValueChange={(v) => setCategory(v === "none" ? "" : v)}>
+                <SelectTrigger className="h-9 w-full">
+                  <SelectValue placeholder="Kategori seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Kategori seçin</SelectItem>
+                  {ARTICLE_CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">Yazar</label>
+              <Select value={authorId || "none"} onValueChange={(v) => setAuthorId(v === "none" ? "" : v)}>
+                <SelectTrigger className="h-9 w-full">
+                  <SelectValue placeholder="Yazar seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Yazar yok</SelectItem>
+                  {authors.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">Meta başlık (SEO)</label>
+              <Input
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                placeholder="Sekme / arama başlığı"
+                className="h-9"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">Meta açıklama (SEO)</label>
+              <Textarea
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                placeholder="140–160 karakter"
+                rows={2}
+                className="resize-none text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">Kapak görseli</label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    className="h-9 cursor-pointer text-xs file:mr-2 file:rounded file:border-0 file:bg-slate-100 file:cursor-pointer file:px-2 file:py-1 file:text-xs"
+                  />
+                  {uploading && <Loader2 className="size-4 shrink-0 animate-spin text-slate-400" />}
+                </div>
+                {featuredImageUrl ? (
+                  <div className="space-y-2">
+                    <div className="relative aspect-video w-full overflow-hidden rounded-md border bg-slate-100">
+                      <Image
+                        src={featuredImageUrl}
+                        alt={featuredImageAlt || "Kapak"}
+                        fill
+                        className="object-cover"
+                        unoptimized={
+                          featuredImageUrl.startsWith(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
+                        }
+                      />
+                    </div>
+                    <Input
+                      value={featuredImageAlt}
+                      onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                      placeholder="Alt metni"
+                      className="h-8 text-sm"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-full text-xs"
+                      onClick={() => {
+                        setFeaturedImageUrl(null);
+                        setFeaturedImageAlt("");
+                      }}
+                    >
+                      Görseli kaldır
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex h-20 w-full items-center justify-center rounded-md border border-dashed border-slate-200 bg-slate-50 text-slate-400">
+                    <span className="flex items-center gap-1.5 text-xs">
+                      <ImageIcon className="size-3.5" />
+                      Görsel yok
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+
+            <div className="flex flex-col gap-2 pt-2 border-t border-slate-200">
+              <Button
+                type="button"
+                className="w-full"
+                disabled={saving}
+                onClick={() => save("published")}
+              >
+                {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+                Yayınla
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={saving}
+                onClick={() => save("draft")}
+              >
+                {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+                Taslak kaydet
+              </Button>
+            </div>
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">İçerik</label>
-          <ArticleEditor
-            value={content}
-            onChange={setContent}
-            placeholder="Makale içeriği (H2, H3, kalın, liste, link kullanabilirsiniz)"
-            minHeight="400px"
-          />
-        </div>
-
-        <div className="flex flex-wrap gap-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={saving}
-            onClick={() => save("draft")}
-          >
-            {saving ? <Loader2 className="size-4 animate-spin" /> : null}
-            Taslak kaydet
-          </Button>
-          <Button type="button" disabled={saving} onClick={() => save("published")}>
-            {saving ? <Loader2 className="size-4 animate-spin" /> : null}
-            Yayınla
-          </Button>
-        </div>
+        </aside>
       </div>
     </div>
   );

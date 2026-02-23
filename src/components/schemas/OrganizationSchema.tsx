@@ -13,7 +13,7 @@ export function OrganizationSchema() {
     url: BASE_URL,
     logo: LOGO_URL,
     description: siteConfig.description,
-    email: "info@yasalhaklariniz.com",
+    email: siteConfig.contactEmail,
     sameAs: ["https://instagram.com/yasalhaklariniz"],
   };
 

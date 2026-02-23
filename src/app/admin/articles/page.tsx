@@ -4,15 +4,56 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 import type { Article } from "@/types/article";
-import { Plus, Pencil, Loader2, Search } from "lucide-react";
+import { Plus, Pencil, Loader2, Search, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const ROWS_PER_PAGE = 10;
+
+function getAccessToken(): string | null {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const projectRef = new URL(url).hostname.split(".")[0];
+    const raw = typeof window !== "undefined" ? localStorage.getItem(`sb-${projectRef}-auth-token`) : null;
+    if (!raw) return null;
+    return JSON.parse(raw).access_token ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export default function AdminArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`"${title}" makalesini kalıcı olarak silmek istediğinize emin misiniz?`)) return;
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı. Yeniden giriş yapın.");
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/articles/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error((data.message as string) || "Makale silinemedi.");
+        return;
+      }
+      setArticles((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Makale silindi.");
+    } catch {
+      toast.error("Makale silinemedi.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     async function load() {
@@ -94,7 +135,7 @@ export default function AdminArticlesPage() {
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Slug</th>
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Durum</th>
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Güncellenme</th>
-                  <th className="w-24 pb-3 pt-0 pr-0 text-right text-xs font-semibold uppercase tracking-wider text-slate-400" />
+                  <th className="w-36 pb-3 pt-0 pr-0 text-right text-xs font-semibold uppercase tracking-wider text-slate-400" />
                 </tr>
               </thead>
               <tbody>
@@ -121,13 +162,29 @@ export default function AdminArticlesPage() {
                       {a.updated_at ? new Date(a.updated_at).toLocaleDateString("tr-TR") : "—"}
                     </td>
                     <td className="py-3 text-right">
-                      <Link
-                        href={`/admin/articles/${a.id}/edit`}
-                        className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"
-                      >
-                        <Pencil className="size-4" />
-                        Düzenle
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/articles/${a.id}/edit`}
+                          className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"
+                        >
+                          <Pencil className="size-4" />
+                          Düzenle
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(a.id, a.title ?? "")}
+                          disabled={deletingId === a.id}
+                          className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-red-600 disabled:opacity-50"
+                          title="Sil"
+                        >
+                          {deletingId === a.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                          Sil
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -46,21 +46,12 @@ export function QuestionForm({ categories }: QuestionFormProps) {
   const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [legalModalOpen, setLegalModalOpen] = useState(false);
   const [showLegalError, setShowLegalError] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!body.trim() || !categoryId) {
-      toast.error("Lütfen kategori ve soruyu doldurun.");
-      return;
-    }
-    if (!acceptedLegal) {
-      setShowLegalError(true);
-      return;
-    }
-
+  const doSubmit = async () => {
     setLoading(true);
-
+    setConfirmModalOpen(false);
     try {
       const res = await fetch("/api/soru-sor", {
         method: "POST",
@@ -89,6 +80,19 @@ export function QuestionForm({ categories }: QuestionFormProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!body.trim() || !categoryId) {
+      toast.error("Lütfen kategori ve soruyu doldurun.");
+      return;
+    }
+    if (!acceptedLegal) {
+      setShowLegalError(true);
+      return;
+    }
+    setConfirmModalOpen(true);
   };
 
   if (rateLimitMessage) {
@@ -155,7 +159,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="Örn: 0531 234 56 78"
+          placeholder="Örn: 5555555555"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
@@ -208,6 +212,37 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           Soru göndermek için Yasal Bilgilendirme ve KVKK metnini kabul etmeniz gerekmektedir.
         </p>
       )}
+      <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
+        <DialogContent className="max-w-[400px] rounded-[8px] border border-slate-200 p-6 shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-slate-900">
+              Soruyu gönder
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm leading-relaxed text-slate-600">
+            Telefon numaranızı girdiğiniz takdirde sorunuz cevaplandığında bildirim alacaksınız.
+          </p>
+          <div className="mt-3 flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 rounded-[8px] border-slate-300"
+              onClick={() => setConfirmModalOpen(false)}
+            >
+              İptal
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 rounded-[8px] bg-slate-800 text-white hover:bg-slate-900"
+              onClick={doSubmit}
+              disabled={loading}
+            >
+              Gönder
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={legalModalOpen} onOpenChange={setLegalModalOpen}>
         <DialogContent className="max-h-[85vh] max-w-2xl sm:max-w-2xl">
           <DialogHeader>

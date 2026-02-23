@@ -71,9 +71,30 @@ export default function AdminSorularPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deletingAll, setDeletingAll] = useState(false);
+  const [deletingSelected, setDeletingSelected] = useState(false);
   const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllOnPage = () => {
+    const ids = filteredItems.map((q) => q.id);
+    const allSelected = ids.length > 0 && ids.every((id) => selectedIds.has(id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) ids.forEach((id) => next.delete(id));
+      else ids.forEach((id) => next.add(id));
+      return next;
+    });
+  };
 
   const filteredItems = useMemo(() => {
     if (!search.trim()) return items;
@@ -200,30 +221,28 @@ export default function AdminSorularPage() {
     }
   };
 
-  const handleDeleteAll = async () => {
-    if (!confirm(`Tüm sorular (${total} adet) kalıcı olarak silinecek. Cevaplar da silinir. Bu işlem geri alınamaz. Emin misiniz?`)) return;
+  const handleDeleteSelected = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (!confirm(`${ids.length} soruyu kalıcı olarak silmek istediğinize emin misiniz?`)) return;
 
     const token = getAccessToken();
     if (!token) return;
 
-    setDeletingAll(true);
-    try {
-      const res = await fetch("/api/admin/questions", {
+    setDeletingSelected(true);
+    let failed = 0;
+    for (const id of ids) {
+      const res = await fetch(`/api/admin/questions/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        toast.error((data.message as string) ?? "Silinemedi.");
-        return;
-      }
-      toast.success("Tüm sorular silindi.");
-      load();
-    } catch {
-      toast.error("Silinirken hata oluştu.");
-    } finally {
-      setDeletingAll(false);
+      if (!res.ok) failed++;
     }
+    setDeletingSelected(false);
+    setSelectedIds(new Set());
+    if (failed > 0) toast.error(`${failed} soru silinemedi.`);
+    else toast.success(`${ids.length} soru silindi.`);
+    load();
   };
 
   return (
@@ -246,15 +265,17 @@ export default function AdminSorularPage() {
               className="h-10 w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
-          <button
-            type="button"
-            disabled={loading || total === 0 || deletingAll}
-            onClick={handleDeleteAll}
-            className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:border-red-300 hover:text-red-500 disabled:opacity-50"
-          >
-            <Trash2 className="size-4" />
-            {deletingAll ? "Siliniyor…" : "Tümünü sil"}
-          </button>
+          {selectedIds.size > 0 && (
+            <button
+              type="button"
+              disabled={deletingSelected}
+              onClick={handleDeleteSelected}
+              className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+            >
+              <Trash2 className="size-4" />
+              {deletingSelected ? "Siliniyor…" : `Seçilenleri sil (${selectedIds.size})`}
+            </button>
+          )}
         </div>
       </div>
 
@@ -300,6 +321,15 @@ export default function AdminSorularPage() {
             <table className="w-full min-w-[520px] text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100">
+                  <th className="w-10 pb-3 pr-2 pt-0 text-left">
+                    <input
+                      type="checkbox"
+                      checked={filteredItems.length > 0 && filteredItems.every((q) => selectedIds.has(q.id))}
+                      onChange={selectAllOnPage}
+                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      aria-label="Bu sayfadakileri seç / kaldır"
+                    />
+                  </th>
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Başlık</th>
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Kategori</th>
                   <th className="pb-3 pr-4 pt-0 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Durum</th>
@@ -313,6 +343,15 @@ export default function AdminSorularPage() {
                     key={q.id}
                     className="border-b border-slate-50 transition-colors duration-200 hover:bg-indigo-50/50"
                   >
+                    <td className="w-10 py-3 pr-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(q.id)}
+                        onChange={() => toggleSelect(q.id)}
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                        aria-label={`${q.title} soruyu seç`}
+                      />
+                    </td>
                     <td className="max-w-[240px] truncate py-3 pr-4 font-medium text-slate-800" title={q.title}>
                       {q.title}
                     </td>
