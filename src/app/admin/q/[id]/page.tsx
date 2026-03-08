@@ -473,7 +473,7 @@ export default function AdminQuestionPage() {
           <Button variant="outline" onClick={handleDraft} disabled={saving} className="text-xs sm:text-sm">
             Taslak Kaydet
           </Button>
-          <Button onClick={handlePublish} disabled={saving} className="text-xs sm:text-sm">
+          <Button onClick={handlePublish} disabled={saving || !answerText.trim()} className="text-xs sm:text-sm">
             Yayınla
           </Button>
           <Button variant="outline" onClick={handleReject} disabled={saving} className="text-xs sm:text-sm">
