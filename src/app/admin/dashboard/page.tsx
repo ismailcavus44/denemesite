@@ -120,14 +120,14 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 px-4 py-4 sm:px-6 sm:py-6">
       <div className="flex items-center gap-3">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
-          <LayoutDashboard className="size-6" />
+        <div className="flex size-10 sm:size-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
+          <LayoutDashboard className="size-5 sm:size-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-slate-500">
             Admin paneli özeti ve hızlı erişim
           </p>
         </div>
@@ -141,42 +141,42 @@ export default function AdminDashboardPage() {
         <>
           {/* İstatistik kartları — Dribbble tarzı */}
           {stats && (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">Bekleyen soru</span>
                   <span className="flex size-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
                     <Inbox className="size-4" />
                   </span>
                 </div>
-                <p className="mt-3 text-4xl font-bold tabular-nums text-slate-900">{stats.pending}</p>
+                <p className="mt-2 sm:mt-3 text-2xl sm:text-4xl font-bold tabular-nums text-slate-900">{stats.pending}</p>
               </div>
-              <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">Toplam soru</span>
                   <span className="flex size-9 items-center justify-center rounded-xl bg-sky-100 text-sky-600">
                     <FileText className="size-4" />
                   </span>
                 </div>
-                <p className="mt-3 text-4xl font-bold tabular-nums text-slate-900">{stats.totalQuestions}</p>
+                <p className="mt-2 sm:mt-3 text-2xl sm:text-4xl font-bold tabular-nums text-slate-900">{stats.totalQuestions}</p>
               </div>
-              <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="col-span-2 lg:col-span-1 rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">Kategori</span>
                   <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
                     <FolderTree className="size-4" />
                   </span>
                 </div>
-                <p className="mt-3 text-4xl font-bold tabular-nums text-slate-900">{stats.categories}</p>
+                <p className="mt-2 sm:mt-3 text-2xl sm:text-4xl font-bold tabular-nums text-slate-900">{stats.categories}</p>
               </div>
             </div>
           )}
 
           {/* Hızlı linkler */}
           <div className="rounded-2xl bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-4">
+            <div className="border-b border-slate-100 px-4 sm:px-6 py-3 sm:py-4">
               <h2 className="font-semibold text-slate-900">Hızlı erişim</h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-slate-500">
                 İlgili sayfaya gitmek için tıklayın
               </p>
             </div>
@@ -187,7 +187,7 @@ export default function AdminDashboardPage() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-4 bg-white p-5 transition-colors hover:bg-slate-50"
+                    className="flex items-center gap-3 sm:gap-4 bg-white p-4 sm:p-5 transition-colors hover:bg-slate-50"
                   >
                     <div
                       className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${

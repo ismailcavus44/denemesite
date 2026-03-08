@@ -246,10 +246,10 @@ export default function AdminSorularPage() {
   };
 
   return (
-    <div className="rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-2xl sm:rounded-[2rem] border border-slate-100 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Tüm Sorular</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Tüm Sorular</h1>
           <p className="mt-0.5 text-sm text-slate-500">
             Toplam {total} soru
           </p>
@@ -262,7 +262,7 @@ export default function AdminSorularPage() {
               placeholder="Ara..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-10 w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              className="h-10 w-full sm:w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
           {selectedIds.size > 0 && (
@@ -279,15 +279,15 @@ export default function AdminSorularPage() {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <label className="text-sm text-slate-500">Durum:</label>
+      <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
+        <label className="text-xs sm:text-sm text-slate-500">Durum:</label>
         <select
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"
+          className="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"
         >
           {STATUS_OPTIONS.map((opt) => (
             <option key={opt.value || "all"} value={opt.value}>
@@ -295,14 +295,14 @@ export default function AdminSorularPage() {
             </option>
           ))}
         </select>
-        <label className="text-sm text-slate-500">Kategori:</label>
+        <label className="text-xs sm:text-sm text-slate-500">Kategori:</label>
         <select
           value={categoryFilter}
           onChange={(e) => {
             setCategoryFilter(e.target.value);
             setPage(1);
           }}
-          className="h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"
+          className="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"
         >
           <option value="">Tümü</option>
           {categories.map((c) => (
@@ -352,7 +352,7 @@ export default function AdminSorularPage() {
                         aria-label={`${q.title} soruyu seç`}
                       />
                     </td>
-                    <td className="max-w-[240px] truncate py-3 pr-4 font-medium text-slate-800" title={q.title}>
+                    <td className="max-w-[160px] sm:max-w-[240px] truncate py-3 pr-4 font-medium text-slate-800" title={q.title}>
                       {q.title}
                     </td>
                     <td className="py-3 pr-4 text-slate-500">
@@ -421,11 +421,11 @@ export default function AdminSorularPage() {
               <div className="flex items-center gap-2">
                 <span className="text-slate-400">Rows per page:</span>
                 <span className="font-medium text-slate-600">{PAGE_SIZE}</span>
-                <button
+                  <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+                  className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
                   aria-label="Önceki"
                 >
                   <ChevronLeft className="size-5" />
@@ -434,7 +434,7 @@ export default function AdminSorularPage() {
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+                  className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
                   aria-label="Sonraki"
                 >
                   <ChevronRight className="size-5" />

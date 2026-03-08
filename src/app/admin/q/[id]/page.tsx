@@ -461,25 +461,25 @@ export default function AdminQuestionPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Soru Düzenle</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Soru Düzenle</h1>
           <div className="text-xs text-muted-foreground">
             Durum: <Badge variant="outline">{question.status}</Badge>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={handleDraft} disabled={saving}>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Button variant="outline" onClick={handleDraft} disabled={saving} className="text-xs sm:text-sm">
             Taslak Kaydet
           </Button>
-          <Button onClick={handlePublish} disabled={saving}>
+          <Button onClick={handlePublish} disabled={saving} className="text-xs sm:text-sm">
             Yayınla
           </Button>
-          <Button variant="outline" onClick={handleReject} disabled={saving}>
+          <Button variant="outline" onClick={handleReject} disabled={saving} className="text-xs sm:text-sm">
             Reddet
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={saving || deleting}>
+          <Button variant="destructive" onClick={handleDelete} disabled={saving || deleting} className="text-xs sm:text-sm">
             {deleting ? "Siliniyor..." : "Soruyu Sil"}
           </Button>
         </div>

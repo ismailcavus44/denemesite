@@ -85,10 +85,10 @@ export default function AdminArticlesPage() {
   const pageItems = filtered.slice(from, from + ROWS_PER_PAGE);
 
   return (
-    <div className="rounded-[2rem] border border-slate-100 bg-white p-8 shadow-sm">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-2xl sm:rounded-[2rem] border border-slate-100 bg-white p-4 sm:p-6 lg:p-8 shadow-sm">
+      <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Makaleler</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Makaleler</h1>
           <p className="mt-0.5 text-sm text-slate-500">
             Toplam {articles.length} makale
           </p>
@@ -104,7 +104,7 @@ export default function AdminArticlesPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="h-10 w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              className="h-10 w-full sm:w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
           <Link

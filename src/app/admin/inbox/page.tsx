@@ -111,7 +111,7 @@ export default function AdminInboxPage() {
       {/* Panel container */}
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         {/* Panel header */}
-        <div className="border-b border-border bg-muted/40 px-5 py-4">
+        <div className="border-b border-border bg-muted/40 px-4 sm:px-5 py-3 sm:py-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -131,7 +131,7 @@ export default function AdminInboxPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Başlıkta ara..."
-                  className="h-9 pl-9"
+                  className="h-10 pl-9"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -158,7 +158,7 @@ export default function AdminInboxPage() {
             </div>
           ) : filteredItems.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full min-w-[500px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="px-5 py-3 font-medium text-foreground">Başlık</th>
@@ -173,7 +173,7 @@ export default function AdminInboxPage() {
                       key={row.id}
                       className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/20"
                     >
-                      <td className="max-w-[320px] px-5 py-3">
+                      <td className="max-w-[200px] sm:max-w-[320px] px-4 sm:px-5 py-3">
                         <span className="font-medium text-foreground line-clamp-2" title={row.title}>
                           {row.title}
                         </span>

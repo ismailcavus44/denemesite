@@ -153,20 +153,20 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Ekle */}
-      <div className="mb-6 flex flex-wrap items-end gap-2 sm:gap-3">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3">
         <Input
           placeholder="Kategori adı"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="h-9 w-full min-w-0 max-w-[180px] rounded-lg border-slate-200 text-sm sm:max-w-[200px]"
+          className="h-10 w-full rounded-lg border-slate-200 text-sm sm:max-w-[200px]"
         />
         <Input
           placeholder="slug"
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
-          className="h-9 w-full min-w-0 max-w-[140px] rounded-lg border-slate-200 font-mono text-sm sm:max-w-[160px]"
+          className="h-10 w-full rounded-lg border-slate-200 font-mono text-sm sm:max-w-[160px]"
         />
-        <Button onClick={handleCreate} size="sm" className="h-9 rounded-lg px-3 text-sm">
+        <Button onClick={handleCreate} size="sm" className="h-10 rounded-lg px-4 text-sm">
           Ekle
         </Button>
       </div>
