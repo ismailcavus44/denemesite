@@ -41,3 +41,33 @@ export async function sendWhatsAppNotification(
     return { ok: false, error: msg };
   }
 }
+
+export async function sendSimilarAnswerNotification(
+  toPhoneNumber: string,
+  similarSlug: string,
+  similarCategorySlug?: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!accountSid || !authToken || !fromNumber) {
+    return { ok: false, error: "Twilio env eksik" };
+  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://yasalhaklariniz.com";
+  const baseUrl = siteUrl.replace(/\/$/, "");
+  const similarUrl = similarCategorySlug
+    ? `${baseUrl}/${similarCategorySlug}/soru/${similarSlug}`
+    : `${baseUrl}/soru/${similarSlug}`;
+  const body = `Merhaba, Yasal Haklarınız Platformuna sorduğunuz soru daha önce başka bir kullanıcı tarafından sorulmuş ve yanıtlanmıştır. Cevabı okumak için linke tıklayın: ${similarUrl}`;
+
+  try {
+    const client = twilio(accountSid, authToken);
+    const to = toPhoneNumber.startsWith("whatsapp:") ? toPhoneNumber : `whatsapp:${toPhoneNumber}`;
+    await client.messages.create({
+      body,
+      from: fromNumber.startsWith("whatsapp:") ? fromNumber : `whatsapp:${fromNumber}`,
+      to,
+    });
+    return { ok: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: msg };
+  }
+}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
+import { sendSimilarAnswerNotification } from "@/lib/twilio";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -36,7 +37,7 @@ export async function POST(request: Request, { params }: Params) {
 
   const { data: current, error: currentErr } = await supabase
     .from("questions")
-    .select("id,status")
+    .select("id, status, phone_number, category_id, categories(slug)")
     .eq("id", id)
     .maybeSingle();
 
@@ -47,14 +48,14 @@ export async function POST(request: Request, { params }: Params) {
     );
   }
 
-  const { error: similarErr } = await supabase
+  const { data: similar, error: similarErr } = await supabase
     .from("questions")
-    .select("id")
+    .select("id, slug, category_id, categories(slug)")
     .eq("id", similarId)
     .eq("status", "published")
     .maybeSingle();
 
-  if (similarErr) {
+  if (similarErr || !similar) {
     return NextResponse.json(
       { message: "Benzer soru bulunamadı veya yayında değil." },
       { status: 400 }
@@ -70,6 +71,18 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json(
       { message: updateErr.message },
       { status: 400 }
+    );
+  }
+
+  const phoneNumber = (current as { phone_number?: string | null }).phone_number;
+  if (phoneNumber) {
+    const similarCat = (similar as { categories?: { slug: string } | { slug: string }[] }).categories;
+    const similarCategorySlug = Array.isArray(similarCat) ? similarCat[0]?.slug : similarCat?.slug;
+
+    await sendSimilarAnswerNotification(
+      phoneNumber,
+      (similar as { slug: string }).slug,
+      similarCategorySlug
     );
   }
 
