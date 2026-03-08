@@ -6,11 +6,18 @@ import { blogPosts, type BlogPost } from "@/lib/blog-data";
 import { SearchBar } from "@/components/search-bar";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
+import { siteConfig } from "@/lib/site";
+
+const _title = "Rehber | YasalHaklarınız";
+const _desc = "Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır hukuki rehber yazıları. Editör onaylı bilgilendirme içerikleri.";
+const _url = `${siteConfig.url}/rehber`;
 
 export const metadata: Metadata = {
-  title: "Rehber",
-  description:
-    "Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır hukuki rehber yazıları. Editör onaylı bilgilendirme içerikleri.",
+  title: _title,
+  description: _desc,
+  openGraph: { title: _title, description: _desc, url: _url },
+  twitter: { card: "summary_large_image", title: _title, description: _desc },
+  alternates: { canonical: _url },
 };
 
 export const revalidate = 3600;

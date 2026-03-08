@@ -76,11 +76,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (insertError) {
-      console.error("Question insert error:", insertError);
-      return NextResponse.json(
-        { error: insertError.message || "Soru kaydedilemedi." },
-        { status: 500 }
-      );
+    console.error("Question insert error:", insertError);
+    return NextResponse.json(
+      { error: "Soru kaydedilemedi, lütfen daha sonra tekrar deneyin." },
+      { status: 500 }
+    );
     }
 
     await supabase.from("question_submission_log").insert({

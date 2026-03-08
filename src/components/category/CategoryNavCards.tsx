@@ -31,7 +31,7 @@ export function CategoryNavCards({ categorySlug }: CategoryNavCardsProps) {
           <Card className="relative aspect-square h-auto w-full min-w-0 overflow-hidden transition-transform duration-200 group-hover:scale-[1.02] sm:h-[280px] sm:w-[280px]">
             <Image
               src={card.image}
-              alt=""
+              alt={card.title}
               fill
               className="object-cover"
               sizes="(max-width: 640px) 100vw, 280px"

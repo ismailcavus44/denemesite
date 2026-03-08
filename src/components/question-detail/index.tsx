@@ -86,7 +86,7 @@ export function QuestionDetail({
               />
 
               {body.trim() && (
-                <section className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-5">
+                <section className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-5 min-h-[60px]">
                   <div>
                     <button
                       type="button"
@@ -101,21 +101,15 @@ export function QuestionDetail({
                       )}
                     </button>
                     {showOriginal && (
-                      <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">
+                      <blockquote data-nosnippet className="m-0 mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">
                         {body}
-                      </p>
+                      </blockquote>
                     )}
                   </div>
                 </section>
               )}
 
               <AnswerCard answerHtml={answerText ?? ""} guideCta={guideCta} />
-
-              <SimilarQuestionsSection
-                related={related}
-                categorySlug={categorySlug ?? category?.slug ?? null}
-                basePath={categorySlug ? `/${categorySlug}/soru` : undefined}
-              />
             </main>
 
             <div className="hidden min-w-0 lg:block overflow-visible">

@@ -20,7 +20,7 @@ export default function ContactPage() {
             <Card className="relative h-[260px] w-full min-w-0 overflow-hidden transition-transform duration-200 group-hover:scale-[1.02] sm:h-[420px] md:h-[480px]">
               <img
                 src="/gizlilik-sozlesmesi.png"
-                alt=""
+                alt="Gizlilik Sözleşmesi"
                 width={315}
                 height={480}
                 className="absolute inset-0 h-full w-full object-cover"
@@ -43,7 +43,7 @@ export default function ContactPage() {
             <Card className="relative h-[260px] w-full min-w-0 overflow-hidden transition-transform duration-200 group-hover:scale-[1.02] sm:h-[420px] md:h-[480px]">
               <img
                 src="/kullanıcı-sozlesmesi.png"
-                alt=""
+                alt="KVKK ve Kullanıcı Sözleşmesi"
                 width={315}
                 height={480}
                 className="absolute inset-0 h-full w-full object-cover"

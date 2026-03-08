@@ -13,7 +13,7 @@ type PageProps = {
   searchParams: Promise<{ page?: string }>;
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -30,6 +30,7 @@ export async function generateMetadata({
     title,
     description: description.slice(0, 160),
     openGraph: { title: `YasalHaklarınız | ${title}`, description, url },
+    twitter: { card: "summary_large_image", title, description },
     alternates: { canonical: url },
   };
 }

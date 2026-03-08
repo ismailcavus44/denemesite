@@ -18,7 +18,7 @@ export function GuideToc({ items }: GuideTocProps) {
   const [open, setOpen] = useState(true);
 
   return (
-    <nav className="inline-block min-w-[220px] rounded-[4px] border bg-background px-3 py-2 text-[14px] text-foreground">
+    <nav className="inline-block min-w-[220px] min-h-[48px] rounded-[4px] border bg-background px-3 py-2 text-[14px] text-foreground">
       <div className="mb-1 flex items-center gap-2">
         <h2 className="text-[16px] font-semibold tracking-wide">
           İçindekiler
@@ -40,36 +40,46 @@ export function GuideToc({ items }: GuideTocProps) {
       {open && (
         <ul className="space-y-1">
           {(() => {
-            let h2Index = 0;
-            let h3Index = 0;
+            type TocNode = { item: GuideTocItem; h2Idx: number; children: { item: GuideTocItem; h3Idx: number }[] };
+            const tree: TocNode[] = [];
+            let h2Idx = 0;
 
-            return items.map((item) => {
-              if (item.level === "h3") {
-                if (h2Index === 0) h2Index = 1;
-                h3Index += 1;
+            for (const item of items) {
+              if (item.level === "h3" && tree.length > 0) {
+                const parent = tree[tree.length - 1];
+                parent.children.push({ item, h3Idx: parent.children.length + 1 });
               } else {
-                h2Index += 1;
-                h3Index = 0;
+                h2Idx += 1;
+                tree.push({ item, h2Idx, children: [] });
               }
+            }
 
-              const numberPrefix =
-                item.level === "h3" ? `${h2Index}.${h3Index}` : `${h2Index}`;
-
-              return (
-                <li
-                  key={item.id}
-                  className={item.level === "h3" ? "pl-4" : undefined}
+            return tree.map((node) => (
+              <li key={node.item.id}>
+                <a
+                  href={`#${node.item.id}`}
+                  className="cursor-pointer text-[14px] underline-offset-4 hover:underline"
                 >
-                  <a
-                    href={`#${item.id}`}
-                    className="cursor-pointer text-[14px] underline-offset-4 hover:underline"
-                  >
-                    <span className="mr-1">{numberPrefix}</span>
-                    {item.label}
-                  </a>
-                </li>
-              );
-            });
+                  <span className="mr-1">{node.h2Idx}</span>
+                  {node.item.label}
+                </a>
+                {node.children.length > 0 && (
+                  <ul className="mt-1 space-y-1 pl-4">
+                    {node.children.map((child) => (
+                      <li key={child.item.id}>
+                        <a
+                          href={`#${child.item.id}`}
+                          className="cursor-pointer text-[14px] text-muted-foreground underline-offset-4 hover:underline hover:text-foreground"
+                        >
+                          <span className="mr-1">{node.h2Idx}.{child.h3Idx}</span>
+                          {child.item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ));
           })()}
         </ul>
       )}

@@ -48,6 +48,7 @@ export async function generateMetadata({
     title,
     description: description.slice(0, 160),
     openGraph: { title: `YasalHaklarınız | ${title}`, description, url },
+    twitter: { card: "summary_large_image", title, description },
     alternates: { canonical: url },
   };
 }

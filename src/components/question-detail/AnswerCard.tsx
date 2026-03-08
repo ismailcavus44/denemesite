@@ -74,7 +74,7 @@ export function AnswerCard({ answerHtml, guideCta }: AnswerCardProps) {
 
   return (
     <section className="p-0">
-      <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-5">
+      <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-5 min-h-[200px]">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="h-5 w-1 rounded-full bg-slate-800" />

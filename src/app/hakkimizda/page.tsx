@@ -3,11 +3,18 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AboutPageSchema } from "@/components/schemas/AboutPageSchema";
+import { siteConfig } from "@/lib/site";
+
+const _t = "Hakkımızda | YasalHaklarınız";
+const _d = "YasalHaklarınız ekibi ve misyonu. Hukuki bilgilendirmeyi sade ve anlaşılır kılmak için çalışıyoruz.";
+const _u = `${siteConfig.url}/hakkimizda`;
 
 export const metadata: Metadata = {
-  title: "Hakkımızda",
-  description:
-    "YasalHaklarınız ekibi ve misyonu. Hukuki bilgilendirmeyi sade ve anlaşılır kılmak için çalışıyoruz.",
+  title: _t,
+  description: _d,
+  openGraph: { title: _t, description: _d, url: _u },
+  twitter: { card: "summary_large_image", title: _t, description: _d },
+  alternates: { canonical: _u },
 };
 
 export default function AboutPage() {

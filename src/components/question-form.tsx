@@ -74,6 +74,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
       }
 
       setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Bilinmeyen hata";
       toast.error(`Soru gönderilemedi: ${msg}`);

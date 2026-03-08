@@ -1,17 +1,14 @@
-"use client";
-
-import { useEffect } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function NotFound() {
-  useEffect(() => {
-    const meta = document.querySelector('meta[name="robots"]') ?? document.createElement("meta");
-    meta.setAttribute("name", "robots");
-    meta.setAttribute("content", "noindex, nofollow");
-    if (!document.querySelector('meta[name="robots"]')) document.head.appendChild(meta);
-  }, []);
+export const metadata: Metadata = {
+  title: "Sayfa Bulunamadı (404)",
+  description: "Aradığınız sayfa mevcut değil veya taşınmış olabilir.",
+  robots: { index: false, follow: false },
+};
 
+export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 py-16 text-center">
       <p className="text-6xl font-bold tabular-nums text-slate-300">404</p>
@@ -24,7 +21,7 @@ export default function NotFound() {
           <Link href="/">Anasayfa</Link>
         </Button>
         <Button asChild size="lg" variant="outline" className="border-[#1d293d] text-[#1d293d] hover:bg-[#1d293d]/10 hover:border-[#1d293d] hover:text-[#1d293d]">
-          <Link href="/iletisim">İletişim</Link>
+          <Link href="/rehber">Rehberler</Link>
         </Button>
       </div>
     </div>

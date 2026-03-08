@@ -5,7 +5,7 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 /** Eski URL: /soru/[slug] → /[category]/soru/[slug] (topic silo) */
 export default async function LegacyQuestionPage({ params }: PageProps) {

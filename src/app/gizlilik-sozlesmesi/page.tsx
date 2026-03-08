@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site";
+
+const _t = "Gizlilik Sözleşmesi | YasalHaklarınız";
+const _d = "YasalHaklarınız gizlilik ve veri koruma politikası. Toplanan veriler, kullanım amaçları ve kullanıcı hakları hakkında bilgi.";
+const _u = `${siteConfig.url}/gizlilik-sozlesmesi`;
 
 export const metadata: Metadata = {
-  title: "Gizlilik Sözleşmesi",
-  description:
-    "YasalHaklarınız gizlilik ve veri koruma politikası. Toplanan veriler, kullanım amaçları ve kullanıcı hakları hakkında bilgi.",
+  title: _t,
+  description: _d,
+  openGraph: { title: _t, description: _d, url: _u },
+  twitter: { card: "summary_large_image", title: _t, description: _d },
+  alternates: { canonical: _u },
 };
 
 export default function GizlilikSozlesmesiPage() {

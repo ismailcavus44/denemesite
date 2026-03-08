@@ -2,11 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
 import { QuestionCard } from "@/components/question-card";
+import { siteConfig } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
+
+const title = "Sorular | YasalHaklarınız";
+const description = "Editör incelemesinden geçmiş hukuki soru ve cevaplar. Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır yanıtlar.";
+const url = `${siteConfig.url}/sorular`;
 
 export const metadata: Metadata = {
-  title: "Sorular",
-  description:
-    "Editör incelemesinden geçmiş hukuki soru ve cevaplar. Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır yanıtlar.",
+  title,
+  description,
+  openGraph: { title, description, url },
+  twitter: { card: "summary_large_image", title, description },
+  alternates: { canonical: url },
 };
 
 type SearchParams = {

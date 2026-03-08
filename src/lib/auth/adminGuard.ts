@@ -24,14 +24,33 @@ export async function requireAdminFromRequest(
     return { ok: false, status: 401, message: "Geçersiz oturum." };
   }
 
-  const { data: profile, error: profileError } = await adminClient
-    .from("profiles")
-    .select("role")
-    .eq("id", data.user.id)
-    .maybeSingle();
+  // Kullanıcının gerçekten admin olup olmadığını RLS üzerinden kontrol et
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  if (profileError || !profile || profile.role !== "admin") {
-    return { ok: false, status: 403, message: "Admin erişimi gerekli." };
+    const res = await fetch(
+      `${url}/rest/v1/profiles?id=eq.${data.user.id}&select=role`,
+      {
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      return { ok: false, status: 403, message: "Admin yetkisi yok." };
+    }
+
+    const rows = (await res.json()) as Array<{ role?: string }>;
+    const role = rows[0]?.role;
+    if (role !== "admin") {
+      return { ok: false, status: 403, message: "Admin yetkisi yok." };
+    }
+  } catch {
+    return { ok: false, status: 403, message: "Admin yetkisi yok." };
   }
 
   return { ok: true, userId: data.user.id };

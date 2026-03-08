@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { BlogPost } from "@/lib/blog-data";
 
 /** Kartın gerçekten kullandığı alanlar; BlogPost veya GuideListItem uyumlu. */
@@ -34,10 +35,12 @@ export function BlogTeaserCard({ post, basePath, useDetailImage }: BlogTeaserCar
         }`}
       >
         {imageSrc ? (
-          <img
+          <Image
             src={imageSrc}
             alt={post.title}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">

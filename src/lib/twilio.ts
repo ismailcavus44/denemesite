@@ -1,10 +1,12 @@
 import twilio from "twilio";
 
-console.log("🕵️‍♂️ TWILIO ENV DURUMU:", {
-  sid: !!process.env.TWILIO_ACCOUNT_SID,
-  token: !!process.env.TWILIO_AUTH_TOKEN,
-  no: !!process.env.TWILIO_WHATSAPP_NUMBER,
-});
+if (process.env.NODE_ENV !== "production") {
+  console.log("🕵️‍♂️ TWILIO ENV DURUMU:", {
+    sid: !!process.env.TWILIO_ACCOUNT_SID,
+    token: !!process.env.TWILIO_AUTH_TOKEN,
+    no: !!process.env.TWILIO_WHATSAPP_NUMBER,
+  });
+}
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;

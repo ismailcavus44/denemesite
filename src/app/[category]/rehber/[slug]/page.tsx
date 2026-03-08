@@ -18,6 +18,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ArticleSchema } from "@/components/schemas/ArticleSchema";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema";
 import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
@@ -129,6 +130,8 @@ type PageProps = {
 };
 
 type AuthorRow = { id: string; name: string; slug: string; photo_url: string | null };
+type FaqItem = { question: string; answer: string };
+
 type ArticleWithAuthor = {
   id: string;
   title: string;
@@ -139,6 +142,7 @@ type ArticleWithAuthor = {
   meta_description: string | null;
   featured_image_url: string | null;
   featured_image_alt: string | null;
+  faq: FaqItem[] | null;
   created_at: string;
   author_id: string | null;
   authors: AuthorRow | null;
@@ -149,7 +153,7 @@ async function getArticleByCategoryAndSlug(category: string, slug: string): Prom
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("id,title,slug,category,content,meta_title,meta_description,featured_image_url,featured_image_alt,created_at,author_id,authors(id,name,slug,photo_url)")
+    .select("id,title,slug,category,content,meta_title,meta_description,featured_image_url,featured_image_alt,faq,created_at,author_id,authors(id,name,slug,photo_url)")
     .eq("slug", slug)
     .eq("category", category)
     .eq("status", "published")
@@ -178,14 +182,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const rawDesc = dbArticle.meta_description?.trim();
     const description = rawDesc ? `${rawDesc} | YasalHaklarınız` : undefined;
     const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
-    return { title: { absolute: title }, description, openGraph: { title, description, url }, alternates: { canonical: url } };
+    const images = dbArticle.featured_image_url
+      ? [{ url: dbArticle.featured_image_url, width: 1200, height: 630, alt: dbArticle.featured_image_alt ?? title }]
+      : undefined;
+    return {
+      title: { absolute: title },
+      description,
+      openGraph: { title, description, url, images },
+      twitter: { card: "summary_large_image" as const, title, description, images: images ? [images[0].url] : undefined },
+      alternates: { canonical: url },
+    };
   }
   const post = blogPosts.find((p) => p.slug === slug && p.categorySlug === categorySlug);
   if (!post) return { title: "Rehber bulunamadı" };
   const title = post.seoTitle ?? `${post.title} | ${siteConfig.name}`;
   const description = post.seoDescription ?? (post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary);
   const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
-  return { title: { absolute: title }, description, openGraph: { title, description, url }, alternates: { canonical: url } };
+  return { title: { absolute: title }, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
 }
 
 export default async function CategoryGuidePage({ params }: PageProps) {
@@ -199,7 +212,8 @@ export default async function CategoryGuidePage({ params }: PageProps) {
   if (dbArticle) {
     const baseUrl = siteConfig.url.replace(/\/$/, "");
     const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
-    const { html: contentWithIds, tocItems } = addHeadingIdsAndGetToc(dbArticle.content);
+    const { html: rawHtml, tocItems } = addHeadingIdsAndGetToc(dbArticle.content);
+    const contentWithIds = sanitizeHtml(rawHtml);
     const categoryGuides = await getRelatedGuides(categorySlug, 5, slug);
 
     return (
@@ -292,6 +306,26 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                 className="rehber-icerik space-y-4 text-[16px] text-slate-700 text-justify"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
+              {dbArticle.faq && dbArticle.faq.length > 0 && (
+                <section className="space-y-4">
+                  <h2 className="text-[26px] font-semibold text-slate-900">Sık Sorulan Sorular</h2>
+                  <div className="divide-y divide-slate-200 rounded-xl border border-slate-200">
+                    {(dbArticle.faq as FaqItem[]).map((item, idx) => (
+                      <details key={idx} className="group">
+                        <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left [&::-webkit-details-marker]:hidden">
+                          <h3 className="text-base font-semibold text-slate-900">{item.question}</h3>
+                          <span className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </span>
+                        </summary>
+                        <div className="px-5 pb-4">
+                          <p className="text-sm leading-7 text-slate-700">{item.answer}</p>
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                </section>
+              )}
               <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
                 Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
               </div>
@@ -327,6 +361,9 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           url={articleUrl}
           image={dbArticle.featured_image_url?.startsWith("http") ? dbArticle.featured_image_url : undefined}
         />
+        {dbArticle.faq && dbArticle.faq.length > 0 && (
+          <FAQSchema items={(dbArticle.faq as FaqItem[]).map((f) => ({ question: f.question, answer: f.answer }))} />
+        )}
       </>
     );
   }

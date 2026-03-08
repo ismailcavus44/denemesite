@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { QuestionCard } from "@/components/question-card";
@@ -8,6 +9,11 @@ import { BlogTeaserCard } from "@/components/blog-teaser-card";
 import { questionSummaries } from "@/lib/question-summaries";
 import { OrganizationSchema } from "@/components/schemas/OrganizationSchema";
 import { WebSiteSchema } from "@/components/schemas/WebSiteSchema";
+import { siteConfig } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: siteConfig.url },
+};
 
 export default async function Home() {
   const supabase = createSupabaseServerClient();
@@ -81,7 +87,7 @@ export default async function Home() {
             <Link href="/sorular">Tümünü gör</Link>
           </Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 min-h-[280px]">
           {(trending ?? []).map((question) => (
             <QuestionCard
               key={question.id}
@@ -94,7 +100,7 @@ export default async function Home() {
             />
           ))}
           {!trending?.length && (
-            <div className="rounded-xl border border-dashed p-8 text-sm text-muted-foreground">
+            <div className="col-span-full rounded-xl border border-dashed p-8 text-sm text-muted-foreground min-h-[120px] flex items-center justify-center">
               Henüz yayınlanan soru yok.
             </div>
           )}
@@ -133,7 +139,7 @@ export default async function Home() {
           <span className="h-5 w-1 rounded-full bg-primary" />
           Rehber
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3 min-h-[300px]">
           {HOMEPAGE_REHBER_SLUGS.slice(0, 3)
             .map((slug) => blogPosts.find((p) => p.slug === slug))
             .filter((p): p is (typeof blogPosts)[number] => p != null)

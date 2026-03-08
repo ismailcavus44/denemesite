@@ -1,5 +1,7 @@
 export type ArticleStatus = "draft" | "published";
 
+export type FaqItem = { question: string; answer: string };
+
 export type Article = {
   id: string;
   title: string;
@@ -12,6 +14,7 @@ export type Article = {
   meta_description: string | null;
   featured_image_url: string | null;
   featured_image_alt: string | null;
+  faq: FaqItem[] | null;
   status: ArticleStatus;
   created_at: string;
   updated_at: string;

@@ -43,21 +43,14 @@ export function addHeadingIdsAndGetToc(html: string): { html: string; tocItems: 
     return s.replace(/<[^>]+>/g, "").trim();
   }
 
-  let out = html;
-
-  // h2: <h2>...</h2> veya <h2 ...>...</h2>
-  out = out.replace(/<h2(?:\s[^>]*)?>([\s\S]*?)<\/h2>/gi, (_, inner) => {
+  const out = html.replace(/<(h[23])(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi, (match, tag, inner) => {
+    const level = tag.toLowerCase() as "h2" | "h3";
     const label = stripTags(inner);
     const id = makeId(label);
-    tocItems.push({ id, label, level: "h2" });
-    return `<h2 id="${id}" class="mt-5 text-[26px] font-semibold text-slate-900 scroll-mt-6">${inner}</h2>`;
-  });
-
-  // h3
-  out = out.replace(/<h3(?:\s[^>]*)?>([\s\S]*?)<\/h3>/gi, (_, inner) => {
-    const label = stripTags(inner);
-    const id = makeId(label);
-    tocItems.push({ id, label, level: "h3" });
+    tocItems.push({ id, label, level });
+    if (level === "h2") {
+      return `<h2 id="${id}" class="mt-5 text-[26px] font-semibold text-slate-900 scroll-mt-6">${inner}</h2>`;
+    }
     return `<h3 id="${id}" class="mt-4 text-[22px] font-semibold text-slate-900 scroll-mt-6">${inner}</h3>`;
   });
 

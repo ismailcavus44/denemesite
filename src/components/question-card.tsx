@@ -38,9 +38,19 @@ export function QuestionCard({
             </Badge>
           </div>
         )}
-        <Link href={questionHref} className={`break-words font-semibold ${compact ? "text-sm" : "text-base sm:text-lg"}`}>
-          {title}
-        </Link>
+        {compact ? (
+          <h3 className="m-0 font-normal">
+            <Link href={questionHref} className="break-words font-semibold text-sm">
+              {title}
+            </Link>
+          </h3>
+        ) : (
+          <h2 className="m-0 font-normal">
+            <Link href={questionHref} className="break-words font-semibold text-base sm:text-lg">
+              {title}
+            </Link>
+          </h2>
+        )}
         {summaryText && (
           <p className={compact ? "text-xs text-muted-foreground line-clamp-2" : "text-sm text-muted-foreground"}>{summaryText}</p>
         )}

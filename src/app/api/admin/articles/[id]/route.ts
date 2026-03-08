@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import type { ArticleUpdate } from "@/types/article";
@@ -45,6 +46,7 @@ export async function PATCH(
   if (b.featured_image_alt !== undefined)
     row.featured_image_alt =
       typeof b.featured_image_alt === "string" ? b.featured_image_alt.trim() || null : null;
+  if (b.faq !== undefined) row.faq = Array.isArray(b.faq) ? b.faq : [];
   if (b.status === "published" || b.status === "draft") row.status = b.status;
 
   if (Object.keys(row).length === 0) {
@@ -52,6 +54,13 @@ export async function PATCH(
   }
 
   const supabase = createSupabaseAdminClient();
+
+  const { data: existing } = await supabase
+    .from("articles")
+    .select("slug,category,status")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase.from("articles").update(row).eq("id", id);
 
   if (error) {
@@ -62,6 +71,18 @@ export async function PATCH(
       { message: error.message ?? "Güncellenemedi." },
       { status: 500 }
     );
+  }
+
+  const finalStatus = row.status ?? existing?.status;
+  const finalSlug = row.slug ?? existing?.slug;
+  const finalCategory = row.category ?? existing?.category;
+  if (finalStatus === "published" && finalSlug && finalCategory) {
+    revalidatePath(`/${finalCategory}/rehber/${finalSlug}`);
+    revalidatePath(`/${finalCategory}/rehber`);
+    revalidatePath("/rehber");
+    if (existing?.slug && existing.slug !== finalSlug) {
+      revalidatePath(`/${finalCategory}/rehber/${existing.slug}`);
+    }
   }
 
   return NextResponse.json({ ok: true });

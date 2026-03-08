@@ -6,12 +6,13 @@ import { QuestionDetail } from "@/components/question-detail";
 import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema";
 import { QAPageSchema } from "@/components/schemas/QAPageSchema";
 import { siteConfig } from "@/lib/site";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 type PageProps = {
   params: Promise<{ category: string; slug: string }>;
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -134,7 +135,7 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
         title={question.title}
         body={question.body}
         category={Array.isArray(question.category) ? (question.category[0] ?? null) : question.category}
-        answerText={answer?.answer_text ?? null}
+        answerText={answer?.answer_text ? sanitizeHtml(answer.answer_text) : null}
         related={related.map((q) => ({
           ...q,
           category: Array.isArray(q.category) ? (q.category[0] ?? null) : q.category,

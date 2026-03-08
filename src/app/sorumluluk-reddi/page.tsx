@@ -6,11 +6,18 @@ import {
   LEGAL_DISCLAIMER_LIST_KABUL,
   LEGAL_DISCLAIMER_LIST_KABUL_SUFFIX,
 } from "@/lib/legal-disclaimer";
+import { siteConfig } from "@/lib/site";
+
+const _t = "Sorumluluk Reddi | YasalHaklarınız";
+const _d = "Platformda verilen cevaplar genel hukuki bilgilendirme amaçlıdır; hukuki danışmanlık veya vekillik değildir. Kullanım koşulları.";
+const _u = `${siteConfig.url}/sorumluluk-reddi`;
 
 export const metadata: Metadata = {
-  title: "Sorumluluk Reddi",
-  description:
-    "Platformda verilen cevaplar genel hukuki bilgilendirme amaçlıdır; hukuki danışmanlık veya vekillik değildir. Kullanım koşulları.",
+  title: _t,
+  description: _d,
+  openGraph: { title: _t, description: _d, url: _u },
+  twitter: { card: "summary_large_image", title: _t, description: _d },
+  alternates: { canonical: _u },
 };
 
 const isSectionHeading = (p: string) => /^\d+\.\s+/.test(p);

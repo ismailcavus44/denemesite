@@ -10,10 +10,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+const _soruTitle = "Soru Sor | YasalHaklarınız";
+const _soruDesc = "Hukuki sorununu detaylı yaz; editör incelemesinden sonra anonim yayımlansın. Miras, boşanma, iş hukuku ve icra konularında sade cevaplar.";
+const _soruUrl = `${siteConfig.url}/soru-sor`;
+
 export const metadata: Metadata = {
-  title: "Soru Sor",
-  description:
-    "Hukuki sorununu detaylı yaz; editör incelemesinden sonra anonim yayımlansın. Miras, boşanma, iş hukuku ve icra konularında sade cevaplar.",
+  title: _soruTitle,
+  description: _soruDesc,
+  openGraph: { title: _soruTitle, description: _soruDesc, url: _soruUrl },
+  twitter: { card: "summary_large_image", title: _soruTitle, description: _soruDesc },
+  alternates: { canonical: _soruUrl },
 };
 
 export default async function AskQuestionPage() {

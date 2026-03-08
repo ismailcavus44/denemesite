@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/lib/site";
+
+const _t = "KVKK Aydınlatma Metni | YasalHaklarınız";
+const _d = "Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni. Veri sorumlusu olarak kişisel verilerin işlenmesi ve korunması.";
+const _u = `${siteConfig.url}/kvkk`;
 
 export const metadata: Metadata = {
-  title: "KVKK",
-  description:
-    "Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni. Veri sorumlusu olarak kişisel verilerin işlenmesi ve korunması.",
+  title: _t,
+  description: _d,
+  openGraph: { title: _t, description: _d, url: _u },
+  twitter: { card: "summary_large_image", title: _t, description: _d },
+  alternates: { canonical: _u },
 };
 
 export default function KvkkPage() {

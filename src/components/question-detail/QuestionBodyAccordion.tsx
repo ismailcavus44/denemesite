@@ -28,7 +28,7 @@ export function QuestionBodyAccordion({ body }: QuestionBodyAccordionProps) {
             Gerçek Kullanıcı Sorusu
           </span>
         </div>
-        <div className="pb-4 text-slate-700 leading-7">
+        <blockquote data-nosnippet className="m-0 pb-4 text-slate-700 leading-7">
           <AnimatePresence mode="wait">
             {!open && (
               <motion.div
@@ -82,7 +82,7 @@ export function QuestionBodyAccordion({ body }: QuestionBodyAccordionProps) {
               )}
             </button>
           )}
-        </div>
+        </blockquote>
       </div>
     </section>
   );

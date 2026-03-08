@@ -18,7 +18,8 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 import type { Article } from "@/types/article";
 import type { Author } from "@/types/author";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, ImageIcon } from "lucide-react";
+import { ArrowLeft, Loader2, ImageIcon, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import type { FaqItem } from "@/types/article";
 
 const ARTICLE_CATEGORIES: { value: string; label: string }[] = [
   { value: "aile-hukuku", label: "Aile Hukuku" },
@@ -79,6 +80,10 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
   const [featuredImageAlt, setFeaturedImageAlt] = useState(
     initialData?.featured_image_alt ?? ""
   );
+  const [faqItems, setFaqItems] = useState<FaqItem[]>(
+    initialData?.faq?.length ? initialData.faq : []
+  );
+  const [faqOpen, setFaqOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -155,6 +160,7 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
 
       setSaving(true);
       try {
+        const cleanFaq = faqItems.filter((f) => f.question.trim() && f.answer.trim());
         const payload = {
           title: title.trim(),
           slug: finalSlug,
@@ -165,6 +171,7 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
           meta_description: metaDescription.trim() || null,
           featured_image_url: featuredImageUrl,
           featured_image_alt: featuredImageAlt.trim() || null,
+          faq: cleanFaq,
           status,
         };
 
@@ -223,6 +230,7 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
       metaDescription,
       featuredImageUrl,
       featuredImageAlt,
+      faqItems,
       onSuccess,
     ]
   );
@@ -241,16 +249,84 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,6fr)_minmax(0,3fr)] lg:gap-6">
-        {/* Sol: Editör (mobilde altta) — toolbar sabit, içerik scroll */}
-        <div className="order-2 min-w-0 lg:order-1 flex flex-col min-h-[420px] lg:min-h-[calc(100vh-10rem)] lg:max-h-[calc(100vh-6rem)]">
-          <div className="flex-1 min-h-0 flex flex-col">
-            <ArticleEditor
-              value={content}
-              onChange={setContent}
-              placeholder="Makale içeriği (H2, H3, kalın, liste, link kullanabilirsiniz)"
-              minHeight="280px"
-              className="h-full flex flex-col min-h-0"
-            />
+        {/* Sol: Editör + FAQ (mobilde altta) */}
+        <div className="order-2 min-w-0 lg:order-1 flex flex-col gap-4">
+          <div className="flex flex-col min-h-[420px] lg:min-h-[calc(100vh-10rem)] lg:max-h-[calc(100vh-6rem)]">
+            <div className="flex-1 min-h-0 flex flex-col">
+              <ArticleEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Makale içeriği (H2, H3, kalın, liste, link kullanabilirsiniz)"
+                minHeight="280px"
+                className="h-full flex flex-col min-h-0"
+              />
+            </div>
+          </div>
+
+          {/* FAQ Alanı */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <button
+              type="button"
+              onClick={() => setFaqOpen((v) => !v)}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-sm font-semibold text-slate-800">
+                Sık Sorulan Sorular (FAQ){faqItems.length > 0 && ` · ${faqItems.length}`}
+              </span>
+              {faqOpen ? <ChevronUp className="size-4 text-slate-500" /> : <ChevronDown className="size-4 text-slate-500" />}
+            </button>
+            {faqOpen && (
+              <div className="border-t border-slate-100 px-4 pb-4 pt-3 space-y-3">
+                {faqItems.map((item, idx) => (
+                  <div key={idx} className="rounded-lg border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="shrink-0 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
+                        {idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setFaqItems((prev) => prev.filter((_, i) => i !== idx))}
+                        className="shrink-0 text-slate-400 hover:text-red-500 transition-colors"
+                        title="Sil"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
+                    <Input
+                      value={item.question}
+                      onChange={(e) =>
+                        setFaqItems((prev) =>
+                          prev.map((f, i) => (i === idx ? { ...f, question: e.target.value } : f))
+                        )
+                      }
+                      placeholder="Soru başlığı"
+                      className="h-8 text-sm font-medium"
+                    />
+                    <Textarea
+                      value={item.answer}
+                      onChange={(e) =>
+                        setFaqItems((prev) =>
+                          prev.map((f, i) => (i === idx ? { ...f, answer: e.target.value } : f))
+                        )
+                      }
+                      placeholder="Cevap metni"
+                      rows={2}
+                      className="resize-none text-sm"
+                    />
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setFaqItems((prev) => [...prev, { question: "", answer: "" }])}
+                >
+                  <Plus className="size-3.5 mr-1" />
+                  Soru ekle
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

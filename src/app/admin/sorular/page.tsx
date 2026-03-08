@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Search, ChevronLeft, ChevronRight, Trash2, Pencil } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Trash2, Pencil, Eye } from "lucide-react";
 
 type CategoryOption = { id: string; name: string };
 
@@ -13,7 +13,7 @@ type QuestionRow = {
   slug: string;
   status: string;
   created_at: string;
-  category: { name: string } | null;
+  category: { name: string; slug: string } | null;
 };
 
 const STATUS_OPTIONS = [
@@ -135,7 +135,7 @@ export default function AdminSorularPage() {
       const from = (page - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      let listPath = `${url}/rest/v1/questions?select=id,title,slug,status,created_at,category:categories(name)&order=created_at.desc`;
+      let listPath = `${url}/rest/v1/questions?select=id,title,slug,status,created_at,category:categories(name,slug)&order=created_at.desc`;
       if (statusFilter) listPath += `&status=eq.${statusFilter}`;
       if (categoryFilter) listPath += `&category_id=eq.${categoryFilter}`;
 
@@ -368,6 +368,17 @@ export default function AdminSorularPage() {
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-3">
+                        {q.status === "published" && q.slug && q.category?.slug && (
+                          <a
+                            href={`/${q.category.slug}/soru/${q.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-slate-400 transition-colors hover:text-emerald-600"
+                            title="Sitede görüntüle"
+                          >
+                            <Eye className="size-4" />
+                          </a>
+                        )}
                         <Link
                           href={`/admin/q/${q.id}`}
                           className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"

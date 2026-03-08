@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import type { ArticleInsert } from "@/types/article";
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
     meta_description,
     featured_image_url,
     featured_image_alt,
+    faq,
     status,
   } = body as Record<string, unknown>;
 
@@ -54,6 +56,7 @@ export async function POST(request: Request) {
       typeof featured_image_url === "string" ? featured_image_url || null : null,
     featured_image_alt:
       typeof featured_image_alt === "string" ? featured_image_alt.trim() || null : null,
+    faq: Array.isArray(faq) ? faq : [],
     status:
       status === "published" || status === "draft" ? status : "draft",
   };
@@ -69,6 +72,12 @@ export async function POST(request: Request) {
       { message: error.message ?? "Kayıt oluşturulamadı." },
       { status: 500 }
     );
+  }
+
+  if (row.status === "published" && categoryVal) {
+    revalidatePath(`/${categoryVal}/rehber/${row.slug}`);
+    revalidatePath(`/${categoryVal}/rehber`);
+    revalidatePath("/rehber");
   }
 
   return NextResponse.json({ id: data.id });

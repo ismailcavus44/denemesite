@@ -45,7 +45,7 @@ export default function AdminInboxPage() {
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
       const res = await fetch(
-        `${url}/rest/v1/questions?status=eq.pending&select=id,title,created_at,category:categories(name)&order=created_at.desc`,
+        `${url}/rest/v1/questions?status=eq.pending&select=id,title,created_at,category:categories(name)&order=created_at.asc`,
         {
           headers: {
             apikey: key,

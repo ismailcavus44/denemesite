@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Link2, X } from "lucide-react";
 import { blogPosts } from "@/lib/blog-data";
+import { slugify } from "@/lib/slugify";
 
 type Category = { id: string; name: string };
 
@@ -97,6 +98,7 @@ export default function AdminQuestionPage() {
   const [answerWithSimilarLoading, setAnswerWithSimilarLoading] = useState<string | null>(null);
   const [guideSearch, setGuideSearch] = useState("");
   const [guidePickerOpen, setGuidePickerOpen] = useState(false);
+  const [dbArticles, setDbArticles] = useState<{ title: string; slug: string; category: string; categorySlug: string }[]>([]);
 
   const loadData = async () => {
     setLoading(true);
@@ -116,17 +118,27 @@ export default function AdminQuestionPage() {
         Accept: "application/json",
       };
 
-      const [questionRes, categoriesRes] = await Promise.all([
+      const [questionRes, categoriesRes, articlesRes] = await Promise.all([
         fetch(
           `${url}/rest/v1/questions?id=eq.${questionId}&select=${QUESTION_SELECT}`,
           { headers }
         ),
         fetch(`${url}/rest/v1/categories?select=id,name&order=name`, { headers }),
+        fetch(
+          `${url}/rest/v1/articles?status=eq.published&select=title,slug,category&order=created_at.desc`,
+          { headers }
+        ),
       ]);
 
       const questionArr = questionRes.ok ? await questionRes.json() : [];
       const questionData: QuestionData | null = questionArr[0] ?? null;
       const categoriesData: Category[] = categoriesRes.ok ? await categoriesRes.json() : [];
+      const articlesData: { title: string; slug: string; category: string | null }[] = articlesRes.ok ? await articlesRes.json() : [];
+      setDbArticles(
+        articlesData
+          .filter((a) => a.category)
+          .map((a) => ({ title: a.title, slug: a.slug, category: a.category!, categorySlug: a.category! }))
+      );
 
       if (!questionData) {
         toast.error("Soru bulunamadı.");
@@ -346,11 +358,13 @@ export default function AdminQuestionPage() {
       }
       if (data.h1_summary) {
         setAiH1Summary(data.h1_summary);
+        // AI tarafından oluşturulan H1'i otomatik olarak slug'a yansıt
+        setSeoSlug(slugify(data.h1_summary));
         if (data.should_apply) {
           setAiH1Enabled(true);
-          toast.success("Başlık oluşturuldu ve sayfada H1 olarak kullanılacak. Sorunun devamı bloğu açık gösterilir.");
+          toast.success("Başlık oluşturuldu ve sayfada H1 olarak kullanılacak. Sorunun devamı bloğu açık gösterilir. Slug H1'e göre güncellendi.");
         } else {
-          toast.info("Mevcut başlık yeterli görünüyor. İsterseniz üretilen başlığı kullanabilirsiniz.");
+          toast.info("Mevcut başlık yeterli görünüyor. İsterseniz üretilen başlığı kullanabilirsiniz; slug H1'e göre güncellendi.");
         }
       }
     } catch {
@@ -428,7 +442,6 @@ export default function AdminQuestionPage() {
         toast.error((data.message as string) ?? "SEO alanları oluşturulamadı.");
         return;
       }
-      if (typeof data.slug === "string") setSeoSlug(data.slug);
       if (typeof data.meta_title === "string") setSeoTitle(data.meta_title);
       if (typeof data.meta_description === "string") setSeoDescription(data.meta_description);
       toast.success("SEO alanları dolduruldu. İstediğiniz gibi düzenleyip kaydedin.");
@@ -670,13 +683,30 @@ export default function AdminQuestionPage() {
                 />
                 <div className="max-h-48 overflow-auto rounded-md border bg-background">
                   {(() => {
+                    const staticItems = blogPosts.map((p) => ({
+                      title: p.title,
+                      slug: p.slug,
+                      category: p.category,
+                      categorySlug: p.categorySlug,
+                      source: "static" as const,
+                    }));
+                    const dbItems = dbArticles
+                      .filter((a) => !staticItems.some((s) => s.slug === a.slug && s.categorySlug === a.categorySlug))
+                      .map((a) => ({
+                        title: a.title,
+                        slug: a.slug,
+                        category: a.category,
+                        categorySlug: a.categorySlug,
+                        source: "db" as const,
+                      }));
+                    const allGuides = [...dbItems, ...staticItems];
                     const q = guideSearch.trim().toLowerCase();
                     const filtered = q
-                      ? blogPosts.filter(
+                      ? allGuides.filter(
                           (p) =>
                             p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
                         )
-                      : blogPosts;
+                      : allGuides;
                     if (!filtered.length) {
                       return <p className="p-3 text-sm text-muted-foreground">Rehber bulunamadı.</p>;
                     }
@@ -686,7 +716,7 @@ export default function AdminQuestionPage() {
                           const url = `/${p.categorySlug}/rehber/${p.slug}`;
                           const isSelected = relatedGuideUrl === url;
                           return (
-                            <li key={`${p.categorySlug}-${p.slug}`}>
+                            <li key={`${p.source}-${p.categorySlug}-${p.slug}`}>
                               <button
                                 type="button"
                                 onClick={() => {
