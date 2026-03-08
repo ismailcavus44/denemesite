@@ -32,23 +32,30 @@ type GuideListItem = Pick<BlogPost, "slug" | "title" | "summary" | "categorySlug
   sortDate: string;
 };
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 /** Supabase'den yayındaki makaleleri çeker (kategorisi olanlar). */
 async function getPublishedArticles(): Promise<GuideListItem[]> {
   const supabase = createSupabaseAdminClient();
   const { data } = await supabase
     .from("articles")
-    .select("title, slug, category, meta_description, featured_image_url, updated_at")
+    .select("title, slug, category, meta_description, content, featured_image_url, updated_at")
     .eq("status", "published")
     .not("category", "is", null)
     .order("updated_at", { ascending: false });
   if (!data?.length) return [];
   return data.map((a) => {
     const category = (a as { category: string }).category;
-    const summary = (a as { meta_description?: string | null }).meta_description?.trim() || "";
+    const metaDesc = (a as { meta_description?: string | null }).meta_description?.trim() || "";
+    const contentText = (a as { content?: string | null }).content ? stripHtml((a as { content: string }).content) : "";
+    const raw = metaDesc || contentText;
+    const summary = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
     return {
       slug: (a as { slug: string }).slug,
       title: (a as { title: string }).title,
-      summary: summary.length > 160 ? `${summary.slice(0, 157)}...` : summary,
+      summary,
       category: getKnownCategoryName(category) ?? category,
       categorySlug: category,
       image: (a as { featured_image_url?: string | null }).featured_image_url ?? undefined,

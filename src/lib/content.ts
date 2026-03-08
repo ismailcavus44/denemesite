@@ -170,18 +170,21 @@ async function getArticlesByCategory(categorySlug: string): Promise<(GuideListIt
   const supabase = createSupabaseAdminClient();
   const { data } = await supabase
     .from("articles")
-    .select("title, slug, meta_description, featured_image_url, created_at")
+    .select("title, slug, meta_description, content, featured_image_url, created_at")
     .eq("category", categorySlug)
     .eq("status", "published")
     .order("created_at", { ascending: false });
   if (!data?.length) return [];
   return data.map((a) => {
-    const row = a as { title: string; slug: string; meta_description?: string | null; featured_image_url?: string | null; created_at: string };
-    const summary = row.meta_description?.trim() || "";
+    const row = a as { title: string; slug: string; meta_description?: string | null; content?: string | null; featured_image_url?: string | null; created_at: string };
+    const metaDesc = row.meta_description?.trim() || "";
+    const contentText = row.content ? row.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+    const raw = metaDesc || contentText;
+    const summary = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
     return {
       slug: row.slug,
       title: row.title,
-      summary: summary.length > 160 ? `${summary.slice(0, 157)}...` : summary,
+      summary,
       categorySlug,
       image: row.featured_image_url ?? undefined,
       cardImage: row.featured_image_url ?? undefined,
