@@ -492,7 +492,7 @@ export default function AdminQuestionPage() {
           <p className="text-sm text-muted-foreground">Benzer sorular yükleniyor…</p>
         ) : similarQuestions.length > 0 ? (
           <ul className="space-y-3">
-            {similarQuestions.slice(0, 10).map((q) => {
+            {similarQuestions.slice(0, 3).map((q) => {
               const pct = Math.round(q.similarity * 100);
               const loading = answerWithSimilarLoading === q.id;
               return (
