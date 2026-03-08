@@ -70,9 +70,6 @@ export default function AdminLoginPage() {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Yönetim Paneli
           </h1>
-          <p className="mt-1.5 text-sm text-slate-500">
-            Devam etmek için giriş yapın
-          </p>
         </div>
 
         <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-xl shadow-slate-200/40 backdrop-blur-sm sm:p-8">
