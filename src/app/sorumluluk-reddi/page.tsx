@@ -13,7 +13,7 @@ const _d = "Platformda verilen cevaplar genel hukuki bilgilendirme amaçlıdır;
 const _u = `${siteConfig.url}/sorumluluk-reddi`;
 
 export const metadata: Metadata = {
-  title: _t,
+  title: { absolute: "Sorumluluk Reddi | YasalHaklarınız" },
   description: _d,
   openGraph: { title: _t, description: _d, url: _u },
   twitter: { card: "summary_large_image", title: _t, description: _d },

@@ -6,7 +6,7 @@ const _d = "Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni. 
 const _u = `${siteConfig.url}/kvkk`;
 
 export const metadata: Metadata = {
-  title: _t,
+  title: { absolute: "KVKK Aydınlatma Metni | YasalHaklarınız" },
   description: _d,
   openGraph: { title: _t, description: _d, url: _u },
   twitter: { card: "summary_large_image", title: _t, description: _d },

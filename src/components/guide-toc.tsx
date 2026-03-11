@@ -69,7 +69,7 @@ export function GuideToc({ items }: GuideTocProps) {
                       <li key={child.item.id}>
                         <a
                           href={`#${child.item.id}`}
-                          className="cursor-pointer text-[14px] text-muted-foreground underline-offset-4 hover:underline hover:text-foreground"
+                          className="cursor-pointer text-[14px] text-foreground underline-offset-4 hover:underline"
                         >
                           <span className="mr-1">{node.h2Idx}.{child.h3Idx}</span>
                           {child.item.label}

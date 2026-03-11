@@ -6,7 +6,7 @@ const _d = "YasalHaklarınız gizlilik ve veri koruma politikası. Toplanan veri
 const _u = `${siteConfig.url}/gizlilik-sozlesmesi`;
 
 export const metadata: Metadata = {
-  title: _t,
+  title: { absolute: "Gizlilik Sözleşmesi | YasalHaklarınız" },
   description: _d,
   openGraph: { title: _t, description: _d, url: _u },
   twitter: { card: "summary_large_image", title: _t, description: _d },

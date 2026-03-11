@@ -13,7 +13,7 @@ const _desc = "Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşı
 const _url = `${siteConfig.url}/rehber`;
 
 export const metadata: Metadata = {
-  title: _title,
+  title: { absolute: "Rehber | YasalHaklarınız" },
   description: _desc,
   openGraph: { title: _title, description: _desc, url: _url },
   twitter: { card: "summary_large_image", title: _title, description: _desc },

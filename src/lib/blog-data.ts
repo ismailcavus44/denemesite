@@ -20,6 +20,8 @@ export type BlogPost = {
   image?: string;
   /** Anasayfa/rehber listesinde kartta kullanılacak görsel. Yoksa image kullanılır. */
   cardImage?: string;
+  /** Görsel alt metni (yoksa "{title} avukata sor"). */
+  imageAlt?: string;
   /** Arama için düz metin; contentBlocks varsa o render edilir. */
   content: string[];
   /** H2, H3, paragraf, liste ile zengin içerik (varsa kullanılır). */
@@ -32,9 +34,15 @@ export type BlogPost = {
   seoDescription?: string;
 };
 
-/** Anasayfada "Rehber" bölümünde gösterilecek rehber slug'ları (en fazla 3, sırayla). */
+/** Anasayfada "Rehber" bölümünde gösterilecek rehber slug'ları (statik, en fazla 3, sırayla). */
 export const HOMEPAGE_REHBER_SLUGS: string[] = [
   "muris-muvazaasi-nedir",
+];
+
+/** Anasayfada "Rehber" bölümünde DB'den gösterilecek makale başlıkları (kısmi eşleşme). Her slot için ilk eşleşen makale alınır. */
+export const HOMEPAGE_DYNAMIC_REHBER_TITLES: string[] = [
+  "Boşanma davası nasıl açılır",
+  "İşten çıkarılan işçinin hakları",
 ];
 
 export const blogPosts: BlogPost[] = [
@@ -48,8 +56,9 @@ export const blogPosts: BlogPost[] = [
     authorSlug: "ismail-cavus",
     date: "2026-02-09",
     readTime: "8 dk",
-    image: "/rehber/muris-muvaazasi-nedir.webp",
-    cardImage: "/rehber/muris-muvazaasi-nedir-anasayfa.webp",
+    image: "/rehber/muris-muvaazasi-nedir-avukata-sor.webp",
+    cardImage: "/rehber/muris-muvazaasi-nedir-anasayfa-avukata-sor.webp",
+    imageAlt: "Muris muvazaası nedir avukata sor",
     seoTitle: "Muris Muvaazası Nedir? 2026 | YasalHaklarınız",
     seoDescription:
       "Muris muvaazası nedir? Yargıtay kararlarıyla mirasçıdan mal kaçırma davası şartları, zamanaşımı ve ispat yollarını uzman hukukçu gözüyle öğrenin.",
@@ -140,6 +149,22 @@ export const blogPosts: BlogPost[] = [
       { question: "Tapu iptal davası açmak için mirasın açılması (ölüm) şart mı?", answer: "Evet, bu davanın açılabilmesi için mirasbırakanın vefat etmiş olması hukuki bir zorunluluktur. Mirasbırakan hayattayken, mirasçıların gelecekteki miras haklarını korumak amacıyla muvazaa davası açma yetkileri yoktur. Çünkü hukukumuza göre hiç kimse hayattayken kendi malvarlığı üzerindeki tasarrufları nedeniyle (vesayet altına alınmadığı sürece) mirasçılarına karşı sorumlu tutulamaz. Dava açma hakkı, mirasın açıldığı yani ölümün gerçekleştiği an doğar." },
       { question: "Davayı kazanırsam tapu doğrudan adıma mı geçer?", answer: "Bu durum, dava dilekçesinde sunduğunuz talebe göre değişir. Eğer davayı kendi miras payınız oranında iptal ve tescil istemli açtıysanız, mahkeme taşınmazın tamamını değil, sadece sizin miras hissenize düşen kısmını iptal ederek adınıza tescil eder. Geri kalan kısım, davalı üzerinde kalmaya devam eder. Ancak davanın terekeye iade şeklinde açılması veya diğer mirasçıların da davaya katılması durumunda tapu kaydı eski haline (murisin adına) döndürülebilir veya tüm mirasçılar adına elbirliği mülkiyeti şeklinde tescil edilebilir." },
       { question: "Muris muvaazası davasında avukat tutmak zorunlu mu?", answer: "Türk hukuk sisteminde, ceza davalarındaki bazı istisnalar dışında (Müdafii eşliğinde ifade alma zorunluluğu), şahısların avukat tutma zorunluluğu bulunmamaktadır; davayı kendiniz de açabilirsiniz. Ancak muris muvaazası davaları, ispat yükü ve teknik usul kuralları bakımından en zorlu dava türlerinden biridir. Yanlış bir delil sunulması, tanıkların yanlış yönlendirilmesi veya sürelere uyulmaması davanın reddine ve yüksek yargılama giderlerine yol açabilir. Bu nedenle, davanın alanında yetkin bir miras avukatı ile yürütülmesi hak kaybına uğramamanız için şiddetle tavsiye edilir." },
+    ],
+  },
+  {
+    slug: "isten-cikarilan-iscinin-haklari-nelerdir",
+    title: "İşten Çıkarılan İşçinin Hakları Nelerdir?",
+    summary:
+      "İş sözleşmesi feshedilen işçinin kıdem tazminatı, ihbar tazminatı, işe iade davası ve diğer yasal hakları. İş Kanunu kapsamında işçi hakları.",
+    category: "İş Hukuku",
+    categorySlug: "is-hukuku",
+    date: "2026-02-09",
+    readTime: "6 dk",
+    image: "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp",
+    cardImage: "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp",
+    imageAlt: "İşten çıkarılan işçinin hakları avukata sor",
+    content: [
+      "İş sözleşmesi feshedilen işçinin kıdem tazminatı, ihbar tazminatı, işe iade davası ve diğer yasal hakları. İş Kanunu kapsamında işçi hakları.",
     ],
   }
 ];

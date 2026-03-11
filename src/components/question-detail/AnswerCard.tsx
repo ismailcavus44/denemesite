@@ -120,13 +120,13 @@ export function AnswerCard({ answerHtml, guideCta }: AnswerCardProps) {
         />
 
         {guideCta?.href && guideCta?.label ? (
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 underline">
+          <div className="mt-6 flex flex-row flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-slate-700">
               Sorunuzla ilgili rehber yazımızı inceleyebilirsiniz:
             </span>
             <Link
               href={guideCta.href}
-              className="inline-flex items-center gap-1.5 rounded-md bg-slate-800 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-slate-900"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[#1d293d] px-4 py-2 text-sm font-medium text-white no-underline transition-colors hover:bg-[#1d293d]/90 hover:text-white"
             >
               {guideCta.label}
               <ArrowRight className="size-3.5 shrink-0" aria-hidden />

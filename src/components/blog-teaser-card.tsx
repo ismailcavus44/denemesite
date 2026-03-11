@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { BlogPost } from "@/lib/blog-data";
 
 /** Kartın gerçekten kullandığı alanlar; BlogPost veya GuideListItem uyumlu. */
-type TeaserPost = Pick<BlogPost, "slug" | "title" | "summary" | "categorySlug" | "image" | "cardImage">;
+type TeaserPost = Pick<BlogPost, "slug" | "title" | "summary" | "categorySlug" | "image" | "cardImage" | "imageAlt">;
 
 type BlogTeaserCardProps = {
   post: TeaserPost;
@@ -37,7 +37,7 @@ export function BlogTeaserCard({ post, basePath, useDetailImage }: BlogTeaserCar
         {imageSrc ? (
           <Image
             src={imageSrc}
-            alt={post.title}
+            alt={post.imageAlt ?? `${post.title} avukata sor`}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover"

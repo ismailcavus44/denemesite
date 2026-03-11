@@ -15,7 +15,7 @@ const _soruDesc = "Hukuki sorununu detaylı yaz; editör incelemesinden sonra an
 const _soruUrl = `${siteConfig.url}/soru-sor`;
 
 export const metadata: Metadata = {
-  title: _soruTitle,
+  title: { absolute: "Soru Sor | YasalHaklarınız" },
   description: _soruDesc,
   openGraph: { title: _soruTitle, description: _soruDesc, url: _soruUrl },
   twitter: { card: "summary_large_image", title: _soruTitle, description: _soruDesc },

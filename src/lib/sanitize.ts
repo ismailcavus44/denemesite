@@ -16,6 +16,7 @@ const ALLOWED_TAGS = [
 const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
   a: ["href", "target", "rel"],
   img: ["src", "alt", "width", "height", "loading"],
+  div: ["id", "class", "style", "data-type", "data-cta-type", "data-title", "data-button-text", "data-href", "data-content"],
   "*": ["id", "class", "style", "data-nosnippet", "open"],
 };
 

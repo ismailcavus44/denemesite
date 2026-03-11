@@ -6,7 +6,7 @@ import { JobPostingSchema } from "@/components/schemas/JobPostingSchema";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Editör Başvurusu",
+  title: { absolute: "Editör Başvurusu | YasalHaklarınız" },
   description:
     "YasalHaklarınız ekibine gönüllü editör olarak başvurun. İçerikleri düzenleyen ve yayına hazırlayan editörler için başvuru bilgileri.",
 };

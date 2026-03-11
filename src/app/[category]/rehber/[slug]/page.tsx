@@ -413,7 +413,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               <div className="relative overflow-hidden rounded-[8px] bg-muted aspect-[1200/630] w-full">
                 <Image
                   src={post.image}
-                  alt={post.title}
+                  alt={post.imageAlt ?? `${post.title} avukata sor`}
                   width={1200}
                   height={630}
                   priority

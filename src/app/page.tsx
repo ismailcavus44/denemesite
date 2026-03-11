@@ -1,36 +1,96 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { Edit3, ShieldCheck, MessageCircle } from "lucide-react";
 import { QuestionCard } from "@/components/question-card";
 import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
-import { blogPosts, HOMEPAGE_REHBER_SLUGS } from "@/lib/blog-data";
+import { blogPosts, HOMEPAGE_REHBER_SLUGS, HOMEPAGE_DYNAMIC_REHBER_TITLES } from "@/lib/blog-data";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
 import { questionSummaries } from "@/lib/question-summaries";
 import { OrganizationSchema } from "@/components/schemas/OrganizationSchema";
 import { WebSiteSchema } from "@/components/schemas/WebSiteSchema";
+import { FAQSchema } from "@/components/schemas/FAQSchema";
+import { HomepageFAQ, HOMEPAGE_FAQ_ITEMS } from "@/components/homepage-faq";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: siteConfig.url },
 };
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export default async function Home() {
   const supabase = createSupabaseServerClient();
-  const { data: trending } = await supabase
-    .from("questions")
-    .select("id,title,slug,created_at,ai_card_summary,category:categories(name,slug)")
-    .eq("status", "published")
-    .order("created_at", { ascending: false })
-    .limit(4);
+  const [trendingRes, dynamicRehberRes] = await Promise.all([
+    supabase
+      .from("questions")
+      .select("id,title,slug,created_at,ai_card_summary,category:categories(name,slug)")
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(4),
+    HOMEPAGE_DYNAMIC_REHBER_TITLES.length > 0
+      ? supabase
+          .from("articles")
+          .select("title, slug, category, meta_description, content")
+          .eq("status", "published")
+          .not("category", "is", null)
+          .limit(30)
+      : Promise.resolve({ data: [] }),
+  ]);
 
+  const trending = trendingRes.data;
+  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; content?: string | null };
+  const allArticles = (dynamicRehberRes.data ?? []) as ArticleRow[];
+  const usedIds = new Set<string>();
+  const dynamicRehber = HOMEPAGE_DYNAMIC_REHBER_TITLES.map((titlePattern) => {
+    const article = allArticles.find(
+      (a) => !usedIds.has(a.slug) && a.title.toLowerCase().includes(titlePattern.toLowerCase())
+    );
+    if (article) usedIds.add(article.slug);
+    return article;
+  }).filter((a): a is ArticleRow => a != null);
+
+  const staticRehber = HOMEPAGE_REHBER_SLUGS.slice(0, 3)
+    .map((slug) => blogPosts.find((p) => p.slug === slug))
+    .filter((p): p is (typeof blogPosts)[number] => p != null);
+
+  const dynamicRehberMapped = dynamicRehber.map((a) => {
+    const metaDesc = a.meta_description?.trim() || "";
+    const contentText = a.content ? stripHtml(a.content) : "";
+    const raw = metaDesc || contentText;
+    const summary = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
+    const isBosanma = a.title.toLowerCase().includes("boşanma") || a.title.toLowerCase().includes("bosanma");
+    const isIsci = a.title.toLowerCase().includes("işçi") || a.title.toLowerCase().includes("isci");
+    const cardImg = isBosanma ? "/rehber/bosanma-davasi-nasil-acilir-avukata-sor.webp" : isIsci ? "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp" : undefined;
+    const imageAlt = isBosanma ? "Boşanma davası nasıl açılır avukata sor" : isIsci ? "İşten çıkarılan işçinin hakları avukata sor" : undefined;
+    return {
+      slug: a.slug,
+      title: a.title,
+      summary,
+      categorySlug: a.category,
+      image: cardImg,
+      cardImage: cardImg,
+      imageAlt,
+    };
+  });
+
+  const homepageRehber = [...staticRehber, ...dynamicRehberMapped];
+  const isciFallback = blogPosts.find((p) => p.slug === "isten-cikarilan-iscinin-haklari-nelerdir");
+  if (homepageRehber.length < 3 && isciFallback && !homepageRehber.some((p) => p.slug === isciFallback.slug)) {
+    homepageRehber.push(isciFallback);
+  }
+  const finalRehber = homepageRehber.slice(0, 3);
 
   return (
     <>
       <OrganizationSchema />
       <WebSiteSchema />
-      <div className="space-y-14">
-      <section className="relative overflow-hidden py-8 md:py-16">
+      <FAQSchema items={HOMEPAGE_FAQ_ITEMS} />
+      <div className="space-y-12">
+      <section className="relative overflow-hidden py-8 md:py-12">
         <div className="grid items-center gap-10 md:grid-cols-2">
           {/* Sol: İçerik */}
           <div className="space-y-6">
@@ -40,8 +100,8 @@ export default async function Home() {
               net cevabını öğren.
             </h1>
             <p className="max-w-lg text-base text-muted-foreground md:text-lg">
-              Hukuki sorununu sorabilir, benzer gerçek sorulara verilen kısa ve
-              anlaşılır cevapları inceleyebilirsin.
+              Platformumuz üzerinden anında hukuki soru sorabilir, benzer durumlara
+              verilen kısa ve anlaşılır cevapları inceleyebilirsin.
             </p>
 
             <div className="flex flex-nowrap gap-2 sm:gap-3">
@@ -77,7 +137,48 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section className="space-y-8" aria-labelledby="nasil-calisir-heading">
+        <header className="space-y-3">
+          <h2 id="nasil-calisir-heading" className="flex items-center gap-2 text-[20px] font-bold text-gray-900">
+            <span className="h-5 w-1 shrink-0 rounded-full bg-primary" />
+            3 Basit Adımda Hukuki Soru Sor
+          </h2>
+          <p className="max-w-2xl text-base text-muted-foreground">
+            Kafanı kurcalayan hukuki sorunları anonim ve güvenli bir şekilde ilet, uzman editör incelemesinden geçen net cevaplara ulaş.
+          </p>
+        </header>
+        <div className="flex flex-col gap-8 md:flex-row md:gap-6">
+          <article className="flex flex-1 flex-col items-center rounded-xl border border-slate-100 bg-white p-6 text-center shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Edit3 className="size-6 text-primary" aria-hidden />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">1. Hukuki Sorunu Yaz</h3>
+            <p className="text-sm text-muted-foreground">
+              Yaşadığın durumu ve aklındaki hukuki soruyu detaylarıyla, isim vermeden platformumuza yaz.
+            </p>
+          </article>
+          <article className="flex flex-1 flex-col items-center rounded-xl border border-slate-100 bg-white p-6 text-center shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <ShieldCheck className="size-6 text-primary" aria-hidden />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">2. Editör İncelemesi</h3>
+            <p className="text-sm text-muted-foreground">
+              Sorun, yayınlanmadan önce hukuki standartlara uygunluk ve anonimlik açısından editörlerimizce incelenir.
+            </p>
+          </article>
+          <article className="flex flex-1 flex-col items-center rounded-xl border border-slate-100 bg-white p-6 text-center shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <MessageCircle className="size-6 text-primary" aria-hidden />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">3. Net Cevabını Öğren</h3>
+            <p className="text-sm text-muted-foreground">
+              Karmaşık kanun maddeleri arasında kaybolmadan, hukuki soruna verilen anlaşılır ve sade cevabı oku.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="mt-16 space-y-4">
         <div className="flex items-center justify-between gap-4">
           <h2 className="flex items-center gap-2 text-xl font-semibold">
             <span className="h-5 w-1 rounded-full bg-primary" />
@@ -124,7 +225,7 @@ export default async function Home() {
         <div className="overflow-hidden rounded-2xl relative aspect-[4/3]">
           <Image
             src="/avukata-sor.png"
-            alt="Avukata sor görseli"
+            alt="Avukata sor - hukuki soru sor"
             width={800}
             height={600}
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -140,12 +241,9 @@ export default async function Home() {
           Rehber
         </div>
         <div className="grid gap-5 md:grid-cols-3 min-h-[300px]">
-          {HOMEPAGE_REHBER_SLUGS.slice(0, 3)
-            .map((slug) => blogPosts.find((p) => p.slug === slug))
-            .filter((p): p is (typeof blogPosts)[number] => p != null)
-            .map((post) => (
-              <BlogTeaserCard key={post.slug} post={post} />
-            ))}
+          {finalRehber.map((post) => (
+            <BlogTeaserCard key={`${post.categorySlug}-${post.slug}`} post={post} />
+          ))}
         </div>
         <div className="flex justify-center pt-2">
           <Button asChild size="lg" className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
@@ -154,6 +252,7 @@ export default async function Home() {
         </div>
       </section>
 
+      <HomepageFAQ />
     </div>
     </>
   );

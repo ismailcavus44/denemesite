@@ -10,7 +10,7 @@ const _d = "YasalHaklarınız ekibi ve misyonu. Hukuki bilgilendirmeyi sade ve a
 const _u = `${siteConfig.url}/hakkimizda`;
 
 export const metadata: Metadata = {
-  title: _t,
+  title: { absolute: "Hakkımızda | YasalHaklarınız" },
   description: _d,
   openGraph: { title: _t, description: _d, url: _u },
   twitter: { card: "summary_large_image", title: _t, description: _d },

@@ -8,7 +8,7 @@ const _d = "YasalHaklarınız ekibine gönüllü yazar veya editör olarak başv
 const _u = `${siteConfig.url}/kariyer`;
 
 export const metadata: Metadata = {
-  title: _t,
+  title: { absolute: "Kariyer | YasalHaklarınız" },
   description: _d,
   openGraph: { title: _t, description: _d, url: _u },
   twitter: { card: "summary_large_image", title: _t, description: _d },

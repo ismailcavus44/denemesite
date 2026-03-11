@@ -6,7 +6,7 @@ const _d = "YasalHaklarınız ile iletişime geçin. Öneri ve geri bildirimleri
 const _u = `${siteConfig.url}/iletisim`;
 
 export const metadata: Metadata = {
-  title: _t,
+  title: { absolute: "İletişim | YasalHaklarınız" },
   description: _d,
   openGraph: { title: _t, description: _d, url: _u },
   twitter: { card: "summary_large_image", title: _t, description: _d },
