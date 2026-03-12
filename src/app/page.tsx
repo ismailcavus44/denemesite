@@ -104,11 +104,11 @@ export default async function Home() {
               verilen kısa ve anlaşılır cevapları inceleyebilirsin.
             </p>
 
-            <div className="flex flex-nowrap gap-2 sm:gap-3">
-              <Button asChild size="lg" className="shrink-0 bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
+              <Button asChild size="lg" className="w-full sm:w-auto bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
                 <Link href="/soru-sor">Hemen soru sor</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="shrink-0 border-[#1d293d] text-[#1d293d] hover:bg-[#1d293d]/10 hover:border-[#1d293d] hover:text-[#1d293d]">
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto border-[#1d293d] text-[#1d293d] hover:bg-[#1d293d]/10 hover:border-[#1d293d] hover:text-[#1d293d]">
                 <Link href="/sorular">Yayındaki cevaplara göz at</Link>
               </Button>
             </div>
