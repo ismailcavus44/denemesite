@@ -169,7 +169,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
         </Select>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Telefon Numarası (Sorunuz cevaplandığında bildirim almak istiyorsanız yazın.)</label>
+        <label className="text-sm font-medium">Telefon Numarası (Sorunuz cevaplandığında WhatsApp'tan mesaj almak istiyorsanız yazın.)</label>
         <input
           type="tel"
           value={phone}
