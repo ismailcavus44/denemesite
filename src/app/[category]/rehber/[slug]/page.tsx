@@ -371,6 +371,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           datePublished={dbArticle.created_at?.slice(0, 10) ?? ""}
           url={articleUrl}
           image={dbArticle.featured_image_url?.startsWith("http") ? dbArticle.featured_image_url : undefined}
+          author={
+            dbArticle.authors
+              ? { name: dbArticle.authors.name, url: `${baseUrl}/yazar/${dbArticle.authors.slug}` }
+              : undefined
+          }
         />
         {dbArticle.faq && dbArticle.faq.length > 0 && (
           <FAQSchema items={(dbArticle.faq as FaqItem[]).map((f) => ({ question: f.question, answer: f.answer }))} />
