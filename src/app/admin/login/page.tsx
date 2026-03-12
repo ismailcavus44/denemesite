@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -23,21 +22,30 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const supabase = getSupabaseBrowserClient();
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+      const res = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: key,
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
       });
 
-      if (error) {
-        setErrorMsg(error.message || "Giriş başarısız.");
+      const body = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(body.error_description || body.msg || "Giriş başarısız.");
         return;
       }
 
-      if (!data.session?.access_token) {
-        setErrorMsg("Oturum alınamadı.");
-        return;
-      }
+      const storageKey = `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
+      localStorage.setItem(storageKey, JSON.stringify(body));
 
       window.location.href = "/admin/dashboard";
     } catch {
