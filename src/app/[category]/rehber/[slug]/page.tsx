@@ -333,7 +333,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                     {(dbArticle.faq as FaqItem[]).map((item, idx) => (
                       <details key={idx} className="group">
                         <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left [&::-webkit-details-marker]:hidden">
-                          <h3 id={faqIds[idx]} className="text-[20px] font-semibold text-slate-900 scroll-mt-6">
+                          <h3 id={faqIds[idx]} className="text-[16px] font-semibold text-slate-900 scroll-mt-6">
                             {item.question}
                           </h3>
                           <span className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
@@ -489,7 +489,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                 <Accordion type="single" collapsible className="w-full">
                   {post.faq.map((item, i) => (
                     <AccordionItem key={i} value={`faq-${i}`}>
-                      <AccordionTrigger className="text-left text-[15px] font-bold text-slate-900">{item.question}</AccordionTrigger>
+                      <AccordionTrigger className="text-left text-[16px] font-bold text-slate-900">{item.question}</AccordionTrigger>
                       <AccordionContent className="text-[14px] leading-7 text-black">{item.answer}</AccordionContent>
                     </AccordionItem>
                   ))}
