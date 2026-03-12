@@ -212,9 +212,27 @@ export default async function CategoryGuidePage({ params }: PageProps) {
   if (dbArticle) {
     const baseUrl = siteConfig.url.replace(/\/$/, "");
     const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
-    const { html: rawHtml, tocItems } = addHeadingIdsAndGetToc(dbArticle.content);
+    const { html: rawHtml, tocItems: contentToc } = addHeadingIdsAndGetToc(dbArticle.content);
     const contentWithIds = sanitizeHtml(rawHtml);
     const categoryGuides = await getRelatedGuides(categorySlug, 5, slug);
+
+    const usedIds = new Set(contentToc.map((t) => t.id));
+    const tocItems: TocItem[] = [...contentToc];
+    const faqIds: string[] = [];
+    if (dbArticle.faq && dbArticle.faq.length > 0) {
+      tocItems.push({ id: "sik-sorulan-sorular", label: "Sık Sorulan Sorular", level: "h2" });
+      for (const item of dbArticle.faq as FaqItem[]) {
+        let id = slugifyForId(item.question);
+        if (usedIds.has(id)) {
+          let n = 2;
+          while (usedIds.has(`${id}-${n}`)) n++;
+          id = `${id}-${n}`;
+        }
+        usedIds.add(id);
+        faqIds.push(id);
+        tocItems.push({ id, label: item.question, level: "h3" });
+      }
+    }
 
     return (
       <>
@@ -308,12 +326,16 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               />
               {dbArticle.faq && dbArticle.faq.length > 0 && (
                 <section className="space-y-4">
-                  <h2 className="text-[24px] font-semibold text-slate-900">Sık Sorulan Sorular</h2>
+                  <h2 id="sik-sorulan-sorular" className="mt-8 text-[24px] font-semibold text-slate-900 scroll-mt-6">
+                    Sık Sorulan Sorular
+                  </h2>
                   <div className="divide-y divide-slate-200 rounded-xl border border-slate-200">
                     {(dbArticle.faq as FaqItem[]).map((item, idx) => (
                       <details key={idx} className="group">
                         <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left [&::-webkit-details-marker]:hidden">
-                          <h3 className="text-base font-semibold text-slate-900">{item.question}</h3>
+                          <h3 id={faqIds[idx]} className="text-[20px] font-semibold text-slate-900 scroll-mt-6">
+                            {item.question}
+                          </h3>
                           <span className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </span>
