@@ -182,6 +182,10 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.rehber-icerik [data-type="download-button"] a {
+  color: white !important;
+  text-decoration: none !important;
+}
 .rehber-icerik strong {
   font-weight: 600;
 }

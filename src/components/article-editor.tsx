@@ -19,6 +19,7 @@ import { InfoBox } from "@/lib/tiptap/info-box";
 import { LawArticle } from "@/lib/tiptap/law-article";
 import { CourtDecision } from "@/lib/tiptap/court-decision";
 import { Petition } from "@/lib/tiptap/petition";
+import { DownloadButton } from "@/lib/tiptap/download-button";
 import {
   Bold,
   Heading2,
@@ -31,6 +32,7 @@ import {
   Info,
   Scale,
   Gavel,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -72,6 +74,9 @@ export function ArticleEditor({
   const [courtDecisionTitle, setCourtDecisionTitle] = useState("Yargıtay 2. Hukuk Dairesi");
   const [courtDecisionFileInfo, setCourtDecisionFileInfo] = useState("Esas No: 2023/1234, Karar No: 2024/5678");
   const [courtDecisionContent, setCourtDecisionContent] = useState("");
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [downloadButtonText, setDownloadButtonText] = useState("Evrakı indir");
+  const [downloadHref, setDownloadHref] = useState("");
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -93,13 +98,14 @@ export function ArticleEditor({
       LawArticle,
       CourtDecision,
       Petition,
+      DownloadButton,
     ],
     content: value || "",
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
         class:
-          "focus:outline-none min-h-[260px] text-slate-700 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2:hover]:relative [&_h2:hover::after]:content-['_H2'] [&_h2:hover::after]:ml-1.5 [&_h2:hover::after]:text-[10px] [&_h2:hover::after]:font-mono [&_h2:hover::after]:opacity-50 [&_h2:hover::after]:text-slate-500 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3:hover]:relative [&_h3:hover::after]:content-['_H3'] [&_h3:hover::after]:ml-1.5 [&_h3:hover::after]:text-[10px] [&_h3:hover::after]:font-mono [&_h3:hover::after]:opacity-50 [&_h3:hover::after]:text-slate-500 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5 [&_a]:text-red-600 [&_a]:underline [&_a]:decoration-red-600 [&_[data-type=cta-block]]:my-4 [&_[data-type=cta-block]_a]:text-white [&_[data-type=cta-block]_a]:no-underline [&_[data-type=cta-block]_a]:hover:text-white [&_[data-type=info-box]]:my-4 [&_[data-type=law-article]]:my-4 [&_[data-type=court-decision]]:my-4 [&_[data-type=petition]]:my-4",
+          "focus:outline-none min-h-[260px] text-slate-700 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2:hover]:relative [&_h2:hover::after]:content-['_H2'] [&_h2:hover::after]:ml-1.5 [&_h2:hover::after]:text-[10px] [&_h2:hover::after]:font-mono [&_h2:hover::after]:opacity-50 [&_h2:hover::after]:text-slate-500 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3:hover]:relative [&_h3:hover::after]:content-['_H3'] [&_h3:hover::after]:ml-1.5 [&_h3:hover::after]:text-[10px] [&_h3:hover::after]:font-mono [&_h3:hover::after]:opacity-50 [&_h3:hover::after]:text-slate-500 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5 [&_a]:text-red-600 [&_a]:underline [&_a]:decoration-red-600 [&_[data-type=cta-block]]:my-4 [&_[data-type=cta-block]_a]:text-white [&_[data-type=cta-block]_a]:no-underline [&_[data-type=cta-block]_a]:hover:text-white [&_[data-type=info-box]]:my-4 [&_[data-type=law-article]]:my-4 [&_[data-type=court-decision]]:my-4 [&_[data-type=petition]]:my-4 [&_[data-type=download-button]]:my-4 [&_[data-type=download-button]_a]:text-white [&_[data-type=download-button]_a]:no-underline",
       },
     },
   });
@@ -232,6 +238,30 @@ export function ArticleEditor({
     }).run();
     setCourtDecisionDialogOpen(false);
   }, [editor, courtDecisionTitle, courtDecisionFileInfo, courtDecisionContent]);
+
+  const openDownloadDialog = useCallback(() => {
+    setDownloadButtonText("Evrakı indir");
+    setDownloadHref("");
+    setDownloadDialogOpen(true);
+  }, []);
+
+  const insertDownloadButton = useCallback(() => {
+    if (!editor) return;
+    const href = downloadHref.trim();
+    if (!href) {
+      toast.error("İndirme linki girin.");
+      return;
+    }
+    const url = href.startsWith("http") ? href : `https://${href}`;
+    editor.chain().focus().insertContent({
+      type: "downloadButton",
+      attrs: {
+        buttonText: downloadButtonText.trim() || "Evrakı indir",
+        href: url,
+      },
+    }).run();
+    setDownloadDialogOpen(false);
+  }, [editor, downloadButtonText, downloadHref]);
 
   const filteredRehber = rehberFilter.trim()
     ? blogPosts.filter(
@@ -373,6 +403,17 @@ export function ArticleEditor({
         >
           <Gavel className="size-4" />
           Yargıtay
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={openDownloadDialog}
+          title="Evrak indirme butonu ekle"
+        >
+          <Download className="size-4" />
+          Evrak
         </Button>
       </div>
       <div
@@ -575,6 +616,39 @@ export function ArticleEditor({
             </div>
             <Button onClick={insertLawArticle} className="w-full">
               Kanun maddesi ekle
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Evrak İndirme Dialog */}
+      <Dialog open={downloadDialogOpen} onOpenChange={setDownloadDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Evrak indirme butonu ekle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600">Buton yazısı</label>
+              <Input
+                value={downloadButtonText}
+                onChange={(e) => setDownloadButtonText(e.target.value)}
+                placeholder="Örn: Dilekçe örneğini indir"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600">İndirme linki (Drive vb.)</label>
+              <Input
+                value={downloadHref}
+                onChange={(e) => setDownloadHref(e.target.value)}
+                placeholder="https://drive.google.com/..."
+                className="mt-1"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Link nofollow olarak işaretlenir.</p>
+            </div>
+            <Button onClick={insertDownloadButton} className="w-full">
+              Butonu ekle
             </Button>
           </div>
         </DialogContent>
