@@ -34,7 +34,7 @@ export const DownloadButton = Node.create({
         "data-type": "download-button",
         "data-button-text": buttonText,
         "data-href": href,
-        class: "my-4 not-prose",
+        class: "my-4 not-prose flex justify-center",
       },
       [
         "a",
