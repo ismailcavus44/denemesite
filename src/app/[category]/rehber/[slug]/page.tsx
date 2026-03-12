@@ -92,7 +92,7 @@ function renderContentBlocks(blocks: ContentBlock[], slug: string, tocItems: Toc
       case "h2": {
         const item = tocItems[tocIndex++];
         return (
-          <h2 key={key} id={item?.id} className="mt-8 text-[26px] font-semibold text-slate-900 scroll-mt-6">
+          <h2 key={key} id={item?.id} className="mt-8 text-[24px] font-semibold text-slate-900 scroll-mt-6">
             {block.v}
           </h2>
         );
@@ -100,20 +100,20 @@ function renderContentBlocks(blocks: ContentBlock[], slug: string, tocItems: Toc
       case "h3": {
         const item = tocItems[tocIndex++];
         return (
-          <h3 key={key} id={item?.id} className="mt-6 text-[22px] font-semibold text-slate-900 scroll-mt-6">
+          <h3 key={key} id={item?.id} className="mt-6 text-[20px] font-semibold text-slate-900 scroll-mt-6">
             {block.v}
           </h3>
         );
       }
       case "p":
         return (
-          <p key={key} className="leading-7">
+          <p key={key} className="text-[14px] leading-7">
             {renderWithBold(block.v, key)}
           </p>
         );
       case "ul":
         return (
-          <ul key={key} className="list-inside list-disc space-y-2 pl-1">
+          <ul key={key} className="list-inside list-disc space-y-2 pl-1 text-[14px]">
             {block.v.map((item, i) => (
               <li key={`${key}-${i}`}>{renderWithBold(item, `${key}-${i}`)}</li>
             ))}
@@ -303,12 +303,12 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               </aside>
               <div
                 id="rehber-icerik"
-                className="rehber-icerik space-y-4 text-[16px] text-slate-700 text-justify"
+                className="rehber-icerik space-y-4 text-[14px] text-slate-700 text-justify"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
               {dbArticle.faq && dbArticle.faq.length > 0 && (
                 <section className="space-y-4">
-                  <h2 className="text-[26px] font-semibold text-slate-900">Sık Sorulan Sorular</h2>
+                  <h2 className="text-[24px] font-semibold text-slate-900">Sık Sorulan Sorular</h2>
                   <div className="divide-y divide-slate-200 rounded-xl border border-slate-200">
                     {(dbArticle.faq as FaqItem[]).map((item, idx) => (
                       <details key={idx} className="group">
@@ -319,14 +319,14 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                           </span>
                         </summary>
                         <div className="px-5 pb-4">
-                          <p className="text-sm leading-7 text-slate-700">{item.answer}</p>
+                          <p className="text-[14px] leading-7 text-slate-700">{item.answer}</p>
                         </div>
                       </details>
                     ))}
                   </div>
                 </section>
               )}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-[14px] text-slate-600">
                 Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
               </div>
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -464,11 +464,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               </Link>
             </aside>
 
-            <div id="rehber-icerik" className="space-y-4 text-[16px] text-slate-700 text-justify">
+            <div id="rehber-icerik" className="space-y-4 text-[14px] text-slate-700 text-justify">
               {post.contentBlocks
                 ? renderContentBlocks(post.contentBlocks, post.slug, tocItems)
                 : post.content.map((paragraph, index) => (
-                    <p key={`${post.slug}-${index}`} className="text-justify">{paragraph}</p>
+                    <p key={`${post.slug}-${index}`} className="text-[14px] text-justify">{paragraph}</p>
                   ))}
             </div>
 
@@ -479,14 +479,14 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   {post.faq.map((item, i) => (
                     <AccordionItem key={i} value={`faq-${i}`}>
                       <AccordionTrigger className="text-left text-[15px] font-bold text-slate-900">{item.question}</AccordionTrigger>
-                      <AccordionContent className="text-[15px] leading-7 text-slate-600">{item.answer}</AccordionContent>
+                      <AccordionContent className="text-[14px] leading-7 text-slate-600">{item.answer}</AccordionContent>
                     </AccordionItem>
                   ))}
                 </Accordion>
               </section>
             )}
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-[14px] text-slate-600">
               Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
             </div>
 

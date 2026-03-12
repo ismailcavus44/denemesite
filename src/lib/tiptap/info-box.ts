@@ -27,10 +27,10 @@ export const InfoBox = Node.create({
       {
         "data-type": "info-box",
         "data-content": content,
-        class: "my-4 flex gap-3 rounded-r-lg border-l-4 border-blue-500 bg-blue-50 p-4",
+        class: "my-4 flex items-center gap-4 rounded-r-lg border-l-4 border-blue-500 bg-blue-50 p-4",
       },
-      ["span", { class: "shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white", "aria-hidden": "true" }, "i"],
-      ["p", { class: "text-sm leading-relaxed text-slate-700" }, content],
+      ["span", { class: "shrink-0 flex items-center justify-center text-4xl font-bold text-blue-500", "aria-hidden": "true" }, "!"],
+      ["p", { class: "text-sm leading-relaxed text-slate-700 m-0" }, content],
     ];
   },
 });

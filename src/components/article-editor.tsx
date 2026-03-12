@@ -16,6 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { blogPosts } from "@/lib/blog-data";
 import { CtaBlock } from "@/lib/tiptap/cta-block";
 import { InfoBox } from "@/lib/tiptap/info-box";
+import { LawArticle } from "@/lib/tiptap/law-article";
+import { CourtDecision } from "@/lib/tiptap/court-decision";
+import { Petition } from "@/lib/tiptap/petition";
 import {
   Bold,
   Heading2,
@@ -26,6 +29,8 @@ import {
   ListOrdered,
   Megaphone,
   Info,
+  Scale,
+  Gavel,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,6 +65,13 @@ export function ArticleEditor({
   const [ctaHref, setCtaHref] = useState("/iletisim");
   const [infoBoxDialogOpen, setInfoBoxDialogOpen] = useState(false);
   const [infoBoxContent, setInfoBoxContent] = useState("");
+  const [lawArticleDialogOpen, setLawArticleDialogOpen] = useState(false);
+  const [lawArticleTitle, setLawArticleTitle] = useState("Türk Medeni Kanunu Madde 166");
+  const [lawArticleContent, setLawArticleContent] = useState("");
+  const [courtDecisionDialogOpen, setCourtDecisionDialogOpen] = useState(false);
+  const [courtDecisionTitle, setCourtDecisionTitle] = useState("Yargıtay 2. Hukuk Dairesi");
+  const [courtDecisionFileInfo, setCourtDecisionFileInfo] = useState("Esas No: 2023/1234, Karar No: 2024/5678");
+  const [courtDecisionContent, setCourtDecisionContent] = useState("");
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -78,13 +90,16 @@ export function ArticleEditor({
       Placeholder.configure({ placeholder }),
       CtaBlock,
       InfoBox,
+      LawArticle,
+      CourtDecision,
+      Petition,
     ],
     content: value || "",
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
         class:
-          "focus:outline-none min-h-[260px] text-slate-700 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2:hover]:relative [&_h2:hover::after]:content-['_H2'] [&_h2:hover::after]:ml-1.5 [&_h2:hover::after]:text-[10px] [&_h2:hover::after]:font-mono [&_h2:hover::after]:opacity-50 [&_h2:hover::after]:text-slate-500 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3:hover]:relative [&_h3:hover::after]:content-['_H3'] [&_h3:hover::after]:ml-1.5 [&_h3:hover::after]:text-[10px] [&_h3:hover::after]:font-mono [&_h3:hover::after]:opacity-50 [&_h3:hover::after]:text-slate-500 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5 [&_a]:text-red-600 [&_a]:underline [&_a]:decoration-red-600 [&_[data-type=cta-block]]:my-4 [&_[data-type=cta-block]_a]:text-white [&_[data-type=cta-block]_a]:no-underline [&_[data-type=cta-block]_a]:hover:text-white [&_[data-type=info-box]]:my-4",
+          "focus:outline-none min-h-[260px] text-slate-700 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2:hover]:relative [&_h2:hover::after]:content-['_H2'] [&_h2:hover::after]:ml-1.5 [&_h2:hover::after]:text-[10px] [&_h2:hover::after]:font-mono [&_h2:hover::after]:opacity-50 [&_h2:hover::after]:text-slate-500 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3:hover]:relative [&_h3:hover::after]:content-['_H3'] [&_h3:hover::after]:ml-1.5 [&_h3:hover::after]:text-[10px] [&_h3:hover::after]:font-mono [&_h3:hover::after]:opacity-50 [&_h3:hover::after]:text-slate-500 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-0.5 [&_a]:text-red-600 [&_a]:underline [&_a]:decoration-red-600 [&_[data-type=cta-block]]:my-4 [&_[data-type=cta-block]_a]:text-white [&_[data-type=cta-block]_a]:no-underline [&_[data-type=cta-block]_a]:hover:text-white [&_[data-type=info-box]]:my-4 [&_[data-type=law-article]]:my-4 [&_[data-type=court-decision]]:my-4 [&_[data-type=petition]]:my-4",
       },
     },
   });
@@ -179,6 +194,44 @@ export function ArticleEditor({
     }).run();
     setInfoBoxDialogOpen(false);
   }, [editor, infoBoxContent]);
+
+  const openLawArticleDialog = useCallback(() => {
+    setLawArticleTitle("Türk Medeni Kanunu Madde 166");
+    setLawArticleContent("");
+    setLawArticleDialogOpen(true);
+  }, []);
+
+  const insertLawArticle = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().insertContent({
+      type: "lawArticle",
+      attrs: {
+        title: lawArticleTitle.trim() || "Kanun maddesi başlığı",
+        content: lawArticleContent.trim() || "Madde metnini buraya yazın.",
+      },
+    }).run();
+    setLawArticleDialogOpen(false);
+  }, [editor, lawArticleTitle, lawArticleContent]);
+
+  const openCourtDecisionDialog = useCallback(() => {
+    setCourtDecisionTitle("Yargıtay 2. Hukuk Dairesi");
+    setCourtDecisionFileInfo("Esas No: 2023/1234, Karar No: 2024/5678");
+    setCourtDecisionContent("");
+    setCourtDecisionDialogOpen(true);
+  }, []);
+
+  const insertCourtDecision = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().insertContent({
+      type: "courtDecision",
+      attrs: {
+        title: courtDecisionTitle.trim() || "Yargıtay Kararı",
+        fileInfo: courtDecisionFileInfo.trim() || "Esas No: -, Karar No: -",
+        content: courtDecisionContent.trim() || "Karar metnini buraya yazın.",
+      },
+    }).run();
+    setCourtDecisionDialogOpen(false);
+  }, [editor, courtDecisionTitle, courtDecisionFileInfo, courtDecisionContent]);
 
   const filteredRehber = rehberFilter.trim()
     ? blogPosts.filter(
@@ -298,6 +351,28 @@ export function ArticleEditor({
         >
           <Info className="size-4" />
           Bilgi
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={openLawArticleDialog}
+          title="Kanun maddesi ekle"
+        >
+          <Scale className="size-4" />
+          Kanun
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={openCourtDecisionDialog}
+          title="Yargıtay kararı ekle"
+        >
+          <Gavel className="size-4" />
+          Yargıtay
         </Button>
       </div>
       <div
@@ -472,6 +547,80 @@ export function ArticleEditor({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Kanun Maddesi Dialog */}
+      <Dialog open={lawArticleDialogOpen} onOpenChange={setLawArticleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Kanun maddesi ekle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600">Madde başlığı / adı</label>
+              <Input
+                value={lawArticleTitle}
+                onChange={(e) => setLawArticleTitle(e.target.value)}
+                placeholder="Örn: Türk Medeni Kanunu Madde 166"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600">Madde metni</label>
+              <Textarea
+                value={lawArticleContent}
+                onChange={(e) => setLawArticleContent(e.target.value)}
+                placeholder="Kanunun tam metnini buraya yazın."
+                className="mt-1 min-h-[120px]"
+              />
+            </div>
+            <Button onClick={insertLawArticle} className="w-full">
+              Kanun maddesi ekle
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Yargıtay Kararı Dialog */}
+      <Dialog open={courtDecisionDialogOpen} onOpenChange={setCourtDecisionDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Yargıtay kararı ekle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600">Karar başlığı</label>
+              <Input
+                value={courtDecisionTitle}
+                onChange={(e) => setCourtDecisionTitle(e.target.value)}
+                placeholder="Örn: Yargıtay 2. Hukuk Dairesi"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600">Dosya bilgileri</label>
+              <Input
+                value={courtDecisionFileInfo}
+                onChange={(e) => setCourtDecisionFileInfo(e.target.value)}
+                placeholder="Örn: Esas No: 2023/1234, Karar No: 2024/5678"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600">Karar metni / özeti</label>
+              <Textarea
+                value={courtDecisionContent}
+                onChange={(e) => setCourtDecisionContent(e.target.value)}
+                placeholder="Yargıtay kararının içeriğini veya özetini buraya yazın."
+                className="mt-1 min-h-[120px]"
+              />
+            </div>
+            <Button onClick={insertCourtDecision} className="w-full">
+              Yargıtay kararı ekle
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
