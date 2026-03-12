@@ -42,7 +42,7 @@ export default async function AskQuestionPage() {
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Hukuki Soru Sor</h1>
         <p className="text-sm text-muted-foreground">
-          Sorunu net ve detaylı anlat. Editör ekibi inceleyip uygun gördüğünde anonim şekilde yayımlar ve yanıtlar.
+          Sorunu net ve detaylı anlat. Editör ekibi inceleyip uygun gördüğünde anonim şekilde yanıtlar ve yayımlar.
         </p>
       </div>
       <div className="mt-2">

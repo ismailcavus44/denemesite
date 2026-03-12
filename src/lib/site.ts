@@ -4,4 +4,11 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   /** İletişim sayfası ve mailto için e-posta adresi. */
   contactEmail: "info@yasalhaklariniz.com",
+  social: {
+    instagram: "https://instagram.com/yasalhaklariniz",
+    facebook: "https://facebook.com/yasalhaklariniz",
+    tiktok: "https://tiktok.com/@yasalhaklariniz",
+    linkedin: "https://linkedin.com/company/yasalhaklariniz",
+    youtube: "https://youtube.com/@yasalhaklariniz",
+  },
 };

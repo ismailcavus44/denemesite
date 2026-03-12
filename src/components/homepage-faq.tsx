@@ -66,7 +66,7 @@ export function HomepageFAQ() {
               <AccordionTrigger className="py-5 text-left text-[15px] font-medium text-gray-900 hover:no-underline [&[data-state=open]>svg]:rotate-180">
                 {item.question}
               </AccordionTrigger>
-              <AccordionContent className="pb-5 text-[14px] leading-relaxed text-muted-foreground">
+              <AccordionContent className="pb-5 text-[15px] leading-relaxed text-muted-foreground">
                 {item.answer}
               </AccordionContent>
             </AccordionItem>

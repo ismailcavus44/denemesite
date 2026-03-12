@@ -18,13 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  LEGAL_DISCLAIMER_TITLE,
-  LEGAL_DISCLAIMER_TEXT,
-  LEGAL_DISCLAIMER_LIST_CEVAPLAR,
-  LEGAL_DISCLAIMER_LIST_KABUL,
-  LEGAL_DISCLAIMER_LIST_KABUL_SUFFIX,
-} from "@/lib/legal-disclaimer";
 import { toast } from "sonner";
 
 type Category = {
@@ -44,9 +37,16 @@ export function QuestionForm({ categories }: QuestionFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
-  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [acceptedWhatsapp, setAcceptedWhatsapp] = useState(false);
   const [showLegalError, setShowLegalError] = useState(false);
+  const [showWhatsappError, setShowWhatsappError] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+
+  const hasPhone = phone.trim().length > 0;
+  const showWhatsappCheckbox = hasPhone;
+  const canSubmit =
+    acceptedLegal &&
+    (hasPhone ? acceptedWhatsapp : true);
   const router = useRouter();
 
   const doSubmit = async () => {
@@ -59,7 +59,13 @@ export function QuestionForm({ categories }: QuestionFormProps) {
         body: JSON.stringify({
           body: body.trim(),
           category_id: categoryId,
-          ...(phone.trim() ? { phone: phone.trim() } : {}),
+          consent_accepted: true,
+          ...(phone.trim()
+            ? {
+                phone: phone.trim(),
+                whatsapp_consent: acceptedWhatsapp,
+              }
+            : {}),
         }),
       });
 
@@ -93,6 +99,12 @@ export function QuestionForm({ categories }: QuestionFormProps) {
       setShowLegalError(true);
       return;
     }
+    if (hasPhone && !acceptedWhatsapp) {
+      setShowWhatsappError(true);
+      return;
+    }
+    setShowLegalError(false);
+    setShowWhatsappError(false);
     setConfirmModalOpen(true);
   };
 
@@ -126,6 +138,8 @@ export function QuestionForm({ categories }: QuestionFormProps) {
               setBody("");
               setCategoryId("");
               setPhone("");
+              setAcceptedLegal(false);
+              setAcceptedWhatsapp(false);
             }}
           >
             Tekrar sor
@@ -138,7 +152,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Kategori</label>
+        <label className="text-sm font-medium">Kategori <span className="text-red-600">*</span></label>
         <Select value={categoryId} onValueChange={setCategoryId}>
           <SelectTrigger>
             <SelectValue placeholder="Kategori seçin" />
@@ -155,17 +169,23 @@ export function QuestionForm({ categories }: QuestionFormProps) {
         </Select>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">WhatsApp bildirim numarası (isteğe bağlı)</label>
+        <label className="text-sm font-medium">Telefon Numarası (Sorunuz cevaplandığında bildirim almak istiyorsanız yazın.)</label>
         <input
           type="tel"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => {
+          setPhone(e.target.value);
+          if (!e.target.value.trim()) {
+            setShowWhatsappError(false);
+            setAcceptedWhatsapp(false);
+          }
+        }}
           placeholder="Örn: 5555555555"
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Soru metni</label>
+        <label className="text-sm font-medium">Sorunuzu Detaylı Yazınız. <span className="text-red-600">*</span></label>
         <Textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}
@@ -173,11 +193,8 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           className="min-h-[180px]"
         />
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={loading} className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
-          {loading ? "Gönderiliyor..." : "Soruyu Gönder"}
-        </Button>
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
+      <div className="space-y-3">
+        <label className="flex cursor-pointer items-start gap-2 text-sm">
           <input
             type="checkbox"
             checked={acceptedLegal}
@@ -185,32 +202,62 @@ export function QuestionForm({ categories }: QuestionFormProps) {
               setAcceptedLegal(e.target.checked);
               if (e.target.checked) setShowLegalError(false);
             }}
-            className="h-4 w-4 cursor-pointer rounded border-input"
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-input"
             aria-required
           />
           <span className="text-muted-foreground">
             <Link href="/kvkk" className="text-red-600 underline hover:text-red-700">
-              KVKK Metni
+              KVKK Aydınlatma Metni
             </Link>
-            {" ve "}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setLegalModalOpen(true);
-              }}
-              className="text-red-600 underline hover:text-red-700"
-            >
-              Yasal Bilgilendirme
-            </button>
-            {" metnini kabul ediyorum."}
+            &apos;ni okudum.{" "}
+            <Link href="/sorumluluk-reddi" className="text-red-600 underline hover:text-red-700">
+              Sorumluluk Reddi ve Kullanım Şartları
+            </Link>
+            &apos;nı kabul ediyorum. <span className="text-red-600">*</span>
           </span>
         </label>
+
+        {showWhatsappCheckbox && (
+          <label className="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={acceptedWhatsapp}
+              onChange={(e) => {
+                setAcceptedWhatsapp(e.target.checked);
+                if (e.target.checked) setShowWhatsappError(false);
+              }}
+              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-input"
+              aria-required={hasPhone}
+            />
+            <span className="text-muted-foreground">
+              Belirttiğim numaraya WhatsApp bildirimi gönderilmesini ve numaramın{" "}
+              <Link href="/kvkk" className="text-red-600 underline hover:text-red-700">
+                Aydınlatma Metni
+              </Link>
+              &apos;nde belirtilen yurtdışı altyapı sağlayıcılarına (Supabase, Twilio, Meta) aktarılmasını açık rızamla kabul ediyorum. <span className="text-red-600">*</span>
+            </span>
+          </label>
+        )}
       </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="submit"
+          disabled={loading || !canSubmit}
+          className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90"
+        >
+          {loading ? "Gönderiliyor..." : "Soruyu Gönder"}
+        </Button>
+      </div>
+
       {showLegalError && (
         <p className="text-sm text-red-600" role="alert">
-          Soru göndermek için Yasal Bilgilendirme ve KVKK metnini kabul etmeniz gerekmektedir.
+          Soru göndermek için KVKK Aydınlatma Metni ve Sorumluluk Reddi metnini kabul etmeniz gerekmektedir.
+        </p>
+      )}
+      {showWhatsappError && (
+        <p className="text-sm text-red-600" role="alert">
+          Telefon numarası girdiğinizde WhatsApp bildirimi ve veri aktarımı için açık rıza onayını işaretlemeniz gerekmektedir.
         </p>
       )}
       <Dialog open={confirmModalOpen} onOpenChange={setConfirmModalOpen}>
@@ -240,56 +287,6 @@ export function QuestionForm({ categories }: QuestionFormProps) {
             >
               Gönder
             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={legalModalOpen} onOpenChange={setLegalModalOpen}>
-        <DialogContent className="max-h-[85vh] max-w-2xl sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="pr-8">{LEGAL_DISCLAIMER_TITLE}</DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto text-sm text-muted-foreground">
-            {LEGAL_DISCLAIMER_TEXT.split("\n\n").map((p, i) => {
-              const trimmed = p.trim();
-              if (trimmed === "__LIST_CEVAPLAR__") {
-                return (
-                  <ul key={i} className="mb-2 ml-4 list-disc space-y-1">
-                    {LEGAL_DISCLAIMER_LIST_CEVAPLAR.map((item, j) => (
-                      <li key={j}>{item}</li>
-                    ))}
-                  </ul>
-                );
-              }
-              if (trimmed === "__LIST_KABUL__") {
-                return (
-                  <div key={i} className="mb-2">
-                    <ul className="mb-2 ml-4 list-disc space-y-1">
-                      {LEGAL_DISCLAIMER_LIST_KABUL.map((item, j) => (
-                        <li key={j}>{item}</li>
-                      ))}
-                    </ul>
-                    <p className="mb-2">{LEGAL_DISCLAIMER_LIST_KABUL_SUFFIX}</p>
-                  </div>
-                );
-              }
-              const isMaddeBaslik = /^\d+\.\s+.+/.test(trimmed);
-              return (
-                <p
-                  key={i}
-                  className={
-                    isMaddeBaslik
-                      ? "mb-2 mt-4 font-bold text-foreground first:mt-0"
-                      : "mb-2"
-                  }
-                >
-                  {trimmed}
-                </p>
-              );
-            })}
-            <p className="mt-6 border-t pt-4 text-xs text-muted-foreground">
-              Son güncelleme tarihi: 12/02/2026
-            </p>
           </div>
         </DialogContent>
       </Dialog>

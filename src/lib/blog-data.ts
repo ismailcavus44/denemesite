@@ -34,6 +34,13 @@ export type BlogPost = {
   seoDescription?: string;
 };
 
+/** Footer'da "Popüler Rehberler" bölümünde gösterilecek rehberler (slug, title, categorySlug). */
+export const FOOTER_POPULAR_GUIDES: { slug: string; title: string; categorySlug: string }[] = [
+  { slug: "muris-muvazaasi-nedir", title: "Muris Muvazaası Nedir?", categorySlug: "miras-hukuku" },
+  { slug: "bosanma-davasi-nasil-acilir", title: "Boşanma Davası nasıl açılır", categorySlug: "aile-hukuku" },
+  { slug: "isten-cikarilan-iscinin-haklari-nelerdir", title: "İşten çıkarılan işçinin hakları", categorySlug: "is-hukuku" },
+];
+
 /** Anasayfada "Rehber" bölümünde gösterilecek rehber slug'ları (statik, en fazla 3, sırayla). */
 export const HOMEPAGE_REHBER_SLUGS: string[] = [
   "muris-muvazaasi-nedir",

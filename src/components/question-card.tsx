@@ -52,7 +52,7 @@ export function QuestionCard({
           </h2>
         )}
         {summaryText && (
-          <p className={compact ? "text-xs text-muted-foreground line-clamp-2" : "text-sm text-muted-foreground"}>{summaryText}</p>
+          <p className={compact ? "text-[15px] text-muted-foreground line-clamp-2" : "text-[15px] text-muted-foreground"}>{summaryText}</p>
         )}
       </CardHeader>
       <CardContent className={`mt-auto flex items-center justify-end pt-0 ${compact ? "px-3 pb-0" : ""}`}>

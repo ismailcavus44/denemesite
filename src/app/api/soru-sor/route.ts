@@ -2,27 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { slugify } from "@/lib/slugify";
 import { formatPhoneNumber } from "@/lib/utils";
+import { getClientIp } from "@/lib/getClientIp";
 
 const MAX_QUESTIONS_PER_HOUR = 1;
-
-/** Proxy/CDN tarafından set edilen header'lar kullanılır; platform güvenilir olduğu sürece client IP spoofing yapamaz. */
-function getClientIp(request: NextRequest): string {
-  const vercel = request.headers.get("x-vercel-forwarded-for");
-  if (vercel) return vercel.split(",")[0].trim();
-  const real = request.headers.get("x-real-ip");
-  if (real) return real.trim();
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return "unknown";
-}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { body: questionBody, category_id: categoryId, phone: askerPhone } = body as {
+    const { body: questionBody, category_id: categoryId, phone: askerPhone, consent_accepted, whatsapp_consent } = body as {
       body?: string;
       category_id?: string;
       phone?: string;
+      consent_accepted?: boolean;
+      whatsapp_consent?: boolean;
     };
 
     if (!questionBody?.trim() || !categoryId) {
@@ -32,7 +24,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (consent_accepted !== true) {
+      return NextResponse.json(
+        { error: "KVKK ve Sorumluluk Reddi metnini kabul etmeniz gerekmektedir." },
+        { status: 400 }
+      );
+    }
+
     const phoneToSave = formatPhoneNumber(typeof askerPhone === "string" ? askerPhone : "");
+    if (phoneToSave && whatsapp_consent !== true) {
+      return NextResponse.json(
+        { error: "Telefon numarası girdiğinizde WhatsApp bildirimi ve veri aktarımı için açık rıza onayını işaretlemeniz gerekmektedir." },
+        { status: 400 }
+      );
+    }
 
     const ip = getClientIp(request);
     const supabase = createSupabaseAdminClient();
@@ -86,6 +91,15 @@ export async function POST(request: NextRequest) {
     await supabase.from("question_submission_log").insert({
       ip_address: ip,
       submitted_at: new Date().toISOString(),
+    });
+
+    await supabase.from("consent_log").insert({
+      ip_address: ip,
+      consent_at: new Date().toISOString(),
+      consent_status: true,
+      phone: phoneToSave || null,
+      form_type: "soru_sor",
+      whatsapp_consent: phoneToSave ? true : null,
     });
 
     return NextResponse.json({ ok: true }, { status: 201 });

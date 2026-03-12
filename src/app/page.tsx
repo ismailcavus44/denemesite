@@ -99,7 +99,7 @@ export default async function Home() {
               <br />
               net cevabını öğren.
             </h1>
-            <p className="max-w-lg text-base text-muted-foreground md:text-lg">
+            <p className="max-w-lg text-[15px] text-muted-foreground">
               Platformumuz üzerinden anında hukuki soru sorabilir, benzer durumlara
               verilen kısa ve anlaşılır cevapları inceleyebilirsin.
             </p>
@@ -113,7 +113,7 @@ export default async function Home() {
               </Button>
             </div>
 
-            <p className="text-xs text-muted-foreground/60 tracking-wide">
+            <p className="text-[15px] text-muted-foreground/60 tracking-wide">
               Bu platform forum değildir ve otomatik yanıt üretmez.
               <br />
               Sorular editör incelemesinden geçerek genel hukuki bilgilendirme kapsamında yayımlanır.
@@ -143,7 +143,7 @@ export default async function Home() {
             <span className="h-5 w-1 shrink-0 rounded-full bg-primary" />
             3 Basit Adımda Hukuki Soru Sor
           </h2>
-          <p className="max-w-2xl text-base text-muted-foreground">
+          <p className="max-w-2xl text-[15px] text-muted-foreground">
             Kafanı kurcalayan hukuki sorunları anonim ve güvenli bir şekilde ilet, uzman editör incelemesinden geçen net cevaplara ulaş.
           </p>
         </header>
@@ -153,7 +153,7 @@ export default async function Home() {
               <Edit3 className="size-6 text-primary" aria-hidden />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-gray-900">1. Hukuki Sorunu Yaz</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[15px] text-muted-foreground">
               Yaşadığın durumu ve aklındaki hukuki soruyu detaylarıyla, isim vermeden platformumuza yaz.
             </p>
           </article>
@@ -162,7 +162,7 @@ export default async function Home() {
               <ShieldCheck className="size-6 text-primary" aria-hidden />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-gray-900">2. Editör İncelemesi</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[15px] text-muted-foreground">
               Sorun, yayınlanmadan önce hukuki standartlara uygunluk ve anonimlik açısından editörlerimizce incelenir.
             </p>
           </article>
@@ -171,7 +171,7 @@ export default async function Home() {
               <MessageCircle className="size-6 text-primary" aria-hidden />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-gray-900">3. Net Cevabını Öğren</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[15px] text-muted-foreground">
               Karmaşık kanun maddeleri arasında kaybolmadan, hukuki soruna verilen anlaşılır ve sade cevabı oku.
             </p>
           </article>
@@ -209,28 +209,29 @@ export default async function Home() {
       </section>
 
       <section className="grid items-center gap-10 md:grid-cols-2">
-        <div className="space-y-4">
+        <div className="order-2 space-y-4 md:order-1">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight">
               Hukuki Sorulara Sade ve Net Cevaplar
             </h2>
             <span className="block h-1 w-10 rounded-full bg-primary" />
           </div>
-          <p className="text-sm text-muted-foreground md:text-base">
+          <p className="text-[15px] text-muted-foreground">
             Hukuk karmaşık olmak zorunda değil.
             <br />
             Sorun, editör incelemesinden geçtikten sonra anonim olarak yayınlanır ve benzer gerçek sorulara verilmiş sade açıklamalarla birlikte sunulur. Böylece yalnızca kendi durumunu değil, aynı konuda daha önce yaşanmış örnekleri de görebilirsin. Karmaşık hukuk dili, uzun kanun metinleri ve anlaşılmaz ifadeler yerine; seni neyin beklediğini, hangi risklerin olabileceğini ve nasıl bir yol izlenebileceğini açık ve sakin bir çerçevede değerlendirebilirsin.
           </p>
         </div>
-        <div className="overflow-hidden rounded-2xl relative aspect-[4/3]">
+        <div className="order-1 relative aspect-[4/3] w-full overflow-hidden rounded-2xl md:order-2">
           <Image
             src="/avukata-sor.png"
             alt="Avukata sor - hukuki soru sor"
-            width={800}
-            height={600}
+            fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="h-auto w-full object-cover"
+            className="object-cover"
             loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBRIhMQYTQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ALnq2p3mn6ndW1rO0cMT7EUY4GKKKKVYz//Z"
           />
         </div>
       </section>
@@ -251,6 +252,8 @@ export default async function Home() {
           </Button>
         </div>
       </section>
+
+      <div className="border-t border-slate-200/70" aria-hidden />
 
       <HomepageFAQ />
     </div>

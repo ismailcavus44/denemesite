@@ -67,7 +67,7 @@ export function BasvuruForm({ type }: { type: BasvuruType }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="basvuru-name" className="mb-1 block text-sm font-medium text-slate-700">
-            Ad Soyad
+            Ad Soyad <span className="text-red-600">*</span>
           </label>
           <Input
             id="basvuru-name"
@@ -80,7 +80,7 @@ export function BasvuruForm({ type }: { type: BasvuruType }) {
         </div>
         <div>
           <label htmlFor="basvuru-email" className="mb-1 block text-sm font-medium text-slate-700">
-            E-posta
+            E-posta <span className="text-red-600">*</span>
           </label>
           <Input
             id="basvuru-email"
@@ -93,7 +93,7 @@ export function BasvuruForm({ type }: { type: BasvuruType }) {
         </div>
         <div>
           <label htmlFor="basvuru-phone" className="mb-1 block text-sm font-medium text-slate-700">
-            Telefon
+            Telefon <span className="text-red-600">*</span>
           </label>
           <Input
             id="basvuru-phone"
@@ -106,7 +106,7 @@ export function BasvuruForm({ type }: { type: BasvuruType }) {
         </div>
         <div>
           <label htmlFor="basvuru-cv" className="mb-1 block text-sm font-medium text-slate-700">
-            CV (Word)
+            CV (Word) <span className="text-red-600">*</span>
           </label>
           <Input
             id="basvuru-cv"
@@ -144,7 +144,7 @@ export function BasvuruForm({ type }: { type: BasvuruType }) {
             <a href="/kvkk" className="cursor-pointer text-primary underline underline-offset-2 hover:no-underline" target="_blank" rel="noopener noreferrer">
               KVKK Aydınlatma Metni
             </a>
-            ’ni okudum ve kabul ediyorum.
+            ’ni okudum ve kabul ediyorum. <span className="text-red-600">*</span>
           </label>
         </div>
       </div>

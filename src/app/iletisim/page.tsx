@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { siteConfig } from "@/lib/site";
+
+function TiktokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
+  );
+}
 
 export default function ContactPage() {
   return (
@@ -77,6 +85,23 @@ export default function ContactPage() {
               </a>
               {" "}adresinden iletişime geçebilirsiniz.
             </p>
+            <div className="mt-4 flex items-center justify-center gap-6" aria-label="Sosyal medya">
+              <a href={siteConfig.social.instagram} target="_blank" rel="noopener noreferrer nofollow" className="text-slate-600 hover:text-slate-900 transition-colors duration-200" aria-label="Instagram">
+                <Instagram className="h-4 w-4" strokeWidth={1.5} />
+              </a>
+              <a href={siteConfig.social.facebook} target="_blank" rel="noopener noreferrer nofollow" className="text-slate-600 hover:text-slate-900 transition-colors duration-200" aria-label="Facebook">
+                <Facebook className="h-4 w-4" strokeWidth={1.5} />
+              </a>
+              <a href={siteConfig.social.tiktok} target="_blank" rel="noopener noreferrer nofollow" className="text-slate-600 hover:text-slate-900 transition-colors duration-200" aria-label="TikTok">
+                <TiktokIcon className="h-4 w-4" />
+              </a>
+              <a href={siteConfig.social.linkedin} target="_blank" rel="noopener noreferrer nofollow" className="text-slate-600 hover:text-slate-900 transition-colors duration-200" aria-label="LinkedIn">
+                <Linkedin className="h-4 w-4" strokeWidth={1.5} />
+              </a>
+              <a href={siteConfig.social.youtube} target="_blank" rel="noopener noreferrer nofollow" className="text-slate-600 hover:text-slate-900 transition-colors duration-200" aria-label="YouTube">
+                <Youtube className="h-4 w-4" strokeWidth={1.5} />
+              </a>
+            </div>
           </div>
           <div className="relative h-[200px] w-1/2 shrink-0 overflow-hidden md:h-full md:min-h-0">
             <img

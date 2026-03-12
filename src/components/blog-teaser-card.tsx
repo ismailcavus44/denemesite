@@ -52,7 +52,7 @@ export function BlogTeaserCard({ post, basePath, useDetailImage }: BlogTeaserCar
         <h3 className="break-words text-lg font-semibold leading-snug transition-colors group-hover:text-primary sm:text-[22px]">
           {post.title}
         </h3>
-        <div className="space-y-2 text-[16px] text-muted-foreground">
+        <div className="space-y-2 text-[15px] text-muted-foreground">
           <p>{teaser}</p>
           <span className="block h-1 w-10 rounded-full bg-primary" />
         </div>

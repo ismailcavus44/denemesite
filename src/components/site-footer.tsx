@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { blogPosts } from "@/lib/blog-data";
-
-const POPULAR_GUIDE_COUNT = 5;
+import { FOOTER_POPULAR_GUIDES } from "@/lib/blog-data";
 
 /** Header ile aynı (İletişim ve Kariyer hariç) */
 const footerMenuLinks = [
@@ -11,17 +9,17 @@ const footerMenuLinks = [
 ];
 
 export function SiteFooter() {
-  const popularGuides = blogPosts.slice(0, POPULAR_GUIDE_COUNT);
+  const popularGuides = FOOTER_POPULAR_GUIDES;
 
   return (
     <footer className="border-t bg-slate-50/50">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-start" style={{ gap: "36px" }}>
-          {/* Yasal Uyarı — sonraki blokla arası 36px */}
-          <div className="max-w-sm shrink-0">
-            <h3 className="mb-2 text-sm font-semibold text-slate-900">
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-9">
+          {/* Yasal Uyarı — mobilde üstte */}
+          <div className="w-full shrink-0 sm:max-w-sm">
+            <p className="mb-2 text-sm font-semibold text-slate-900">
               Yasal Uyarı
-            </h3>
+            </p>
             <p className="text-sm leading-relaxed text-slate-600">
               YasalHaklariniz, hukuka ilişkin genel bilgilendirme sunan bir
               platformdur. İçerikler avukatlık hizmeti veya hukuki danışmanlık
@@ -29,13 +27,13 @@ export function SiteFooter() {
             </p>
           </div>
 
-          {/* Menü | Popüler Rehberler | İletişim — mobilde Yasal Uyarı altında ortalı */}
-          <div className="flex flex-wrap justify-center gap-[24px] sm:justify-start">
+          {/* Menü | Popüler Rehberler | İletişim — mobilde yan yana 3 sütun */}
+          <div className="flex w-full flex-wrap gap-x-4 gap-y-4 sm:gap-x-6">
             {/* Menü */}
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-900">
+            <div className="min-w-0">
+              <p className="mb-2 text-sm font-semibold text-slate-900">
                 Menü
-              </h3>
+              </p>
               <ul className="space-y-1.5 text-sm text-slate-600 [list-style:none] [padding:0] [margin:0]">
                 {footerMenuLinks.map(({ href, label }) => (
                   <li key={href}>
@@ -48,18 +46,18 @@ export function SiteFooter() {
             </div>
 
             {/* Popüler Rehberler */}
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-900">
+            <div className="min-w-0">
+              <p className="mb-2 text-sm font-semibold text-slate-900">
                 Popüler Rehberler
-              </h3>
+              </p>
               <ul className="space-y-1.5 text-sm text-slate-600 [list-style:none] [padding:0] [margin:0]">
-                {popularGuides.map((post) => (
-                  <li key={post.slug}>
+                {popularGuides.map((guide) => (
+                  <li key={guide.slug}>
                     <Link
-                      href={`/${post.categorySlug}/rehber/${post.slug}`}
-                      className="hover:text-primary hover:underline"
+                      href={`/${guide.categorySlug}/rehber/${guide.slug}`}
+                      className="break-words hover:text-primary hover:underline"
                     >
-                      {post.title}
+                      {guide.title}
                     </Link>
                   </li>
                 ))}
@@ -67,10 +65,10 @@ export function SiteFooter() {
             </div>
 
             {/* İletişim */}
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-900">
+            <div className="min-w-0">
+              <p className="mb-2 text-sm font-semibold text-slate-900">
                 İletişime Geçin
-              </h3>
+              </p>
               <ul className="space-y-1.5 text-sm text-slate-600 [list-style:none] [padding:0] [margin:0]">
                 <li>
                   <Link href="/iletisim" className="hover:text-primary hover:underline">

@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
+import { getClientIp } from "@/lib/getClientIp";
 
 const ALLOWED_MIME =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const MAX_BASVURU_PER_HOUR = 2;
-
-function getClientIp(request: NextRequest): string {
-  const vercel = request.headers.get("x-vercel-forwarded-for");
-  if (vercel) return vercel.split(",")[0].trim();
-  const real = request.headers.get("x-real-ip");
-  if (real) return real.trim();
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return "unknown";
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -85,6 +76,14 @@ export async function POST(request: NextRequest) {
     await supabase.from("basvuru_log").insert({
       ip_address: ip,
       submitted_at: new Date().toISOString(),
+    });
+
+    await supabase.from("consent_log").insert({
+      ip_address: ip,
+      consent_at: new Date().toISOString(),
+      consent_status: true,
+      phone: phone?.trim() || null,
+      form_type: "kariyer_basvuru",
     });
 
     return NextResponse.json({ ok: true });
