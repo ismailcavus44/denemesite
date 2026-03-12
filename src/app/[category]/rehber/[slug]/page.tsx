@@ -107,7 +107,7 @@ function renderContentBlocks(blocks: ContentBlock[], slug: string, tocItems: Toc
       }
       case "p":
         return (
-          <p key={key} className="text-[14px] leading-7">
+          <p key={key} className="text-[14px] leading-7 text-black">
             {renderWithBold(block.v, key)}
           </p>
         );
@@ -303,7 +303,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               </aside>
               <div
                 id="rehber-icerik"
-                className="rehber-icerik space-y-4 text-[14px] text-slate-700 text-justify"
+                className="rehber-icerik space-y-4 text-[14px] text-black text-justify"
                 dangerouslySetInnerHTML={{ __html: contentWithIds }}
               />
               {dbArticle.faq && dbArticle.faq.length > 0 && (
@@ -319,24 +319,13 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                           </span>
                         </summary>
                         <div className="px-5 pb-4">
-                          <p className="text-[14px] leading-7 text-slate-700">{item.answer}</p>
+                          <p className="text-[14px] leading-7 text-black">{item.answer}</p>
                         </div>
                       </details>
                     ))}
                   </div>
                 </section>
               )}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-[14px] text-slate-600">
-                Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <Link href={`/${categorySlug}`} className="text-sm text-muted-foreground hover:text-foreground">
-                  Kategoriye dön
-                </Link>
-                <Link href="/soru-sor" className="inline-flex h-10 items-center justify-center rounded-md bg-slate-800 px-4 text-sm text-white">
-                  Soru Sor
-                </Link>
-              </div>
             </article>
             <div className="hidden md:flex flex-col gap-6 overflow-visible">
               <StickyCTA />
@@ -464,11 +453,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               </Link>
             </aside>
 
-            <div id="rehber-icerik" className="space-y-4 text-[14px] text-slate-700 text-justify">
+            <div id="rehber-icerik" className="rehber-icerik space-y-4 text-[14px] text-black text-justify">
               {post.contentBlocks
                 ? renderContentBlocks(post.contentBlocks, post.slug, tocItems)
                 : post.content.map((paragraph, index) => (
-                    <p key={`${post.slug}-${index}`} className="text-[14px] text-justify">{paragraph}</p>
+                    <p key={`${post.slug}-${index}`} className="text-[14px] text-black text-justify">{paragraph}</p>
                   ))}
             </div>
 
@@ -479,25 +468,12 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   {post.faq.map((item, i) => (
                     <AccordionItem key={i} value={`faq-${i}`}>
                       <AccordionTrigger className="text-left text-[15px] font-bold text-slate-900">{item.question}</AccordionTrigger>
-                      <AccordionContent className="text-[14px] leading-7 text-slate-600">{item.answer}</AccordionContent>
+                      <AccordionContent className="text-[14px] leading-7 text-black">{item.answer}</AccordionContent>
                     </AccordionItem>
                   ))}
                 </Accordion>
               </section>
             )}
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-[14px] text-slate-600">
-              Bu içerik genel bilgilendirme amaçlıdır; somut durumlar için profesyonel destek almanız önerilir.
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link href={`/${categorySlug}`} className="text-sm text-muted-foreground hover:text-foreground">
-                Kategoriye dön
-              </Link>
-              <Link href="/soru-sor" className="inline-flex h-10 items-center justify-center rounded-md bg-slate-800 px-4 text-sm text-white">
-                Soru Sor
-              </Link>
-            </div>
           </article>
 
           <div className="hidden md:flex flex-col gap-6 overflow-visible">
