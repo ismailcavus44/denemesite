@@ -115,7 +115,9 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
     getPublishedArticles(),
     Promise.resolve(blogPostsToGuideList(blogPosts)),
   ]);
-  const merged = [...dbItems, ...staticItems].sort(
+  const dbSlugs = new Set(dbItems.map((a) => a.slug));
+  const staticOnly = staticItems.filter((p) => !dbSlugs.has(p.slug));
+  const merged = [...dbItems, ...staticOnly].sort(
     (a, b) => new Date(b.sortDate).getTime() - new Date(a.sortDate).getTime()
   );
   const filteredPosts = filterByQuery(merged, query);

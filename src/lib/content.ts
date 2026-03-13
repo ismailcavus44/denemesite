@@ -193,7 +193,7 @@ async function getArticlesByCategory(categorySlug: string): Promise<(GuideListIt
   });
 }
 
-/** Statik + DB rehberleri birleştirir, tarihe göre sıralar (yeni önce). */
+/** Statik + DB rehberleri birleştirir, tarihe göre sıralar (yeni önce). Aynı slug varsa DB öncelikli. */
 async function getMergedGuidesForCategory(categorySlug: string): Promise<(GuideListItem & { _sortDate: string })[]> {
   const staticPosts = blogPosts
     .filter((p) => p.categorySlug === categorySlug)
@@ -207,7 +207,9 @@ async function getMergedGuidesForCategory(categorySlug: string): Promise<(GuideL
       _sortDate: p.date,
     }));
   const dbArticles = await getArticlesByCategory(categorySlug);
-  const merged = [...staticPosts, ...dbArticles];
+  const dbSlugs = new Set(dbArticles.map((a) => a.slug));
+  const staticOnly = staticPosts.filter((p) => !dbSlugs.has(p.slug));
+  const merged = [...staticOnly, ...dbArticles];
   merged.sort((a, b) => (b._sortDate < a._sortDate ? -1 : b._sortDate > a._sortDate ? 1 : 0));
   return merged;
 }

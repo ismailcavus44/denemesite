@@ -198,6 +198,7 @@ export default async function Home() {
               createdAt={question.created_at}
               summaryText={(question as { ai_card_summary?: string | null }).ai_card_summary ?? questionSummaries[question.title] ?? null}
               categorySlug={(Array.isArray(question.category) ? question.category[0] : question.category)?.slug ?? null}
+              titleHeading="h3"
             />
           ))}
           {!trending?.length && (
