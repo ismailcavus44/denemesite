@@ -214,7 +214,10 @@ export default async function CategoryGuidePage({ params }: PageProps) {
     const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
     const { html: rawHtml, tocItems: contentToc } = addHeadingIdsAndGetToc(dbArticle.content);
     const contentWithIds = sanitizeHtml(rawHtml);
-    const categoryGuides = await getRelatedGuides(categorySlug, 5, slug);
+    const [categoryGuides, relatedQuestions] = await Promise.all([
+      getRelatedGuides(categorySlug, 5, slug),
+      getRelatedQuestions(categorySlug, 2),
+    ]);
 
     const usedIds = new Set(contentToc.map((t) => t.id));
     const tocItems: TocItem[] = [...contentToc];
@@ -360,6 +363,35 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               )}
             </div>
           </div>
+
+          {relatedQuestions.length > 0 && (
+            <section className="mt-12 space-y-4">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+                <span className="h-5 w-1 rounded-full bg-slate-800" />
+                Bu Konuda Sorulan Sorular
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
+                {relatedQuestions.map((q) => (
+                  <QuestionCard
+                    key={q.id}
+                    title={q.title}
+                    slug={q.slug}
+                    category={Array.isArray(q.category) ? (q.category[0] ?? null) : q.category}
+                    createdAt={q.created_at}
+                    summaryText={(q as { ai_card_summary?: string | null }).ai_card_summary ?? null}
+                    categorySlug={categorySlug}
+                    compact
+                  />
+                ))}
+              </div>
+              <Link
+                href={`/${categorySlug}/sorular`}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-background px-4 text-sm font-medium text-slate-700 hover:bg-muted"
+              >
+                Devamını gör
+              </Link>
+            </section>
+          )}
         </div>
         <ArticleSchema
           headline={dbArticle.title}
