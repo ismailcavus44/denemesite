@@ -29,7 +29,17 @@ export function SiteHeader() {
                 alt="YasalHaklarınız"
                 width={200}
                 height={40}
-                className="h-12 w-auto object-contain"
+                className="h-12 w-auto object-contain dark:hidden"
+                priority
+                fetchPriority="high"
+                unoptimized
+              />
+              <Image
+                src="/hukuki-sor-logo-dark.png"
+                alt="YasalHaklarınız"
+                width={200}
+                height={40}
+                className="h-12 w-auto object-contain hidden dark:block"
                 priority
                 fetchPriority="high"
                 unoptimized

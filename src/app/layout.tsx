@@ -64,6 +64,7 @@ export default function RootLayout({
     <html lang="tr" suppressHydrationWarning className={manrope.variable}>
       <head>
         <link rel="preload" href="/hukuki-sor-logo.png" as="image" />
+        <link rel="preload" href="/hukuki-sor-logo-dark.png" as="image" />
         {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">

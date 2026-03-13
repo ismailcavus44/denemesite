@@ -135,7 +135,8 @@ export default function AdminSorularPage() {
       const from = (page - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      let listPath = `${url}/rest/v1/questions?select=id,title,slug,status,created_at,category:categories(name,slug)&order=created_at.desc`;
+      const orderDir = statusFilter === "pending" ? "asc" : "desc";
+      let listPath = `${url}/rest/v1/questions?select=id,title,slug,status,created_at,category:categories(name,slug)&order=created_at.${orderDir}`;
       if (statusFilter) listPath += `&status=eq.${statusFilter}`;
       if (categoryFilter) listPath += `&category_id=eq.${categoryFilter}`;
 
