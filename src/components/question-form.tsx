@@ -169,20 +169,18 @@ export function QuestionForm({ categories }: QuestionFormProps) {
         </Select>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Telefon Numarası (Sorunuz cevaplandığında WhatsApp'tan mesaj almak istiyorsanız yazın.)</label>
+        <label className="text-sm font-medium">Telefon Numarası (WhatsApp bildirimi)</label>
         <input
           type="tel"
-          value={phone}
-          onChange={(e) => {
-          setPhone(e.target.value);
-          if (!e.target.value.trim()) {
-            setShowWhatsappError(false);
-            setAcceptedWhatsapp(false);
-          }
-        }}
-          placeholder="Örn: 5555555555"
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value=""
+          readOnly
+          disabled
+          placeholder="Yakında gelecektir"
+          className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         />
+        <p className="text-xs text-muted-foreground">
+          Sorunuz cevaplandığında WhatsApp üzerinden bildirim almanız yakında mümkün olacaktır.
+        </p>
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Sorunuzu Detaylı Yazınız. <span className="text-red-600">*</span></label>
@@ -268,7 +266,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm leading-relaxed text-slate-600">
-            Telefon numaranızı girdiğiniz takdirde sorunuz cevaplandığında bildirim alacaksınız.
+            Sorunuzu göndermek üzeresiniz. Onaylıyor musunuz?
           </p>
           <div className="mt-3 flex gap-3">
             <Button
