@@ -14,6 +14,8 @@ type QuestionCardProps = {
   categorySlug?: string | null;
   /** Küçük boyut (örn. Benzer Sorular bölümü) */
   compact?: boolean;
+  /** Başlık etiketi. Anasayfa için h3, sorular sayfası için h2 (varsayılan). */
+  titleHeading?: "h2" | "h3";
 };
 
 export function QuestionCard({
@@ -24,6 +26,7 @@ export function QuestionCard({
   summaryText,
   categorySlug,
   compact,
+  titleHeading = "h2",
 }: QuestionCardProps) {
   const questionHref = categorySlug ? `/${categorySlug}/soru/${slug}` : `/soru/${slug}`;
   const categoryHref = category?.slug ? `/${category.slug}` : undefined;
@@ -41,6 +44,12 @@ export function QuestionCard({
         {compact ? (
           <h3 className="m-0 font-normal">
             <Link href={questionHref} className="break-words font-semibold text-sm">
+              {title}
+            </Link>
+          </h3>
+        ) : titleHeading === "h3" ? (
+          <h3 className="m-0 font-normal">
+            <Link href={questionHref} className="break-words font-semibold text-base sm:text-lg">
               {title}
             </Link>
           </h3>
