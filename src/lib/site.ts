@@ -8,7 +8,7 @@ export const siteConfig = {
     instagram: "https://instagram.com/yasalhaklariniz",
     facebook: "https://facebook.com/yasalhaklariniz",
     tiktok: "https://tiktok.com/@yasalhaklariniz",
-    linkedin: "https://linkedin.com/company/yasalhaklariniz",
+    linkedin: "https://linkedin.com/company/yasal-haklariniz",
     youtube: "https://youtube.com/@yasalhaklariniz",
   },
 };
