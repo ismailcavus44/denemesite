@@ -23,13 +23,13 @@ export function SiteHeader() {
       <div className="mx-auto w-full max-w-6xl py-4 px-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-none items-center gap-6 lg:gap-12 xl:gap-[200px] md:flex-1">
-            <Link href="/" className="flex h-12 shrink-0 items-center" aria-label="YasalHaklarınız ana sayfa">
+            <Link href="/" className="logo-switcher flex h-12 shrink-0 items-center" aria-label="YasalHaklarınız ana sayfa">
               <Image
                 src="/hukuki-sor-logo.png"
                 alt="YasalHaklarınız"
                 width={200}
                 height={40}
-                className="h-12 w-auto object-contain dark:hidden"
+                className="logo-light h-12 w-auto object-contain dark:hidden"
                 priority
                 fetchPriority="high"
                 unoptimized
@@ -39,7 +39,7 @@ export function SiteHeader() {
                 alt="YasalHaklarınız"
                 width={200}
                 height={40}
-                className="h-12 w-auto object-contain hidden dark:block"
+                className="logo-dark hidden h-12 w-auto object-contain dark:block"
                 priority
                 fetchPriority="high"
                 unoptimized

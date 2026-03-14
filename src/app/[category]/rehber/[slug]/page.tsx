@@ -178,7 +178,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { category: categorySlug, slug } = await params;
   const dbArticle = await getArticleByCategoryAndSlug(categorySlug, slug);
   if (dbArticle) {
-    const title = dbArticle.meta_title?.trim() || dbArticle.title;
+    const baseTitle = dbArticle.meta_title?.trim() || dbArticle.title;
+    const title = baseTitle.endsWith("| YasalHaklarınız") ? baseTitle : `${baseTitle} | YasalHaklarınız`;
     const rawDesc = dbArticle.meta_description?.trim();
     const description = rawDesc ? `${rawDesc} | YasalHaklarınız` : undefined;
     const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;

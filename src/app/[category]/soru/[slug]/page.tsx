@@ -29,18 +29,19 @@ export async function generateMetadata({
   const cat = (data as { category?: { slug: string } | Array<{ slug: string }> }).category;
   const catSlug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
   if (!data || catSlug !== categorySlug) {
-    return { title: "Soru bulunamadı" };
+    return { title: { absolute: "Soru bulunamadı" } };
   }
 
-  const title =
+  const baseTitle =
     (data as { seo_title?: string | null }).seo_title?.trim() || data.title;
+  const title = baseTitle.endsWith("| YasalHaklarınız") ? baseTitle : `${baseTitle} | YasalHaklarınız`;
   const description =
     (data as { seo_description?: string | null }).seo_description?.trim() ||
     data.body.slice(0, 160);
   const url = `${siteConfig.url}/${categorySlug}/soru/${slug}`;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     openGraph: {
       title,

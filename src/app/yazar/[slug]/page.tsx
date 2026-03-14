@@ -70,21 +70,24 @@ async function getArticlesByAuthorId(authorId: string): Promise<BlogPost[]> {
   }) as BlogPost[];
 }
 
+const META_SITE_NAME = "Yasal Haklarınız";
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const dbAuthor = await getAuthorFromDb(slug);
   if (dbAuthor) {
-    const title = `${dbAuthor.name} | ${siteConfig.name}`;
+    const title = `${dbAuthor.name} | ${META_SITE_NAME}`;
     const description = dbAuthor.bio ?? undefined;
     const url = `${siteConfig.url}/yazar/${slug}`;
-    return { title, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
+    return { title: { absolute: title }, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
   }
   const author = getAuthorBySlug(slug);
-  if (!author) return { title: "Yazar bulunamadı" };
-  const title = `${author.title ? `${author.title} ` : ""}${author.name} | ${siteConfig.name}`;
+  if (!author) return { title: { absolute: "Yazar bulunamadı" } };
+  const displayName = (author.title ? `${author.title} ` : "") + author.name;
+  const title = `${displayName} | ${META_SITE_NAME}`;
   const description = author.bio;
   const url = `${siteConfig.url}/yazar/${slug}`;
-  return { title, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
+  return { title: { absolute: title }, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
 }
 
 export default async function AuthorPage({ params, searchParams }: PageProps) {

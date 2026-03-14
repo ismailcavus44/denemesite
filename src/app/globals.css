@@ -147,6 +147,14 @@
   }
 }
 
+/* Logo: mobilde JS gecikmesine karşı prefers-color-scheme ile hemen doğru logoyu göster */
+@media (prefers-color-scheme: dark) {
+  .logo-switcher .logo-light { display: none !important; }
+  .logo-switcher .logo-dark { display: block !important; }
+}
+html.light .logo-switcher .logo-light { display: block !important; }
+html.light .logo-switcher .logo-dark { display: none !important; }
+
 /* Rehber makale içeriği: madde ve numaralı listeler (preflight override) */
 .rehber-icerik ul {
   list-style-type: disc;

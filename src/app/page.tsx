@@ -5,7 +5,7 @@ import { Edit3, ShieldCheck, MessageCircle } from "lucide-react";
 import { QuestionCard } from "@/components/question-card";
 import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
-import { blogPosts, HOMEPAGE_REHBER_SLUGS, HOMEPAGE_DYNAMIC_REHBER_TITLES } from "@/lib/blog-data";
+import { blogPosts, FOOTER_POPULAR_GUIDES, HOMEPAGE_REHBER_SLUGS, HOMEPAGE_DYNAMIC_REHBER_TITLES } from "@/lib/blog-data";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
 import { questionSummaries } from "@/lib/question-summaries";
 import { OrganizationSchema } from "@/components/schemas/OrganizationSchema";
@@ -34,7 +34,7 @@ export default async function Home() {
     HOMEPAGE_DYNAMIC_REHBER_TITLES.length > 0
       ? supabase
           .from("articles")
-          .select("title, slug, category, meta_description, content")
+          .select("title, slug, category, meta_description, content, featured_image_url")
           .eq("status", "published")
           .not("category", "is", null)
           .limit(30)
@@ -42,7 +42,7 @@ export default async function Home() {
   ]);
 
   const trending = trendingRes.data;
-  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; content?: string | null };
+  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; content?: string | null; featured_image_url?: string | null };
   const allArticles = (dynamicRehberRes.data ?? []) as ArticleRow[];
   const usedIds = new Set<string>();
   const dynamicRehber = HOMEPAGE_DYNAMIC_REHBER_TITLES.map((titlePattern) => {
@@ -64,24 +64,40 @@ export default async function Home() {
     const summary = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
     const isBosanma = a.title.toLowerCase().includes("boşanma") || a.title.toLowerCase().includes("bosanma");
     const isIsci = a.title.toLowerCase().includes("işçi") || a.title.toLowerCase().includes("isci");
-    const cardImg = isBosanma ? "/rehber/bosanma-davasi-nasil-acilir-avukata-sor.webp" : isIsci ? "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp" : undefined;
-    const imageAlt = isBosanma ? "Boşanma davası nasıl açılır avukata sor" : isIsci ? "İşten çıkarılan işçinin hakları avukata sor" : undefined;
+    const isMuris = a.title.toLowerCase().includes("muris") || a.title.toLowerCase().includes("muvazaa");
+    const cardImg = isBosanma ? "/rehber/bosanma-davasi-nasil-acilir-avukata-sor.webp" : isIsci ? "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp" : isMuris ? "/rehber/muris-muvazaasi-nedir-anasayfa-avukata-sor.webp" : undefined;
+    const origImg = a.featured_image_url ?? undefined;
+    const imageAlt = isBosanma ? "Boşanma davası nasıl açılır avukata sor" : isIsci ? "İşten çıkarılan işçinin hakları avukata sor" : isMuris ? "Muris muvazaası nedir avukata sor" : undefined;
     return {
       slug: a.slug,
       title: a.title,
       summary,
       categorySlug: a.category,
-      image: cardImg,
-      cardImage: cardImg,
+      image: origImg,
+      cardImage: cardImg ?? origImg,
       imageAlt,
     };
   });
 
-  const homepageRehber = [...staticRehber, ...dynamicRehberMapped];
-  const isciFallback = blogPosts.find((p) => p.slug === "isten-cikarilan-iscinin-haklari-nelerdir");
-  if (homepageRehber.length < 3 && isciFallback && !homepageRehber.some((p) => p.slug === isciFallback.slug)) {
-    homepageRehber.push(isciFallback);
-  }
+  const hasIsci = dynamicRehberMapped.some((p) => p.title.toLowerCase().includes("işçi") || p.title.toLowerCase().includes("isci"));
+  const isciFallback =
+    !hasIsci &&
+    dynamicRehberMapped.length < 3 &&
+    (() => {
+      const g = FOOTER_POPULAR_GUIDES.find((x) => x.slug === "isten-cikarilan-iscinin-haklari-nelerdir");
+      if (!g) return null;
+      return {
+        slug: g.slug,
+        title: g.title,
+        summary: "İşten çıkarılan işçinin kıdem, ihbar tazminatı ve diğer hakları. Hak kaybına uğramamak için bilmeniz gerekenler.",
+        categorySlug: g.categorySlug,
+        image: "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp",
+        cardImage: "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp",
+        imageAlt: "İşten çıkarılan işçinin hakları avukata sor",
+      };
+    })();
+
+  const homepageRehber = [...staticRehber, ...dynamicRehberMapped, ...(isciFallback ? [isciFallback] : [])];
   const finalRehber = homepageRehber.slice(0, 3);
 
   return (
@@ -113,7 +129,7 @@ export default async function Home() {
               </Button>
             </div>
 
-            <p className="text-[15px] text-muted-foreground/60 tracking-wide">
+            <p className="text-[13px] text-muted-foreground/60 tracking-wide">
               Bu platform forum değildir ve otomatik yanıt üretmez.
               <br />
               Sorular editör incelemesinden geçerek genel hukuki bilgilendirme kapsamında yayımlanır.

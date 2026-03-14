@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SiteShell } from "@/components/site-shell";
@@ -63,11 +64,21 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning className={manrope.variable}>
       <head>
+        <meta name="google-site-verification" content="fM2izkySnfaPccXh7h5bGHboOjCRdw-i9YDbkFfEgec" />
         <link rel="preload" href="/hukuki-sor-logo.png" as="image" />
         <link rel="preload" href="/hukuki-sor-logo-dark.png" as="image" />
         {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-3N0SZSS7XN" strategy="afterInteractive" />
+        <Script id="ga4" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-3N0SZSS7XN');
+          `}
+        </Script>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SiteShell>
             <ConditionalMain>{children}</ConditionalMain>
