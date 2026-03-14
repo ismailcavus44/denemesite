@@ -84,9 +84,9 @@ export default function AboutPage() {
                   <span className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
                     01
                   </span>
-                  <h2 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Neyi yapmıyoruz?
-                  </h2>
+                  </h3>
                 </div>
                 <p>
                   Burası forum değil, otomatik cevap üreten bir bot da değil. Somut
@@ -100,9 +100,9 @@ export default function AboutPage() {
                   <span className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
                     02
                   </span>
-                  <h2 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Neyi amaçlıyoruz?
-                  </h2>
+                  </h3>
                 </div>
                 <p>
                   Benzer durumlarda sorulmuş gerçek sorular ve onlara verilen kısa
@@ -116,9 +116,9 @@ export default function AboutPage() {
                   <span className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
                     03
                   </span>
-                  <h2 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Kimin için tasarlandı?
-                  </h2>
+                  </h3>
                 </div>
                 <p>
                   Hukuki terimlere uzak olan, fakat haklarını merak eden herkes
