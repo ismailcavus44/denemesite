@@ -21,6 +21,7 @@ export default function AboutPage() {
   return (
     <>
       <AboutPageSchema />
+      <h1 className="sr-only">Hakkımızda</h1>
       <div className="space-y-20">
       {/* Üst görsel alanı — public/avukata-sor-hakkimizda.png (1905×675) */}
       <section className="w-full">
@@ -60,10 +61,10 @@ export default function AboutPage() {
         <section className="space-y-4">
           <div className="grid gap-8 md:grid-cols-[1.6fr,1fr] md:items-center">
             <div className="space-y-4">
-              <h1 className="text-3xl font-semibold tracking-tight md:text-[32px]">
+              <h2 className="text-3xl font-semibold tracking-tight md:text-[32px]">
                 Hukuki bilgiyi sakin, anlaşılır ve herkes için erişilebilir hale
                 getiriyoruz.
-              </h1>
+              </h2>
               <p className="text-[15px] text-muted-foreground">
                 YasalHaklariniz, karmaşık hukuk dilini günlük hayata çeviren bir
                 soru-cevap rehberidir. Amacımız; okuyan herkesin, kendi durumunu

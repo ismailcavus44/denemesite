@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Pencil, ArrowRight, FileDown } from "lucide-react";
-import { BasvuruForm } from "@/components/kariyer/BasvuruForm";
+import { KariyerMailBox } from "@/components/kariyer/KariyerMailBox";
 import { JobPostingSchema } from "@/components/schemas/JobPostingSchema";
 import { siteConfig } from "@/lib/site";
 
@@ -97,9 +97,9 @@ export default function EditorBasvurusuPage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">Başvuru formu</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Başvuru</h2>
           <p className="text-sm leading-relaxed text-slate-600">
-            Aşağıdaki formu doldurup CV’nizi (Word) yükleyin. İstenen formatta
+CV’nizi (Word) ve kısa özgeçmişinizi e-posta ile göndererek başvurabilirsiniz. İstenen formatta
             CV hazırlamak için{" "}
             <a
               href="/editor-basvuru.docx"
@@ -107,14 +107,13 @@ export default function EditorBasvurusuPage() {
               className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
             >
               <FileDown className="h-4 w-4" aria-hidden />
-              CV şablonunu indir
+              CV şablonunu indirin
             </a>
-            .
+            . Başvuru adresi aşağıdaki mail kutusunda yer almaktadır.
           </p>
-          <div className="rounded-xl border border-slate-200 bg-white p-6">
-            <BasvuruForm type="editor" />
-          </div>
         </section>
+
+        <KariyerMailBox />
 
         <Link
           href="/kariyer"
