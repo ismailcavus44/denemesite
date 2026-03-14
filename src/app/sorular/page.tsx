@@ -97,7 +97,7 @@ export default async function QuestionsPage({
         <input
           name="q"
           defaultValue={query}
-          placeholder="Anahtar kelime"
+          placeholder="Sorunuzu Aratın"
           className="h-10 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm sm:min-w-[140px]"
         />
         <select
@@ -114,7 +114,7 @@ export default async function QuestionsPage({
         </select>
         <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
           <button className="h-10 rounded-md bg-foreground px-4 text-sm text-background">
-            Filtrele
+            Arat
           </button>
           {(query || categorySlug) && (
             <Link
