@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "YasalHaklarınız",
   description: "Hukuki sorunu detaylı yaz, editör incelemesinden sonra yayınlansın. Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır hukuki bilgilendirme.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://yasalhaklariniz.com",
   /** İletişim sayfası ve mailto için e-posta adresi. */
   contactEmail: "bilgi@yasalhaklariniz.com",
   /** Kariyer başvuruları için e-posta adresi. */
