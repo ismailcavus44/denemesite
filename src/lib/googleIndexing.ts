@@ -1,17 +1,14 @@
 import { google } from "googleapis";
-import path from "path";
-import fs from "fs";
 
 /** Google Indexing API ile URL'i URL_UPDATED olarak bildirir. Hata durumunda sessizce loglar. */
 export async function notifyGoogleIndexing(url: string): Promise<void> {
   try {
-    const credPath = path.join(process.cwd(), "google-credentials.json");
-    if (!fs.existsSync(credPath)) {
-      console.warn("[google-indexing] google-credentials.json bulunamadı:", credPath);
+    const credRaw = process.env.GOOGLE_CREDENTIALS;
+    if (!credRaw) {
+      console.warn("[google-indexing] GOOGLE_CREDENTIALS ortam değişkeni tanımlı değil.");
       return;
     }
 
-    const credRaw = fs.readFileSync(credPath, "utf-8");
     const cred = JSON.parse(credRaw) as { client_email?: string; private_key?: string };
     const clientEmail = cred.client_email;
     const privateKey = cred.private_key?.replace(/\\n/g, "\n");
