@@ -1,6 +1,6 @@
- "use client";
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 type GuideTocItem = {
   id: string;
@@ -16,6 +16,10 @@ export function GuideToc({ items }: GuideTocProps) {
   if (!items || items.length === 0) return null;
 
   const [open, setOpen] = useState(true);
+  useEffect(() => {
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    setOpen(isDesktop);
+  }, []);
 
   return (
     <nav className="inline-block min-w-[220px] min-h-[48px] rounded-[4px] border bg-background px-3 py-2 text-[14px] text-foreground">
@@ -60,7 +64,7 @@ export function GuideToc({ items }: GuideTocProps) {
                   href={`#${node.item.id}`}
                   className="cursor-pointer text-[14px] underline-offset-4 hover:underline"
                 >
-                  <span className="mr-1">{node.h2Idx}</span>
+                  <span className="mr-1 font-semibold">{node.h2Idx}</span>
                   {node.item.label}
                 </a>
                 {node.children.length > 0 && (
@@ -71,7 +75,7 @@ export function GuideToc({ items }: GuideTocProps) {
                           href={`#${child.item.id}`}
                           className="cursor-pointer text-[14px] text-foreground underline-offset-4 hover:underline"
                         >
-                          <span className="mr-1">{node.h2Idx}.{child.h3Idx}</span>
+                          <span className="mr-1 font-semibold">{node.h2Idx}.{child.h3Idx}</span>
                           {child.item.label}
                         </a>
                       </li>

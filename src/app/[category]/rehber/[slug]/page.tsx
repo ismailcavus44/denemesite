@@ -22,6 +22,7 @@ import { sanitizeHtml } from "@/lib/sanitize";
 import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema";
 import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
+import { BackToTop } from "@/components/back-to-top";
 
 const StickyCTA = dynamic(
   () => import("@/components/question-detail/StickyCTA").then((m) => ({ default: m.StickyCTA })),
@@ -240,6 +241,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
 
     return (
       <>
+        <BackToTop />
         <BreadcrumbListSchema
           items={[
             { name: "Anasayfa", url: baseUrl },
@@ -434,6 +436,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
 
   return (
     <>
+      <BackToTop />
       <BreadcrumbListSchema
         items={[
           { name: "Anasayfa", url: baseUrl },
