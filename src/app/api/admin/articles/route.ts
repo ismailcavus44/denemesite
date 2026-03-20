@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
+import { notifyGoogleIndexing } from "@/lib/googleIndexing";
+import { siteConfig } from "@/lib/site";
 import type { ArticleInsert } from "@/types/article";
 
 export async function POST(request: Request) {
@@ -78,6 +80,8 @@ export async function POST(request: Request) {
     revalidatePath(`/${categoryVal}/rehber/${row.slug}`);
     revalidatePath(`/${categoryVal}/rehber`);
     revalidatePath("/rehber");
+    const fullUrl = `${siteConfig.url.replace(/\/$/, "")}/${categoryVal}/rehber/${row.slug}`;
+    notifyGoogleIndexing(fullUrl).catch(() => {});
   }
 
   return NextResponse.json({ id: data.id });

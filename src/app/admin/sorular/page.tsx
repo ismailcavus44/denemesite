@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Search, ChevronLeft, ChevronRight, Trash2, Pencil, Eye } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Trash2, Pencil, Eye, Send, Loader2 } from "lucide-react";
 
 type CategoryOption = { id: string; name: string };
 
@@ -72,6 +72,8 @@ export default function AdminSorularPage() {
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingSelected, setDeletingSelected] = useState(false);
+  const [pingingId, setPingingId] = useState<string | null>(null);
+  const [bulkPinging, setBulkPinging] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -222,6 +224,63 @@ export default function AdminSorularPage() {
     }
   };
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://yasalhaklariniz.com";
+  const baseUrl = siteUrl.replace(/\/$/, "");
+
+  const handlePing = async (q: QuestionRow) => {
+    if (q.status !== "published" || !q.slug || !q.category?.slug) return;
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    setPingingId(q.id);
+    try {
+      const url = `${baseUrl}/${q.category.slug}/soru/${q.slug}`;
+      const res = await fetch("/api/admin/google-indexing/ping", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error((data.message as string) || "Google bildirimi başarısız.");
+        return;
+      }
+      toast.success("Google'a bildirildi.");
+    } catch {
+      toast.error("Google bildirimi başarısız.");
+    } finally {
+      setPingingId(null);
+    }
+  };
+
+  const handleBulkPing = async () => {
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    setBulkPinging(true);
+    try {
+      const res = await fetch("/api/admin/google-indexing/bulk", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error((data.message as string) || "Bulk bildirim başarısız.");
+        return;
+      }
+      const data = await res.json();
+      toast.success(`${data.sent} URL Google'a bildirildi.`);
+    } catch {
+      toast.error("Bulk bildirim başarısız.");
+    } finally {
+      setBulkPinging(false);
+    }
+  };
+
   const handleDeleteSelected = async () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
@@ -266,6 +325,15 @@ export default function AdminSorularPage() {
               className="h-10 w-full sm:w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
+          <button
+            type="button"
+            disabled={bulkPinging}
+            onClick={handleBulkPing}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+          >
+            {bulkPinging ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+            {bulkPinging ? "Gönderiliyor…" : "Tüm Yayınlanmışları Google'a Bildir"}
+          </button>
           {selectedIds.size > 0 && (
             <button
               type="button"
@@ -370,7 +438,18 @@ export default function AdminSorularPage() {
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-3">
                         {q.status === "published" && q.slug && q.category?.slug && (
-                          <a
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handlePing(q)}
+                              disabled={pingingId === q.id}
+                              className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-emerald-600 disabled:opacity-50"
+                              title="Google'a Ping At"
+                            >
+                              {pingingId === q.id ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                              Ping
+                            </button>
+                            <a
                             href={`/${q.category.slug}/soru/${q.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -379,6 +458,7 @@ export default function AdminSorularPage() {
                           >
                             <Eye className="size-4" />
                           </a>
+                          </>
                         )}
                         <Link
                           href={`/admin/q/${q.id}`}

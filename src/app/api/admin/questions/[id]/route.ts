@@ -3,6 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { getOpenAIEmbedding } from "@/lib/ai/embedding";
 import { sendWhatsAppNotification } from "@/lib/twilio";
+import { notifyGoogleIndexing } from "@/lib/googleIndexing";
+import { siteConfig } from "@/lib/site";
 
 export const runtime = "nodejs";
 
@@ -225,6 +227,13 @@ export async function PATCH(request: Request, { params }: Params) {
       } catch (err) {
         console.warn("[whatsapp] Bildirim gönderilemedi:", err);
       }
+    }
+
+    const cat = (questionRow as { category?: { slug: string } | Array<{ slug: string }> })?.category;
+    const catSlug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
+    if (catSlug && questionRow!.slug) {
+      const fullUrl = `${siteConfig.url.replace(/\/$/, "")}/${catSlug}/soru/${questionRow!.slug}`;
+      notifyGoogleIndexing(fullUrl).catch(() => {});
     }
   }
 

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
+import { notifyGoogleIndexing } from "@/lib/googleIndexing";
+import { siteConfig } from "@/lib/site";
 import type { ArticleUpdate } from "@/types/article";
 
 export async function PATCH(
@@ -83,6 +85,8 @@ export async function PATCH(
     if (existing?.slug && existing.slug !== finalSlug) {
       revalidatePath(`/${finalCategory}/rehber/${existing.slug}`);
     }
+    const fullUrl = `${siteConfig.url.replace(/\/$/, "")}/${finalCategory}/rehber/${finalSlug}`;
+    notifyGoogleIndexing(fullUrl).catch(() => {});
   }
 
   return NextResponse.json({ ok: true });

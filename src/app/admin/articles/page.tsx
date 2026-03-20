@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 import type { Article } from "@/types/article";
-import { Plus, Pencil, Loader2, Search, Trash2 } from "lucide-react";
+import { Plus, Pencil, Loader2, Search, Trash2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 const ROWS_PER_PAGE = 10;
@@ -27,6 +27,8 @@ export default function AdminArticlesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pingingId, setPingingId] = useState<string | null>(null);
+  const [bulkPinging, setBulkPinging] = useState(false);
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`"${title}" makalesini kalıcı olarak silmek istediğinize emin misiniz?`)) return;
@@ -52,6 +54,63 @@ export default function AdminArticlesPage() {
       toast.error("Makale silinemedi.");
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://yasalhaklariniz.com";
+  const baseUrl = siteUrl.replace(/\/$/, "");
+
+  const handlePing = async (a: Article) => {
+    if (a.status !== "published" || !a.slug || !a.category) return;
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    setPingingId(a.id);
+    try {
+      const url = `${baseUrl}/${a.category}/rehber/${a.slug}`;
+      const res = await fetch("/api/admin/google-indexing/ping", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error((data.message as string) || "Google bildirimi başarısız.");
+        return;
+      }
+      toast.success("Google'a bildirildi.");
+    } catch {
+      toast.error("Google bildirimi başarısız.");
+    } finally {
+      setPingingId(null);
+    }
+  };
+
+  const handleBulkPing = async () => {
+    const token = getAccessToken();
+    if (!token) {
+      toast.error("Oturum bulunamadı.");
+      return;
+    }
+    setBulkPinging(true);
+    try {
+      const res = await fetch("/api/admin/google-indexing/bulk", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error((data.message as string) || "Bulk bildirim başarısız.");
+        return;
+      }
+      const data = await res.json();
+      toast.success(`${data.sent} URL Google'a bildirildi.`);
+    } catch {
+      toast.error("Bulk bildirim başarısız.");
+    } finally {
+      setBulkPinging(false);
     }
   };
 
@@ -107,6 +166,15 @@ export default function AdminArticlesPage() {
               className="h-10 w-full sm:w-56 rounded-xl border-0 bg-slate-100 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
+          <button
+            type="button"
+            disabled={bulkPinging}
+            onClick={handleBulkPing}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+          >
+            {bulkPinging ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+            {bulkPinging ? "Gönderiliyor…" : "Tüm Yayınlanmışları Google'a Bildir"}
+          </button>
           <Link
             href="/admin/articles/create"
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-indigo-700"
@@ -163,6 +231,18 @@ export default function AdminArticlesPage() {
                     </td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {a.status === "published" && a.slug && a.category && (
+                          <button
+                            type="button"
+                            onClick={() => handlePing(a)}
+                            disabled={pingingId === a.id}
+                            className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-emerald-600 disabled:opacity-50"
+                            title="Google'a Ping At"
+                          >
+                            {pingingId === a.id ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                            Ping
+                          </button>
+                        )}
                         <Link
                           href={`/admin/articles/${a.id}/edit`}
                           className="inline-flex items-center gap-1 text-slate-400 transition-colors hover:text-indigo-600"
