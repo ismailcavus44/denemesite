@@ -101,9 +101,11 @@ export function QuestionDetail({
                       )}
                     </button>
                     {showOriginal && (
-                      <blockquote data-nosnippet className="m-0 mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">
-                        {body}
-                      </blockquote>
+                      <div>
+                        <p className="m-0 mt-3 whitespace-pre-line text-sm leading-7 text-slate-700" data-nosnippet>
+                          {body}
+                        </p>
+                      </div>
                     )}
                   </div>
                 </section>

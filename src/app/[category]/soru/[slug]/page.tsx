@@ -123,6 +123,7 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
         questionName={question.title}
         questionText={question.body}
         dateCreated={question.created_at}
+        questionUrl={questionUrl}
         acceptedAnswer={
           answer
             ? {

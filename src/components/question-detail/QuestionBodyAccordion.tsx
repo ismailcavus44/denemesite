@@ -28,16 +28,16 @@ export function QuestionBodyAccordion({ body }: QuestionBodyAccordionProps) {
             Gerçek Kullanıcı Sorusu
           </span>
         </div>
-        <blockquote data-nosnippet className="m-0 pb-4 text-slate-700 leading-7">
+        <div className="m-0 pb-4 text-slate-700 leading-7" data-nosnippet>
           <AnimatePresence mode="wait">
             {!open && (
-              <motion.div
+              <motion.p
                 key="preview"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="whitespace-pre-line text-sm"
+                className="m-0 whitespace-pre-line text-sm"
                 style={{
                   lineHeight: LINE_HEIGHT,
                   maxHeight: isLong
@@ -47,20 +47,20 @@ export function QuestionBodyAccordion({ body }: QuestionBodyAccordionProps) {
                 }}
               >
                 {previewText}
-              </motion.div>
+              </motion.p>
             )}
             {open && (
-              <motion.div
+              <motion.p
                 key="full"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="whitespace-pre-line text-sm"
+                className="m-0 whitespace-pre-line text-sm"
                 style={{ lineHeight: LINE_HEIGHT }}
               >
                 {body.trim()}
-              </motion.div>
+              </motion.p>
             )}
           </AnimatePresence>
           {isLong && (
@@ -82,7 +82,7 @@ export function QuestionBodyAccordion({ body }: QuestionBodyAccordionProps) {
               )}
             </button>
           )}
-        </blockquote>
+        </div>
       </div>
     </section>
   );
