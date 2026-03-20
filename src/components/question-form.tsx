@@ -25,6 +25,8 @@ type Category = {
   name: string;
 };
 
+const MIN_BODY_LENGTH = 100;
+
 type QuestionFormProps = {
   categories: Category[];
 };
@@ -95,6 +97,10 @@ export function QuestionForm({ categories }: QuestionFormProps) {
       toast.error("Lütfen kategori ve soruyu doldurun.");
       return;
     }
+    if (body.trim().length < MIN_BODY_LENGTH) {
+      toast.error(`Sorunuz en az ${MIN_BODY_LENGTH} karakter olmalıdır. (${body.trim().length} / ${MIN_BODY_LENGTH})`);
+      return;
+    }
     if (!acceptedLegal) {
       setShowLegalError(true);
       return;
@@ -152,10 +158,10 @@ export function QuestionForm({ categories }: QuestionFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Kategori <span className="text-red-600">*</span></label>
+        <label className="text-sm font-medium">Kategori seçin <span className="text-red-600">*</span></label>
         <Select value={categoryId} onValueChange={setCategoryId}>
           <SelectTrigger>
-            <SelectValue placeholder="Kategori seçin" />
+            <SelectValue placeholder="Kategoriler" />
           </SelectTrigger>
           <SelectContent>
             {[...categories]
@@ -168,13 +174,12 @@ export function QuestionForm({ categories }: QuestionFormProps) {
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-2">
+      <div className="hidden space-y-2">
         <label className="text-sm font-medium">Telefon Numarası (WhatsApp bildirimi)</label>
         <input
           type="tel"
-          value=""
-          readOnly
-          disabled
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
           placeholder="Yakında gelecektir"
           className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         />
@@ -183,11 +188,16 @@ export function QuestionForm({ categories }: QuestionFormProps) {
         </p>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Sorunuzu Detaylı Yazınız. <span className="text-red-600">*</span></label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Sorunuz <span className="text-red-600">*</span></label>
+          <span className={`text-xs ${body.trim().length > 0 && body.trim().length < MIN_BODY_LENGTH ? "text-amber-600" : "text-muted-foreground"}`}>
+            {body.trim().length} / {MIN_BODY_LENGTH} karakter
+          </span>
+        </div>
         <Textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}
-          placeholder="Sorunuzu detaylı şekilde yazın"
+          placeholder="Sorunuzu detaylı şekilde yazın (en az 100 karakter)"
           className="min-h-[180px]"
         />
       </div>
@@ -204,11 +214,11 @@ export function QuestionForm({ categories }: QuestionFormProps) {
             aria-required
           />
           <span className="text-muted-foreground">
-            <Link href="/kvkk" className="text-red-600 underline hover:text-red-700">
+            <Link href="/kvkk" className="text-muted-foreground underline hover:text-foreground">
               KVKK Aydınlatma Metni
             </Link>
             &apos;ni okudum.{" "}
-            <Link href="/sorumluluk-reddi" className="text-red-600 underline hover:text-red-700">
+            <Link href="/sorumluluk-reddi" className="text-muted-foreground underline hover:text-foreground">
               Sorumluluk Reddi ve Kullanım Şartları
             </Link>
             &apos;nı kabul ediyorum. <span className="text-red-600">*</span>
@@ -229,7 +239,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
             />
             <span className="text-muted-foreground">
               Belirttiğim numaraya WhatsApp bildirimi gönderilmesini ve numaramın{" "}
-              <Link href="/kvkk" className="text-red-600 underline hover:text-red-700">
+              <Link href="/kvkk" className="text-muted-foreground underline hover:text-foreground">
                 Aydınlatma Metni
               </Link>
               &apos;nde belirtilen yurtdışı altyapı sağlayıcılarına (Supabase, Twilio, Meta) aktarılmasını açık rızamla kabul ediyorum. <span className="text-red-600">*</span>
@@ -241,7 +251,7 @@ export function QuestionForm({ categories }: QuestionFormProps) {
       <div className="flex flex-wrap items-center gap-3">
         <Button
           type="submit"
-          disabled={loading || !canSubmit}
+          disabled={loading}
           className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90"
         >
           {loading ? "Gönderiliyor..." : "Soruyu Gönder"}

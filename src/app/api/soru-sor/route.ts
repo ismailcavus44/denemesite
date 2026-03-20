@@ -24,6 +24,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const MIN_BODY_LENGTH = 100;
+    if (questionBody.trim().length < MIN_BODY_LENGTH) {
+      return NextResponse.json(
+        { error: `Soru metni en az ${MIN_BODY_LENGTH} karakter olmalıdır.` },
+        { status: 400 }
+      );
+    }
+
     if (consent_accepted !== true) {
       return NextResponse.json(
         { error: "KVKK ve Sorumluluk Reddi metnini kabul etmeniz gerekmektedir." },
