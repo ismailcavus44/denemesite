@@ -39,6 +39,7 @@ export async function generateMetadata({
     (data as { seo_description?: string | null }).seo_description?.trim() ||
     data.body.slice(0, 160);
   const url = `${siteConfig.url}/${categorySlug}/soru/${slug}`;
+  const ogImage = `${siteConfig.url.replace(/\/$/, "")}/opengraph-image.jpg`;
 
   return {
     title: { absolute: title },
@@ -50,8 +51,9 @@ export async function generateMetadata({
       siteName: siteConfig.name,
       type: "article",
       publishedTime: (data as { published_at?: string | null }).published_at ?? undefined,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: siteConfig.name }],
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [ogImage] },
     alternates: { canonical: url },
   };
 }
