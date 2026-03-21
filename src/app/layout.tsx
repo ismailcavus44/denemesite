@@ -78,6 +78,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
           crossOrigin="anonymous"
         />
+        <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href={`${siteConfig.url.replace(/\/$/, "")}/feed.xml`} />
         <link rel="preload" href="/hukuki-sor-logo.png" as="image" />
         <link rel="preload" href="/hukuki-sor-logo-dark.png" as="image" />
         {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
