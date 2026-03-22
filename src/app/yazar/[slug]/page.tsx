@@ -153,8 +153,8 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
     <div className="mx-auto max-w-6xl space-y-8 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
       <header>
         <BreadcrumbBlock items={breadcrumbItems} />
-        <section className="flex flex-wrap items-center gap-4">
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-slate-200">
+        <section className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-slate-200 sm:h-28 sm:w-28">
             {photoUrl ? (
               <Image
                 src={photoUrl}
@@ -170,7 +170,7 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
               </span>
             )}
           </div>
-          <div className="min-w-0 flex-1 space-y-2">
+          <div className="min-w-0 flex-1 space-y-2 text-center sm:text-left">
             <h1 className="font-bold text-slate-900" style={{ fontSize: "22px" }}>
               {displayName}
             </h1>
@@ -178,7 +178,7 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
               {bio}
             </p>
             {socials && (socials.linkedin || socials.instagram || socials.whatsapp) && (
-              <div className="flex flex-wrap gap-3 pt-1">
+              <div className="flex flex-wrap justify-center gap-3 pt-1 sm:justify-start">
                 {socials.linkedin && (
                   <Link href={socials.linkedin} target="_blank" rel="noopener noreferrer nofollow" className="text-slate-500 hover:text-primary" aria-label="LinkedIn">
                     <Linkedin size={20} />
