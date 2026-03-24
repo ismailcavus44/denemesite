@@ -73,12 +73,12 @@ export default function RootLayout({
       <head>
         <meta name="google-site-verification" content="fM2izkySnfaPccXh7h5bGHboOjCRdw-i9YDbkFfEgec" />
         <meta name="google-adsense-account" content="ca-pub-7049968584342279" />
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7049968584342279"
-          strategy="beforeInteractive"
-          crossOrigin="anonymous"
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="YasalHaklariniz RSS"
+          href={`${siteConfig.url.replace(/\/$/, "")}/feed.xml`}
         />
-        <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href={`${siteConfig.url.replace(/\/$/, "")}/feed.xml`} />
         <link rel="preload" href="/hukuki-sor-logo.png" as="image" />
         <link rel="preload" href="/hukuki-sor-logo-dark.png" as="image" />
         {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
@@ -93,6 +93,11 @@ export default function RootLayout({
             gtag('config', 'G-3N0SZSS7XN');
           `}
         </Script>
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7049968584342279"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SiteShell>
             <ConditionalMain>{children}</ConditionalMain>

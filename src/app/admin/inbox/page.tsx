@@ -11,6 +11,7 @@ type PendingQuestion = {
   id: string;
   title: string;
   created_at: string;
+  wants_contact: boolean | null;
   category: { name: string } | null;
 };
 
@@ -45,7 +46,7 @@ export default function AdminInboxPage() {
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
       const res = await fetch(
-        `${url}/rest/v1/questions?status=eq.pending&select=id,title,created_at,category:categories(name)&order=created_at.asc`,
+        `${url}/rest/v1/questions?status=eq.pending&select=id,title,created_at,wants_contact,category:categories(name)&order=created_at.asc`,
         {
           headers: {
             apikey: key,
@@ -102,9 +103,18 @@ export default function AdminInboxPage() {
     }
   };
 
-  const filteredItems = items.filter((q) =>
-    q.title.toLowerCase().includes(search.toLowerCase().trim())
-  );
+  const qSearch = search.toLowerCase().trim();
+  const filteredItems = items.filter((row) => {
+    if (!qSearch) return true;
+    if (row.title.toLowerCase().includes(qSearch)) return true;
+    if (
+      row.wants_contact &&
+      (qSearch.includes("ileti") || qSearch.includes("talep") || qSearch.includes("iletisim"))
+    ) {
+      return true;
+    }
+    return false;
+  });
 
   return (
     <div className="space-y-6">
@@ -161,7 +171,7 @@ export default function AdminInboxPage() {
               <table className="w-full min-w-[500px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
-                    <th className="px-5 py-3 font-medium text-foreground">Başlık</th>
+                    <th className="px-5 py-3 font-medium text-foreground">Başlık / not</th>
                     <th className="px-5 py-3 font-medium text-muted-foreground">Kategori</th>
                     <th className="px-5 py-3 font-medium text-muted-foreground">Gönderim</th>
                     <th className="px-5 py-3 text-right font-medium text-muted-foreground">İşlem</th>
@@ -174,9 +184,16 @@ export default function AdminInboxPage() {
                       className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/20"
                     >
                       <td className="max-w-[200px] sm:max-w-[320px] px-4 sm:px-5 py-3">
-                        <span className="font-medium text-foreground line-clamp-2" title={row.title}>
-                          {row.title}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium text-foreground line-clamp-2" title={row.title}>
+                            {row.title}
+                          </span>
+                          {row.wants_contact ? (
+                            <span className="inline-flex w-fit rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                              İletişim talebi var
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-5 py-3 text-muted-foreground">
                         {row.category?.name ?? "—"}

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   LayoutDashboard,
   Inbox,
+  Mail,
   FileText,
   FolderTree,
   Loader2,
@@ -100,6 +101,13 @@ export default function AdminDashboardPage() {
       icon: Inbox,
       stat: stats?.pending,
       accent: "primary",
+    },
+    {
+      href: "/admin/iletisim-mesajlari",
+      label: "İletişim mesajları",
+      description: "İletişim formundan gelen kayıtlar",
+      icon: Mail,
+      accent: "muted",
     },
     {
       href: "/admin/sorular",

@@ -7,7 +7,7 @@ const _t = "Gizlilik Politikası | YasalHaklarınız";
 const _d = "YasalHaklarınız gizlilik ve veri koruma politikası. Toplanan veriler, kullanım amaçları ve kullanıcı hakları hakkında bilgi.";
 const _u = `${siteConfig.url}/gizlilik-sozlesmesi`;
 
-const LAST_UPDATED = "12 Mart 2026";
+const LAST_UPDATED = "24 Mart 2025";
 
 export const metadata: Metadata = {
   title: { absolute: "Gizlilik Politikası | YasalHaklarınız" },
@@ -39,17 +39,23 @@ export default function GizlilikSozlesmesiPage() {
       </p>
       <ul>
         <li><strong>Pasif/Teknik Veriler:</strong> 5651 sayılı Kanun gereği yasal zorunluluk olan IP adresiniz, siteye giriş-çıkış saatleriniz, tarayıcı (browser) türünüz ve cihaz bilgileriniz otomatik olarak loglanır.</li>
-        <li><strong>Gönüllü Olarak Sunulan Veriler (Opsiyonel):</strong> Sorunuza yanıt verildiğinde haberdar olmak isterseniz, tamamen kendi rızanızla form aracılığıyla ilettiğiniz Cep Telefonu Numaranız.</li>
+        <li><strong>Formlar Aracılığıyla Sunulan Veriler:</strong> İletişim, başvuru ve soru süreçlerinde formlar üzerinden kendi rızanızla paylaştığınız <strong>ad, soyad, telefon numarası</strong> ve ilgili formda istenen diğer içerikler (örneğin mesaj metni). Bu veriler, uygun bulunan başvurular için Veri Sorumlusunun kendi telefon hattından sesli iletişim kurulması amacıyla da kullanılabilir; otomatik mesajlaşma veya anlık bildirim uygulamaları üzerinden toplu ileti gönderilmez.</li>
         <li><strong>Yazar/Editör Başvuru Verileri:</strong> Gönüllü yazar veya editör olmak amacıyla başvuru formumuz üzerinden kendi hür iradenizle ilettiğiniz Özgeçmiş (CV), ad-soyad ve iletişim bilgileri.</li>
       </ul>
 
       <h2 id={slugifyId("Üçüncü Taraf Altyapılar ve Yurtdışı Veri Aktarımı")}>4. Üçüncü Taraf Altyapılar ve Yurtdışı Veri Aktarımı (Önemli)</h2>
       <p>
-        Sitemiz, kesintisiz ve güvenli bir hizmet sunabilmek için global teknoloji sağlayıcılarıyla çalışmaktadır:
+        Sitemiz, kesintisiz ve güvenli bir hizmet sunabilmek için verilerinizi öncelikle <strong>Supabase, Inc.</strong> tarafından sağlanan bulut tabanlı veritabanında saklamaktadır. Form verileri, soru ve başvuru kayıtları ile teknik loglar bu altyapı üzerinde şifreli ve erişim kontrollü ortamlarda tutulur.
+      </p>
+      <p>
+        Supabase&apos;in sunucularının bir kısmı yurtdışında bulunduğundan, kişisel verileriniz teknik olarak yurtdışındaki sunucularda muhafaza edilebilir. Bu kullanım, reklam veya mesajlaşma platformlarına veri satışı anlamına gelmez; amaç veri güvenliği ve platformun çalışmasıdır. Yurtdışına aktarımın hukuki çerçevesi için{" "}
+        <Link href="/kvkk" className="text-slate-900 underline underline-offset-2 hover:no-underline">
+          KVKK Aydınlatma Metni
+        </Link>
+        {" "}m. 5 ve ilgili bölümlere bakınız.
       </p>
       <ul>
-        <li><strong>Veritabanı ve Saklama (Supabase):</strong> Sitemizin veritabanı altyapısı Supabase, Inc. tarafından sağlanmaktadır. Kendi rızanızla bıraktığınız telefon numaraları ve başvuru dosyalarınız, şifrelenmiş olarak Supabase&apos;in yurtdışı sunucularında (bulut ortamında) barındırılmaktadır.</li>
-        <li><strong>Bildirim Entegrasyonu (Twilio ve Meta):</strong> Soru bildirimleri için tercih ettiğiniz telefon numarasına gönderilecek olan WhatsApp mesajları, Twilio Inc. API&apos;leri ve Meta Platforms, Inc. (WhatsApp) altyapısı üzerinden iletilmektedir. Sitemizde opsiyonel olarak sunulan &quot;WhatsApp Bildirimi Al&quot; özelliğini kullandığınızda, verilerinizin bu servis sağlayıcıların uluslararası sunucuları aracılığıyla işlendiğini ve yurtdışına aktarıldığını kabul etmiş olursunuz.</li>
+        <li><strong>Veritabanı ve Saklama (Supabase):</strong> Kişisel verileriniz (formlar, başvurular, iletişim talepleri ve yasal zorunluluk kapsamındaki log kayıtları dahil) Supabase bulut veritabanında saklanır. Veri Sorumlusu, bu verileri ticari amaçla üçüncü kişilere satmaz veya pazarlama listeleri için devretmez.</li>
       </ul>
 
       <h2 id={slugifyId("Veri Güvenliği ve Koruma Önlemleri")}>5. Veri Güvenliği ve Koruma Önlemleri</h2>
@@ -62,10 +68,10 @@ export default function GizlilikSozlesmesiPage() {
         yasalhaklariniz.com, 6698 sayılı Kişisel Verilerin Korunması Kanunu ve &quot;Kişisel Verilerin Silinmesi, Yok Edilmesi veya Anonim Hale Getirilmesi Hakkında Yönetmelik&quot; hükümleri uyarınca, işlediği kişisel verileri yalnızca işlenme amacının gerektirdiği süre boyunca veya ilgili mevzuatta öngörülen yasal süreler zarfında muhafaza eder. Sürelerin dolması veya işleme amacının ortadan kalkması halinde veriler, bulut veritabanımızdan (Supabase) ve tüm sistemlerimizden kalıcı olarak silinir, yok edilir veya anonim hale getirilir.
       </p>
 
-      <h3 id={slugifyId("Kullanıcı Telefon Numaraları")}>6.1. Kullanıcı Telefon Numaraları (WhatsApp Bildirimleri İçin)</h3>
+      <h3 id={slugifyId("Form ve İletişim Bilgileri")}>6.1. Form ve İletişim Bilgileri (Ad, Soyad, Telefon)</h3>
       <ul>
-        <li><strong>Durum A (Soru Yanıtlandığında):</strong> Kullanıcının sorusu yanıtlanıp, ilgili WhatsApp bildirimi Twilio/Meta API üzerinden kullanıcıya başarıyla iletildiği anda, söz konusu telefon numarası işleme amacını tamamlamış sayılır. Bu numara, sistem loglarındaki periyodik temizlik döngümüze bağlı olarak en geç 30 (otuz) gün içerisinde veritabanından kalıcı olarak silinir veya sistemle bağı koparılarak kriptografik olarak anonim hale getirilir.</li>
-        <li><strong>Durum B (Soru Reddedildiğinde/Yanıtlanmadığında):</strong> Kullanıcının sorusu yayın kriterlerine uymadığı için reddedilirse veya sistemden silinirse, bildirime konu edilecek bir işlem kalmayacağından, bu soruyla eşleşen telefon numarası derhal (anında) veritabanından imha edilir.</li>
+        <li><strong>İşlem tamamlandığında:</strong> İlgili başvuru veya iletişim süreci sonuçlandığında ve saklama için ayrıca yasal bir yükümlülük bulunmadığında, ad, soyad ve telefon verileri makul süre içinde Supabase üzerindeki veritabanımızdan silinir, yok edilir veya anonim hale getirilir.</li>
+        <li><strong>Red veya iptal:</strong> Başvurunun reddedilmesi veya ilgili kaydın sistemden kaldırılması halinde, işleme amacı ortadan kalktığı ölçüde bu kişisel veriler gecikmeksizin imha edilir; imha süreçleri Kişisel Veri Saklama ve İmha Politikamıza uygun yürütülür.</li>
       </ul>
 
       <h3 id={slugifyId("Gönüllü Yazar ve Editör Adaylarına Ait Veriler")}>6.2. Gönüllü Yazar ve Editör Adaylarına Ait Veriler (CV, Kimlik ve İletişim)</h3>

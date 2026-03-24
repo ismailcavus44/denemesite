@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Mail, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { siteConfig } from "@/lib/site";
+import { ContactForm } from "@/components/contact-form";
 
 function TiktokIcon({ className }: { className?: string }) {
   return (
@@ -16,12 +17,16 @@ function TiktokIcon({ className }: { className?: string }) {
 export default function ContactPage() {
   return (
     <div className="mx-auto flex max-w-4xl flex-col items-center space-y-6">
-        <div className="w-[662px] max-w-full space-y-2 text-left">
-          <h1 className="text-2xl font-semibold">İletişim</h1>
-          <p className="text-sm text-muted-foreground">
-            Öneri ve geri bildirimlerinizi paylaşabilirsiniz.
+        <div className="w-full max-w-xl mx-auto space-y-2 text-left">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+            İletişim
+          </h1>
+          <p className="text-sm leading-relaxed text-slate-500 sm:text-[15px]">
+            Öneri ve geri bildirimlerinizi aşağıdaki formdan iletebilirsiniz.
           </p>
         </div>
+
+        <ContactForm />
 
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-6 sm:gap-8">
           <Link href="/gizlilik-sozlesmesi" className="group block min-w-0 sm:w-[315px]">
@@ -103,7 +108,7 @@ export default function ContactPage() {
               </a>
             </div>
           </div>
-          <div className="relative h-[200px] w-1/2 shrink-0 overflow-hidden md:h-full md:min-h-0">
+          <div className="relative h-[200px] w-full shrink-0 overflow-hidden md:h-full md:w-1/2 md:min-h-0">
             <img
               src="/iletisim.png"
               alt="İletişim"

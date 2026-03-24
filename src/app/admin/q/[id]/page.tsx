@@ -15,7 +15,13 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Link2, X } from "lucide-react";
+import { Loader2, Link2, X, UserCircle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { blogPosts } from "@/lib/blog-data";
 import { slugify } from "@/lib/slugify";
 
@@ -42,6 +48,9 @@ type QuestionData = {
   ai_h1_enabled: boolean | null;
   related_guide_url: string | null;
   related_guide_label: string | null;
+  wants_contact: boolean | null;
+  contact_full_name: string | null;
+  phone_number: string | null;
 };
 
 type SimilarQuestion = {
@@ -53,7 +62,7 @@ type SimilarQuestion = {
 };
 
 const QUESTION_SELECT =
-  "id,title,body,status,category_id,ai_title,ai_answer_draft,ai_main_concept,ai_pillar_slug,ai_pillar_url,ai_category,ai_card_summary,seo_slug,seo_title,seo_description,ai_h1_summary,ai_h1_enabled,related_guide_url,related_guide_label,answer:answers(answer_text)";
+  "id,title,body,status,category_id,ai_title,ai_answer_draft,ai_main_concept,ai_pillar_slug,ai_pillar_url,ai_category,ai_card_summary,seo_slug,seo_title,seo_description,ai_h1_summary,ai_h1_enabled,related_guide_url,related_guide_label,wants_contact,contact_full_name,phone_number,answer:answers(answer_text)";
 
 function getAccessToken(): string | null {
   try {
@@ -99,6 +108,7 @@ export default function AdminQuestionPage() {
   const [guideSearch, setGuideSearch] = useState("");
   const [guidePickerOpen, setGuidePickerOpen] = useState(false);
   const [dbArticles, setDbArticles] = useState<{ title: string; slug: string; category: string; categorySlug: string }[]>([]);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -484,6 +494,49 @@ export default function AdminQuestionPage() {
           </Button>
         </div>
       </div>
+
+      {question.wants_contact ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-emerald-950">
+            Kullanıcı soru için <strong>iletişim talep etti</strong>. İsim ve telefon bilgileri
+            yalnızca bu panelde görüntülenir.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="shrink-0 border-emerald-300 bg-white hover:bg-emerald-100"
+            onClick={() => setContactModalOpen(true)}
+          >
+            <UserCircle className="mr-2 size-4" />
+            Kişiye git
+          </Button>
+        </div>
+      ) : null}
+
+      <Dialog open={contactModalOpen} onOpenChange={setContactModalOpen}>
+        <DialogContent className="max-w-md rounded-lg border p-6">
+          <DialogHeader>
+            <DialogTitle>İletişim bilgileri</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <div>
+              <p className="font-medium text-foreground">İsim soyisim</p>
+              <p className="mt-1 text-muted-foreground">
+                {question.contact_full_name?.trim() || "—"}
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Telefon</p>
+              <p className="mt-1 font-mono text-muted-foreground">
+                {question.phone_number?.trim() || "—"}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Bu bilgiler KVKK kapsamında yalnızca talep edilen iletişim amacıyla kullanılmalıdır.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Benzer sorular — en üstte */}
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">

@@ -25,6 +25,12 @@ export function AdminHeader() {
             <Link href="/admin/inbox" className="hover:text-foreground">
               Bekleyenler
             </Link>
+            <Link
+              href="/admin/iletisim-mesajlari"
+              className="hover:text-foreground"
+            >
+              İletişim
+            </Link>
             <Link href="/admin/sorular" className="hover:text-foreground">
               Tüm Sorular
             </Link>
