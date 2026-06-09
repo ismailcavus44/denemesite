@@ -17,7 +17,7 @@ function TiktokIcon({ className }: { className?: string }) {
 export default function ContactPage() {
   return (
     <div className="mx-auto flex max-w-4xl flex-col items-center space-y-6">
-        <div className="w-full max-w-xl mx-auto space-y-2 text-left">
+        <div className="w-full max-w-full space-y-2 text-left">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
             İletişim
           </h1>

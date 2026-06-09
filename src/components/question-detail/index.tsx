@@ -21,6 +21,7 @@ export type QuestionDetailProps = {
   aiH1Summary?: string | null;
   aiH1Enabled?: boolean;
   publishedAt?: string | null;
+  updatedAt?: string | null;
   /** Topic silo: kategori slug (örn. miras-hukuku). Verilirse breadcrumb ve benzer soru linkleri buna göre. */
   categorySlug?: string | null;
   /** Cevap kartı sonunda gösterilecek rehber linki (panelden eklenir). */
@@ -44,6 +45,7 @@ export function QuestionDetail({
   aiH1Summary,
   aiH1Enabled,
   publishedAt,
+  updatedAt,
   categorySlug,
   guideCta,
   children,
@@ -73,6 +75,7 @@ export function QuestionDetail({
                 title={displayTitle}
                 category={category}
                 publishedAt={publishedAt}
+                updatedAt={updatedAt}
                 readingMinutes={readingMinutes}
                 breadcrumbItems={breadcrumbItems}
               />

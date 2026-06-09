@@ -96,12 +96,12 @@ export function ContactForm() {
   };
 
   const fieldClass =
-    "h-11 rounded-xl border-slate-200/90 bg-slate-50/80 px-3.5 text-slate-900 shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#1d293d]/30 focus-visible:bg-white focus-visible:ring-[#1d293d]/15";
+    "h-11 rounded-lg border-slate-200/90 bg-slate-50/80 px-3.5 text-slate-900 shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#1d293d]/30 focus-visible:bg-white focus-visible:ring-[#1d293d]/15";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative w-full max-w-xl mx-auto overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.25)] ring-1 ring-slate-900/[0.04]"
+      className="relative w-full max-w-full overflow-hidden rounded-lg border border-border bg-white"
     >
       <div className="flex flex-col gap-6 p-6 sm:p-8">
         <header className="flex gap-4">
@@ -184,23 +184,25 @@ export function ContactForm() {
           />
         </div>
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="h-11 w-full rounded-xl bg-[#1d293d] text-[15px] font-medium text-white shadow-sm transition hover:bg-[#1d293d]/90"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Gönderiliyor…
-            </>
-          ) : (
-            <>
-              <Send className="mr-2 size-4 opacity-90" />
-              Gönder
-            </>
-          )}
-        </Button>
+        <div className="flex justify-start">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="h-11 rounded-lg bg-[#1d293d] px-6 text-[15px] font-medium text-white shadow-sm transition hover:bg-[#1d293d]/90"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Gönderiliyor…
+              </>
+            ) : (
+              <>
+                <Send className="mr-2 size-4 opacity-90" />
+                Gönder
+              </>
+            )}
+          </Button>
+        </div>
 
         {(showLegalError || showWhatsappError) ? (
           <div className="space-y-3">

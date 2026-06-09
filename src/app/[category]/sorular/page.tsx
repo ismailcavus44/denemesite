@@ -6,7 +6,7 @@ import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { QuestionCard } from "@/components/question-card";
 import { siteConfig } from "@/lib/site";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 30;
 
 type PageProps = {
   params: Promise<{ category: string }>;

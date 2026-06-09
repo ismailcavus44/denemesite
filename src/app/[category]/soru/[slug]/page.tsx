@@ -83,10 +83,10 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
   const { data: question } = await supabase
     .from("questions")
     .select(
-      `id,title,body,slug,created_at,published_at,category_id,ai_h1_summary,ai_h1_enabled,
+      `id,title,body,slug,created_at,published_at,seo_updated_at,category_id,ai_h1_summary,ai_h1_enabled,
       related_guide_url,related_guide_label,
       category:categories(name,slug),
-      answer:answers(answer_text)`
+      answer:answers(answer_text,created_at,updated_at)`
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -101,6 +101,15 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
   const categoryGuides = await getRelatedGuides(categorySlug, 5);
 
   const answer = Array.isArray(question.answer) ? question.answer[0] : question.answer;
+  const answerCreatedAt = (answer as { created_at?: string } | undefined)?.created_at;
+  const answerUpdatedAt = (answer as { updated_at?: string } | undefined)?.updated_at;
+  const questionPublishedAt = (question as { published_at?: string | null }).published_at;
+  const seoUpdatedAt = (question as { seo_updated_at?: string | null }).seo_updated_at;
+  const questionUpdatedAt =
+    answerUpdatedAt ??
+    seoUpdatedAt ??
+    questionPublishedAt ??
+    question.created_at;
   const baseUrl = siteConfig.url.replace(/\/$/, "");
   const questionUrl = `${baseUrl}/${categorySlug}/soru/${slug}`;
   const displayTitle =
@@ -128,7 +137,9 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
           answer
             ? {
                 text: answer.answer_text,
-                dateCreated: (question as { published_at?: string | null }).published_at ?? question.created_at,
+                dateCreated:
+                  answerCreatedAt ?? questionPublishedAt ?? question.created_at,
+                dateModified: answerUpdatedAt ?? undefined,
               }
             : null
         }
@@ -141,7 +152,8 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
         categoryGuides={categoryGuides.map((g) => ({ slug: g.slug, title: g.title, categorySlug: g.categorySlug }))}
         aiH1Summary={(question as { ai_h1_summary?: string | null }).ai_h1_summary ?? null}
         aiH1Enabled={(question as { ai_h1_enabled?: boolean | null }).ai_h1_enabled === true}
-        publishedAt={(question as { published_at?: string | null }).published_at ?? null}
+        publishedAt={questionPublishedAt ?? null}
+        updatedAt={questionUpdatedAt}
         categorySlug={categorySlug}
         guideCta={
           (() => {

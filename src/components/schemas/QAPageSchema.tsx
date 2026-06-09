@@ -1,3 +1,5 @@
+import { toISO8601WithTimezone } from "@/lib/format-date";
+
 const ANSWER_AUTHOR = {
   "@type": "Person" as const,
   name: "Av. Kaan Karayaka | Yasal Haklarınız",
@@ -12,7 +14,13 @@ type QAPageSchemaProps = {
   questionAuthorName?: string | null;
   /** Cevabı yazan (örn. Av. Kaan Karayaka | Yasal Haklarınız). Yoksa ANSWER_AUTHOR. */
   answerAuthorName?: string | null;
-  acceptedAnswer?: { text: string; dateCreated?: string } | null;
+  acceptedAnswer?: {
+    text: string;
+    /** Cevabın ilk yazılma tarihi. */
+    dateCreated?: string;
+    /** Cevabın son düzenlenme tarihi (answers.updated_at). */
+    dateModified?: string;
+  } | null;
 };
 
 /** Soru detay sayfası: QAPage (Question + Answer). */
@@ -45,7 +53,7 @@ export function QAPageSchema({
       author: questionAuthor,
       upvoteCount: 0,
       answerCount: acceptedAnswer ? 1 : 0,
-      dateCreated,
+      dateCreated: toISO8601WithTimezone(dateCreated),
       ...(acceptedAnswer && {
         acceptedAnswer: {
           "@type": "Answer",
@@ -53,7 +61,12 @@ export function QAPageSchema({
           url: questionUrl,
           author: answerAuthorObj,
           upvoteCount: 0,
-          ...(acceptedAnswer.dateCreated && { dateCreated: acceptedAnswer.dateCreated }),
+          ...(acceptedAnswer.dateCreated && {
+            dateCreated: toISO8601WithTimezone(acceptedAnswer.dateCreated),
+          }),
+          ...(acceptedAnswer.dateModified && {
+            dateModified: toISO8601WithTimezone(acceptedAnswer.dateModified),
+          }),
         },
       }),
     },

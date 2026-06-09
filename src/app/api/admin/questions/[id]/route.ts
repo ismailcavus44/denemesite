@@ -95,6 +95,12 @@ export async function PATCH(request: Request, { params }: Params) {
   const body = (await request.json()) as UpdatePayload;
   const supabase = createSupabaseAdminClient();
 
+  const { data: existingQuestion } = await supabase
+    .from("questions")
+    .select("published_at")
+    .eq("id", id)
+    .maybeSingle();
+
   let normalizedSlug: string | undefined;
   if (body.slug && body.slug.trim()) {
     normalizedSlug = await generateUniqueSlug(supabase, body.slug.trim(), id);
@@ -107,7 +113,11 @@ export async function PATCH(request: Request, { params }: Params) {
   if (body.category_id !== undefined) updatePayload.category_id = body.category_id;
   if (body.status) updatePayload.status = body.status;
   if (body.status === "published") {
-    updatePayload.published_at = new Date().toISOString();
+    const existingPublishedAt = (existingQuestion as { published_at?: string | null } | null)
+      ?.published_at;
+    if (!existingPublishedAt) {
+      updatePayload.published_at = new Date().toISOString();
+    }
   }
   if (body.status && body.status !== "published") {
     updatePayload.published_at = null;

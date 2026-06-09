@@ -10,6 +10,13 @@ import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
 import { siteConfig } from "@/lib/site";
 import type { BlogPost } from "@/lib/blog-data";
+import {
+  formatAuthorDisplayName,
+  formatBarRegistrationLine,
+  resolveAuthorEeat,
+  type AuthorEeatFields,
+} from "@/lib/author-profile";
+import { AuthorPersonSchema } from "@/components/schemas/AuthorPersonSchema";
 
 const PAGE_SIZE = 6;
 
@@ -25,19 +32,18 @@ async function getAuthorFromDb(slug: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("authors")
-    .select("id,name,slug,bio,photo_url,linkedin_url,instagram_url,whatsapp_url")
+    .select(
+      "id,name,slug,bio,photo_url,title,bar_name,bar_registration,sameas_links,linkedin_url,instagram_url,whatsapp_url"
+    )
     .eq("slug", slug)
     .maybeSingle();
   if (error || !data) return null;
-  return data as {
+  return data as AuthorEeatFields & {
     id: string;
     name: string;
     slug: string;
     bio: string | null;
     photo_url: string | null;
-    linkedin_url: string | null;
-    instagram_url: string | null;
-    whatsapp_url: string | null;
   };
 }
 
@@ -103,9 +109,21 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
   if (!author) notFound();
 
   const isDbAuthor = !!dbAuthor;
-  const displayName = isDbAuthor ? dbAuthor.name : (staticAuthor!.title ? `${staticAuthor!.title} ` : "") + staticAuthor!.name;
+  const eeat = resolveAuthorEeat(
+    slug,
+    isDbAuthor ? dbAuthor : null,
+    staticAuthor ?? null
+  );
+  const displayName = isDbAuthor
+    ? formatAuthorDisplayName(dbAuthor.name, eeat.title)
+    : formatAuthorDisplayName(
+        staticAuthor!.name,
+        staticAuthor!.title ?? eeat.title
+      );
+  const barLine = formatBarRegistrationLine(eeat.barName, eeat.barRegistration);
   const bio = isDbAuthor ? (dbAuthor.bio ?? "") : staticAuthor!.bio;
   const photoUrl = isDbAuthor ? dbAuthor.photo_url : staticAuthor!.image;
+  const authorPageUrl = `${siteConfig.url.replace(/\/$/, "")}/yazar/${slug}`;
   const socials = isDbAuthor
     ? (dbAuthor.linkedin_url || dbAuthor.instagram_url || dbAuthor.whatsapp_url
         ? { linkedin: dbAuthor.linkedin_url ?? undefined, instagram: dbAuthor.instagram_url ?? undefined, whatsapp: dbAuthor.whatsapp_url ?? undefined }
@@ -150,7 +168,14 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
+    <>
+      <AuthorPersonSchema
+        name={displayName}
+        url={authorPageUrl}
+        jobTitle={eeat.title}
+        sameAs={eeat.sameAs.length > 0 ? eeat.sameAs : undefined}
+      />
+      <div className="mx-auto max-w-6xl space-y-8 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
       <header>
         <BreadcrumbBlock items={breadcrumbItems} />
         <section className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
@@ -174,6 +199,9 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
             <h1 className="font-bold text-slate-900" style={{ fontSize: "22px" }}>
               {displayName}
             </h1>
+            {barLine ? (
+              <p className="text-sm font-medium text-slate-700">{barLine}</p>
+            ) : null}
             <p className="text-slate-600" style={{ fontSize: "15px" }}>
               {bio}
             </p>
@@ -254,5 +282,6 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
         )}
       </section>
     </div>
+    </>
   );
 }

@@ -23,6 +23,8 @@ import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema"
 import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
 import { BackToTop } from "@/components/back-to-top";
+import { LastUpdatedLabel } from "@/components/last-updated-label";
+import { buildArticleAuthorSchema } from "@/lib/author-profile";
 
 const StickyCTA = dynamic(
   () => import("@/components/question-detail/StickyCTA").then((m) => ({ default: m.StickyCTA })),
@@ -130,7 +132,19 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>;
 };
 
-type AuthorRow = { id: string; name: string; slug: string; photo_url: string | null };
+type AuthorRow = {
+  id: string;
+  name: string;
+  slug: string;
+  photo_url: string | null;
+  title?: string | null;
+  bar_name?: string | null;
+  bar_registration?: string | null;
+  sameas_links?: unknown;
+  linkedin_url?: string | null;
+  instagram_url?: string | null;
+  whatsapp_url?: string | null;
+};
 type FaqItem = { question: string; answer: string };
 
 type ArticleWithAuthor = {
@@ -145,16 +159,24 @@ type ArticleWithAuthor = {
   featured_image_alt: string | null;
   faq: FaqItem[] | null;
   created_at: string;
+  updated_at?: string | null;
   author_id: string | null;
   authors: AuthorRow | null;
 };
+
+function schemaDate(iso: string | null | undefined): string {
+  if (!iso?.trim()) return "";
+  return iso.slice(0, 10);
+}
 
 /** Supabase: slug + category ile yayındaki makale + yazar (server-side). */
 async function getArticleByCategoryAndSlug(category: string, slug: string): Promise<ArticleWithAuthor | null> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("articles")
-    .select("id,title,slug,category,content,meta_title,meta_description,featured_image_url,featured_image_alt,faq,created_at,author_id,authors(id,name,slug,photo_url)")
+    .select(
+      "id,title,slug,category,content,meta_title,meta_description,featured_image_url,featured_image_alt,faq,created_at,updated_at,author_id,authors(id,name,slug,photo_url,title,bar_name,bar_registration,sameas_links,linkedin_url,instagram_url,whatsapp_url)"
+    )
     .eq("slug", slug)
     .eq("category", category)
     .eq("status", "published")
@@ -263,6 +285,9 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             <article className="space-y-6">
               <header className="space-y-3">
                 <h1 className="text-3xl font-semibold text-slate-900">{dbArticle.title}</h1>
+                <LastUpdatedLabel
+                  date={dbArticle.updated_at ?? dbArticle.created_at}
+                />
               </header>
               {dbArticle.featured_image_url && (
                 <div className="relative aspect-[1200/630] w-full overflow-hidden rounded-[8px] bg-muted">
@@ -403,12 +428,18 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               ? `${dbArticle.meta_description.trim()} | YasalHaklarınız`
               : dbArticle.title
           }
-          datePublished={dbArticle.created_at?.slice(0, 10) ?? ""}
+          datePublished={schemaDate(dbArticle.created_at)}
+          dateModified={schemaDate(dbArticle.updated_at ?? dbArticle.created_at)}
           url={articleUrl}
           image={dbArticle.featured_image_url?.startsWith("http") ? dbArticle.featured_image_url : undefined}
           author={
             dbArticle.authors
-              ? { name: dbArticle.authors.name, url: `${baseUrl}/yazar/${dbArticle.authors.slug}` }
+              ? buildArticleAuthorSchema(
+                  dbArticle.authors.slug,
+                  dbArticle.authors.name,
+                  baseUrl,
+                  dbArticle.authors
+                )
               : undefined
           }
         />
@@ -459,6 +490,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           <article className="space-y-6">
             <header className="space-y-3">
               <h1 className="text-3xl font-semibold text-slate-900">{post.title}</h1>
+              <LastUpdatedLabel date={post.date} />
             </header>
 
             {post.image && (
@@ -583,12 +615,17 @@ export default async function CategoryGuidePage({ params }: PageProps) {
       <ArticleSchema
         headline={post.title}
         description={post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary}
-        datePublished={post.date}
+        datePublished={schemaDate(post.date)}
+        dateModified={schemaDate(post.date)}
         url={articleUrl}
         image={post.image ? `${baseUrl}${post.image}` : undefined}
         author={
           author
-            ? { name: author.title ? `${author.title} ${author.name}` : author.name, url: `${baseUrl}/yazar/${author.slug}` }
+            ? buildArticleAuthorSchema(author.slug, author.name, baseUrl, {
+                linkedin_url: author.socials?.linkedin,
+                instagram_url: author.socials?.instagram,
+                whatsapp_url: author.socials?.whatsapp,
+              })
             : undefined
         }
       />
