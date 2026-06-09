@@ -1,23 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { QuestionHero } from "./QuestionHero";
 import { QuestionBodyAccordion } from "./QuestionBodyAccordion";
 import { AnswerCard, type GuideCta } from "./AnswerCard";
 import { StickyCTA } from "./StickyCTA";
 import { CategoryGuidesSidebar } from "./CategoryGuidesSidebar";
-import { SimilarQuestionsSection } from "./SimilarQuestionsSection";
 
 type Category = { name: string; slug: string };
-type RelatedItem = {
-  id: string;
-  title: string;
-  slug: string;
-  created_at: string;
-  ai_card_summary?: string | null;
-  category?: Category | null;
-};
 type CategoryGuideItem = { slug: string; title: string; categorySlug: string };
 
 export type QuestionDetailProps = {
@@ -25,7 +16,6 @@ export type QuestionDetailProps = {
   body: string;
   category?: Category | null;
   answerText?: string | null;
-  related: RelatedItem[];
   /** Sorunun kategorisindeki rehber yazıları (sidebar, en fazla 5). */
   categoryGuides?: CategoryGuideItem[];
   aiH1Summary?: string | null;
@@ -35,6 +25,8 @@ export type QuestionDetailProps = {
   categorySlug?: string | null;
   /** Cevap kartı sonunda gösterilecek rehber linki (panelden eklenir). */
   guideCta?: GuideCta | null;
+  /** Cevap kartının altında gösterilecek sunucu bileşenleri (örn. ilgili sorular). */
+  children?: ReactNode;
 };
 
 function estimateReadingMinutes(body: string, answerText: string | null): number {
@@ -48,13 +40,13 @@ export function QuestionDetail({
   body,
   category,
   answerText,
-  related,
   categoryGuides = [],
   aiH1Summary,
   aiH1Enabled,
   publishedAt,
   categorySlug,
   guideCta,
+  children,
 }: QuestionDetailProps) {
   const useH1Summary = Boolean(aiH1Enabled && aiH1Summary?.trim());
   const displayTitle = useH1Summary ? aiH1Summary! : title;
@@ -112,6 +104,7 @@ export function QuestionDetail({
               )}
 
               <AnswerCard answerHtml={answerText ?? ""} guideCta={guideCta} />
+              {children}
             </main>
 
             <div className="hidden min-w-0 lg:block overflow-visible">

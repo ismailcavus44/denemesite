@@ -132,6 +132,79 @@ export async function getRelatedQuestions(
 const QUESTIONS_SELECT =
   "id,title,slug,created_at,views,ai_card_summary,category:categories!inner(name,slug)";
 
+export type RelatedQuestionItem = {
+  id: string;
+  title: string;
+  slug: string;
+  created_at: string;
+  ai_card_summary?: string | null;
+  category?: { name: string; slug: string } | null;
+};
+
+const RELATED_POOL_SIZE = 8;
+const RELATED_DISPLAY_LIMIT = 3;
+
+function hashSeed(input: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededShuffle<T>(items: T[], seed: number): T[] {
+  const arr = [...items];
+  let state = seed;
+  const next = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(next() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function normalizeRelatedQuestion(
+  row: RelatedQuestionItem & { category?: RelatedQuestionItem["category"] | RelatedQuestionItem["category"][] }
+): RelatedQuestionItem {
+  return {
+    ...row,
+    category: Array.isArray(row.category) ? (row.category[0] ?? null) : (row.category ?? null),
+  };
+}
+
+/** Aynı kategorideki son sorulardan havuz oluşturup mevcut soruya göre dönüşümlü 1–3 ilgili soru seçer. */
+export async function getRotatingRelatedQuestions(
+  categorySlug: string,
+  excludeQuestionId: string,
+  options?: { poolSize?: number; limit?: number }
+): Promise<RelatedQuestionItem[]> {
+  const poolSize = options?.poolSize ?? RELATED_POOL_SIZE;
+  const limit = options?.limit ?? RELATED_DISPLAY_LIMIT;
+  const supabase = createSupabaseAdminClient();
+
+  const { data } = await supabase
+    .from("questions")
+    .select(QUESTIONS_SELECT)
+    .eq("status", "published")
+    .eq("categories.slug", categorySlug)
+    .neq("id", excludeQuestionId)
+    .order("created_at", { ascending: false })
+    .limit(poolSize);
+
+  const pool = (data ?? []).map((row) =>
+    normalizeRelatedQuestion(row as RelatedQuestionItem & { category?: RelatedQuestionItem["category"] | RelatedQuestionItem["category"][] })
+  );
+
+  if (pool.length === 0) return [];
+
+  const take = Math.min(limit, pool.length);
+  return seededShuffle(pool, hashSeed(excludeQuestionId)).slice(0, take);
+}
+
 /** Kategori soruları sayfalı (liste sayfası için). */
 export async function getRelatedQuestionsPaginated(
   categorySlug: string,

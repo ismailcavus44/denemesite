@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
-import { getRelatedQuestions, getRelatedGuides } from "@/lib/content";
+import { getRelatedGuides } from "@/lib/content";
 import { QuestionDetail } from "@/components/question-detail";
+import { RelatedQuestions } from "@/components/question-detail/RelatedQuestions";
 import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema";
 import { QAPageSchema } from "@/components/schemas/QAPageSchema";
 import { siteConfig } from "@/lib/site";
@@ -12,7 +13,7 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>;
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
@@ -97,10 +98,7 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
     notFound();
   }
 
-  const [related, categoryGuides] = await Promise.all([
-    getRelatedQuestions(categorySlug, 6, question.id),
-    getRelatedGuides(categorySlug, 5),
-  ]);
+  const categoryGuides = await getRelatedGuides(categorySlug, 5);
 
   const answer = Array.isArray(question.answer) ? question.answer[0] : question.answer;
   const baseUrl = siteConfig.url.replace(/\/$/, "");
@@ -140,10 +138,6 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
         body={question.body}
         category={Array.isArray(question.category) ? (question.category[0] ?? null) : question.category}
         answerText={answer?.answer_text ? sanitizeHtml(answer.answer_text) : null}
-        related={related.map((q) => ({
-          ...q,
-          category: Array.isArray(q.category) ? (q.category[0] ?? null) : q.category,
-        }))}
         categoryGuides={categoryGuides.map((g) => ({ slug: g.slug, title: g.title, categorySlug: g.categorySlug }))}
         aiH1Summary={(question as { ai_h1_summary?: string | null }).ai_h1_summary ?? null}
         aiH1Enabled={(question as { ai_h1_enabled?: boolean | null }).ai_h1_enabled === true}
@@ -157,7 +151,9 @@ export default async function CategoryQuestionPage({ params }: PageProps) {
               : null;
           })()
         }
-      />
+      >
+        <RelatedQuestions questionId={question.id} categorySlug={categorySlug} />
+      </QuestionDetail>
     </>
   );
 }
