@@ -167,12 +167,15 @@ function seededShuffle<T>(items: T[], seed: number): T[] {
   return arr;
 }
 
-function normalizeRelatedQuestion(
-  row: RelatedQuestionItem & { category?: RelatedQuestionItem["category"] | RelatedQuestionItem["category"][] }
-): RelatedQuestionItem {
+type RelatedQuestionRow = Omit<RelatedQuestionItem, "category"> & {
+  category?: { name: string; slug: string } | { name: string; slug: string }[] | null;
+};
+
+function normalizeRelatedQuestion(row: RelatedQuestionRow): RelatedQuestionItem {
+  const { category, ...rest } = row;
   return {
-    ...row,
-    category: Array.isArray(row.category) ? (row.category[0] ?? null) : (row.category ?? null),
+    ...rest,
+    category: Array.isArray(category) ? (category[0] ?? null) : (category ?? null),
   };
 }
 
@@ -196,7 +199,7 @@ export async function getRotatingRelatedQuestions(
     .limit(poolSize);
 
   const pool = (data ?? []).map((row) =>
-    normalizeRelatedQuestion(row as RelatedQuestionItem & { category?: RelatedQuestionItem["category"] | RelatedQuestionItem["category"][] })
+    normalizeRelatedQuestion(row as unknown as RelatedQuestionRow)
   );
 
   if (pool.length === 0) return [];
