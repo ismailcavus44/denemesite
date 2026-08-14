@@ -21,6 +21,10 @@ import { CourtDecision } from "@/lib/tiptap/court-decision";
 import { Petition } from "@/lib/tiptap/petition";
 import { DownloadButton } from "@/lib/tiptap/download-button";
 import {
+  ArticleDocument,
+  footnoteExtensions,
+} from "@/lib/tiptap/footnotes";
+import {
   Bold,
   Heading2,
   Heading3,
@@ -33,6 +37,7 @@ import {
   Scale,
   Gavel,
   Download,
+  Hash,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -81,7 +86,9 @@ export function ArticleEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
+      ArticleDocument,
       StarterKit.configure({
+        document: false,
         heading: { levels: [2, 3] },
         blockquote: false,
         codeBlock: false,
@@ -99,6 +106,7 @@ export function ArticleEditor({
       CourtDecision,
       Petition,
       DownloadButton,
+      ...footnoteExtensions,
     ],
     content: value || "",
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -365,6 +373,17 @@ export function ArticleEditor({
           variant="outline"
           size="sm"
           onMouseDown={(e) => e.preventDefault()}
+          onClick={() => editor.chain().focus().insertFootnote().run()}
+          title="Dipnot ekle"
+        >
+          <Hash className="size-4" />
+          Dipnot
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={openCtaDialog}
           title="CTA bloğu ekle"
         >
@@ -417,7 +436,7 @@ export function ArticleEditor({
         </Button>
       </div>
       <div
-        className="flex-1 min-h-0 overflow-y-auto px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-inset [&_.tiptap]:outline-none [&_.tiptap_.is-empty::before]:text-muted-foreground [&_.tiptap_.is-empty::before]:content-[attr(data-placeholder)]"
+        className="rich-editor flex-1 min-h-0 overflow-y-auto px-3 py-2 text-sm outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-inset [&_.tiptap]:outline-none [&_.tiptap_.is-empty::before]:text-muted-foreground [&_.tiptap_.is-empty::before]:content-[attr(data-placeholder)]"
         style={{ minHeight }}
       >
         <EditorContent editor={editor} />

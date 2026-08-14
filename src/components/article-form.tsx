@@ -18,8 +18,12 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 import type { Article } from "@/types/article";
 import type { Author } from "@/types/author";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, ImageIcon, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Loader2, ImageIcon, Plus, Trash2, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import type { FaqItem } from "@/types/article";
+import {
+  ARTICLE_PREVIEW_STORAGE_KEY,
+  type ArticlePreviewData,
+} from "@/lib/article-preview";
 
 const ARTICLE_CATEGORIES: { value: string; label: string }[] = [
   { value: "aile-hukuku", label: "Aile Hukuku" },
@@ -92,7 +96,7 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
   useEffect(() => {
     getSupabaseBrowserClient()
       .from("authors")
-      .select("id,name,slug")
+      .select("id,name,slug,photo_url,title")
       .order("name")
       .then(({ data }) => setAuthors((data as Author[]) ?? []));
   }, []);
@@ -100,6 +104,34 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
   const generateSlug = useCallback(() => {
     setSlug(slugFromTitle(title) || slug);
   }, [title, slug]);
+
+  const handlePreview = useCallback(() => {
+    const author = authors.find((a) => a.id === authorId);
+    const categoryMeta = ARTICLE_CATEGORIES.find((c) => c.value === category);
+    const payload: ArticlePreviewData = {
+      title,
+      content,
+      slug: slug.trim() || slugFromTitle(title),
+      category: category.trim() || null,
+      categoryLabel: categoryMeta?.label ?? null,
+      author: author
+        ? {
+            name: author.name,
+            slug: author.slug,
+            photoUrl: author.photo_url,
+            title: author.title,
+          }
+        : null,
+      faq: faqItems.filter((f) => f.question.trim() && f.answer.trim()),
+      created_at: initialData?.created_at ?? new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(ARTICLE_PREVIEW_STORAGE_KEY, JSON.stringify(payload));
+      window.open("/onizleme", "_blank", "noopener");
+    } catch {
+      toast.error("Önizleme açılamadı. Tarayıcı depolama izinlerini kontrol edin.");
+    }
+  }, [title, content, slug, category, authorId, authors, faqItems, initialData?.created_at]);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -473,6 +505,16 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
             </div>
 
             <div className="flex flex-col gap-2 pt-2 border-t border-slate-200">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handlePreview}
+                title="Yazdığınız içeriği yeni sekmede canlı görünümde açar (kaydetmez)"
+              >
+                <Eye className="size-4" />
+                Önizle
+              </Button>
               <Button
                 type="button"
                 className="w-full"

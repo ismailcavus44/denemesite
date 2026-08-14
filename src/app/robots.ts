@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/", "/private/", "/config/", "/temp/", "/search/", "/ara/"],
+        disallow: ["/admin/", "/api/", "/private/", "/config/", "/temp/", "/search/", "/ara/", "/onizleme/"],
       },
       {
         userAgent: "Mediapartners-Google",

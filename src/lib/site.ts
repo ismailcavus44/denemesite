@@ -8,7 +8,8 @@ export const siteConfig = {
   kariyerEmail: "kariyer@yasalhaklariniz.com",
   social: {
     instagram: "https://instagram.com/yasalhaklariniz",
-    facebook: "https://facebook.com/yasalhaklariniz",
+    facebook: "https://www.facebook.com/profile.php?id=61571165892545&locale=tr_TR",
+    x: "https://x.com/yasalhaklariniz",
     tiktok: "https://tiktok.com/@yasalhaklariniz",
     linkedin: "https://linkedin.com/company/yasal-haklariniz",
     youtube: "https://youtube.com/@yasalhaklariniz",

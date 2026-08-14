@@ -1,3 +1,5 @@
+import { collectFootnoteIdsFromHtml } from "@/lib/footnotes";
+
 /** Başlık metninden id üretir (Türkçe uyumlu). */
 function slugifyForId(text: string): string {
   const t = text
@@ -55,4 +57,36 @@ export function addHeadingIdsAndGetToc(html: string): { html: string; tocItems: 
   });
 
   return { html: out, tocItems };
+}
+
+/** Dipnot işaretlerine numara, id ve karşılıklı link ekler. */
+export function enhanceFootnoteHtml(html: string): string {
+  const orderedIds = collectFootnoteIdsFromHtml(html);
+  const seen = new Map<string, number>();
+
+  let out = html.replace(
+    /<sup([^>]*data-type=["']footnoteReference["'][^>]*)>([\s\S]*?)<\/sup>/gi,
+    (_match, attrs: string, inner: string) => {
+      const id = attrs.match(/data-footnote-id=["']([^"']+)["']/i)?.[1];
+      if (!id) return _match;
+      const n = orderedIds.indexOf(id) + 1;
+      const occ = (seen.get(id) ?? 0) + 1;
+      seen.set(id, occ);
+      const refId = occ === 1 ? `fnref-${n}` : `fnref-${n}-${occ}`;
+      const label = inner.trim() || String(n);
+      return `<sup${attrs} id="${refId}" data-n="${n}"><a href="#fn-${n}" class="fn-mark">${label}</a></sup>`;
+    }
+  );
+
+  out = out.replace(
+    /<div([^>]*data-type=["']footnoteItem["'][^>]*)>/gi,
+    (_match, attrs: string) => {
+      const id = attrs.match(/data-footnote-id=["']([^"']+)["']/i)?.[1];
+      const n = id ? orderedIds.indexOf(id) + 1 : 0;
+      if (!n) return _match;
+      return `<div${attrs} id="fn-${n}" data-n="${n}"><a href="#fnref-${n}" class="footnote-backlink" aria-label="Metindeki ${n} numaralı işarete dön">↩</a>`;
+    }
+  );
+
+  return out;
 }

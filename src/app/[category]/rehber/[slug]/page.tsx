@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
-import { addHeadingIdsAndGetToc } from "@/lib/articleHtml";
+import { addHeadingIdsAndGetToc, enhanceFootnoteHtml } from "@/lib/articleHtml";
+import { extractCitations } from "@/lib/footnotes";
 import { blogPosts, type ContentBlock } from "@/lib/blog-data";
 import { getAuthorBySlug } from "@/lib/authors";
 import { getCategoryBySlug, getKnownCategoryName, getRelatedQuestions, getRelatedGuides } from "@/lib/content";
@@ -23,7 +23,7 @@ import { BreadcrumbListSchema } from "@/components/schemas/BreadcrumbListSchema"
 import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
 import { BackToTop } from "@/components/back-to-top";
-import { LastUpdatedLabel } from "@/components/last-updated-label";
+import { GuideArticleHeader } from "@/components/article/GuideArticleHeader";
 import { buildArticleAuthorSchema } from "@/lib/author-profile";
 
 const StickyCTA = dynamic(
@@ -237,7 +237,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
     const baseUrl = siteConfig.url.replace(/\/$/, "");
     const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
     const { html: rawHtml, tocItems: contentToc } = addHeadingIdsAndGetToc(dbArticle.content);
-    const contentWithIds = sanitizeHtml(rawHtml);
+    const contentWithIds = enhanceFootnoteHtml(sanitizeHtml(rawHtml));
     const [categoryGuides, relatedQuestions] = await Promise.all([
       getRelatedGuides(categorySlug, 5, slug),
       getRelatedQuestions(categorySlug, 2),
@@ -282,61 +282,21 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             ]}
           />
           <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,2fr)_300px]">
-            <article className="space-y-6">
-              <header className="space-y-3">
-                <h1 className="text-3xl font-semibold text-slate-900">{dbArticle.title}</h1>
-                <LastUpdatedLabel
-                  date={dbArticle.updated_at ?? dbArticle.created_at}
-                />
-              </header>
-              {dbArticle.featured_image_url && (
-                <div className="relative aspect-[1200/630] w-full overflow-hidden rounded-[8px] bg-muted">
-                  <Image
-                    src={dbArticle.featured_image_url}
-                    alt={dbArticle.featured_image_alt ?? dbArticle.title}
-                    fill
-                    priority
-                    fetchPriority="high"
-                    sizes="(max-width: 1152px) 100vw, 1152px"
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              {(dbArticle.authors || categoryName) && (
-                <div className="flex flex-wrap items-center gap-1">
-                  {dbArticle.authors && (
-                    <>
-                      <Link
-                        href={`/yazar/${dbArticle.authors.slug}`}
-                        className="flex items-center gap-2 rounded-full pr-1 transition hover:underline underline-offset-2"
-                      >
-                        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
-                          {dbArticle.authors.photo_url ? (
-                            <Image
-                              src={dbArticle.authors.photo_url}
-                              alt={dbArticle.authors.name}
-                              fill
-                              className="object-cover"
-                              sizes="36px"
-                            />
-                          ) : (
-                            <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
-                              {dbArticle.authors.name.charAt(0)}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-sm font-medium text-slate-900">{dbArticle.authors.name}</span>
-                      </Link>
-                      {categoryName && <span className="text-slate-400"> | </span>}
-                    </>
-                  )}
-                  {categoryName && (
-                    <Link href={`/${categorySlug}`} className="text-sm font-medium text-slate-900 hover:underline underline-offset-2">
-                      {categoryName}
-                    </Link>
-                  )}
-                </div>
-              )}
+            <article className="min-w-0 max-w-[70ch] space-y-8">
+              <GuideArticleHeader
+                title={dbArticle.title}
+                date={dbArticle.created_at}
+                author={
+                  dbArticle.authors
+                    ? {
+                        name: dbArticle.authors.name,
+                        slug: dbArticle.authors.slug,
+                        photoUrl: dbArticle.authors.photo_url,
+                        title: dbArticle.authors.title,
+                      }
+                    : null
+                }
+              />
               {tocItems.length > 0 && <GuideToc items={tocItems} />}
               <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
@@ -442,6 +402,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                 )
               : undefined
           }
+          citations={extractCitations(dbArticle.content)}
         />
         {dbArticle.faq && dbArticle.faq.length > 0 && (
           <FAQSchema items={(dbArticle.faq as FaqItem[]).map((f) => ({ question: f.question, answer: f.answer }))} />
@@ -487,51 +448,21 @@ export default async function CategoryGuidePage({ params }: PageProps) {
         />
 
         <div className="grid gap-10 grid-cols-1 md:grid-cols-[minmax(0,2fr)_300px]">
-          <article className="space-y-6">
-            <header className="space-y-3">
-              <h1 className="text-3xl font-semibold text-slate-900">{post.title}</h1>
-              <LastUpdatedLabel date={post.date} />
-            </header>
-
-            {post.image && (
-              <div className="relative overflow-hidden rounded-[8px] bg-muted aspect-[1200/630] w-full">
-                <Image
-                  src={post.image}
-                  alt={post.imageAlt ?? `${post.title} avukata sor`}
-                  width={1200}
-                  height={630}
-                  priority
-                  fetchPriority="high"
-                  sizes="(max-width: 1152px) 100vw, 1152px"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            )}
-
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              {author && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200">
-                      {author.image ? (
-                        <Image src={author.image} alt={author.name} fill className="object-cover" sizes="36px" />
-                      ) : (
-                        <span className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
-                          {author.name.charAt(0)}
-                        </span>
-                      )}
-                    </div>
-                    <Link href={`/yazar/${author.slug}`} className="text-sm font-medium text-slate-900 hover:underline">
-                      {author.title ? `${author.title} ${author.name}` : author.name}
-                    </Link>
-                  </div>
-                  <span className="text-slate-400">|</span>
-                </>
-              )}
-              <Link href={`/${categorySlug}`} className="text-sm font-medium text-slate-900 hover:underline">
-                {categoryName}
-              </Link>
-            </div>
+          <article className="min-w-0 max-w-[70ch] space-y-8">
+            <GuideArticleHeader
+              title={post.title}
+              date={post.date}
+              author={
+                author
+                  ? {
+                      name: author.name,
+                      slug: author.slug,
+                      photoUrl: author.image,
+                      title: author.title,
+                    }
+                  : null
+              }
+            />
 
             {tocItems.length > 0 && <GuideToc items={tocItems} />}
 

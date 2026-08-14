@@ -20,7 +20,7 @@ const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
   blockquote: ["data-type", "data-title", "data-content", "class"],
   cite: ["class"],
   p: ["class"],
-  "*": ["id", "class", "style", "data-nosnippet", "open", "aria-hidden"],
+  "*": ["id", "class", "style", "data-nosnippet", "open", "aria-hidden", "data-type", "data-footnote-id", "data-n"],
 };
 
 export function sanitizeHtml(dirty: string): string {

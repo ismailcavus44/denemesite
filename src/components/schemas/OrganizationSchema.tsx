@@ -14,7 +14,11 @@ export function OrganizationSchema() {
     logo: LOGO_URL,
     description: siteConfig.description,
     email: siteConfig.contactEmail,
-    sameAs: ["https://instagram.com/yasalhaklariniz"],
+    sameAs: [
+      siteConfig.social.instagram,
+      siteConfig.social.facebook,
+      siteConfig.social.x,
+    ],
   };
 
   return (

@@ -203,6 +203,185 @@ html.light .logo-switcher .logo-dark { display: none !important; }
   margin-top: 0.375rem;
 }
 
+.rehber-icerik sup.footnote-reference {
+  position: relative;
+  font-size: inherit;
+  line-height: 0;
+}
+.rehber-icerik sup.footnote-reference a.fn-mark,
+.rehber-icerik a.fn-mark {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -16px -14px;
+  padding: 0;
+  color: var(--primary);
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  vertical-align: super;
+  -webkit-tap-highlight-color: transparent;
+}
+.rehber-icerik sup.footnote-reference a.fn-mark:hover,
+.rehber-icerik a.fn-mark:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rehber-icerik .footnote-list {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  color: #4a4a4a;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.rehber-icerik .footnote-list::before {
+  content: "Dipnotlar";
+  display: block;
+  margin-bottom: 0.85rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b6b6b;
+}
+.rehber-icerik .footnote-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1.35rem 1fr;
+  column-gap: 0.35rem;
+  align-items: start;
+  margin-bottom: 0.65rem;
+  scroll-margin-top: 6rem;
+  color: #4a4a4a;
+}
+.rehber-icerik .footnote-item::before {
+  content: attr(data-n) ".";
+  grid-column: 2;
+  font-size: 12px;
+  color: #4a4a4a;
+  line-height: 1.65;
+}
+.rehber-icerik .footnote-item > .footnote-backlink {
+  grid-column: 1;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  margin: -6px;
+  color: #6b6b6b;
+  font-size: 12px;
+  line-height: 1.65;
+  text-decoration: none;
+}
+.rehber-icerik .footnote-item > .footnote-backlink:hover {
+  color: var(--primary);
+}
+.rehber-icerik .footnote-item > p {
+  grid-column: 3;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #4a4a4a;
+  text-align: left;
+}
+.rehber-icerik .footnote-item > p + p {
+  margin-top: 0.25rem;
+}
+
+/* Editör dipnot UI */
+.rich-editor .footnote-reference {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  margin: -6px -4px;
+  vertical-align: super;
+}
+.rich-editor .footnote-reference::before {
+  content: attr(data-n);
+  color: var(--primary);
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1;
+}
+.rich-editor .footnote-list {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  color: #4a4a4a;
+  font-size: 12px;
+}
+.rich-editor .footnote-list::before {
+  content: "Dipnotlar";
+  display: block;
+  margin-bottom: 0.85rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b6b6b;
+}
+.rich-editor .footnote-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1.35rem 1fr;
+  column-gap: 0.35rem;
+  align-items: start;
+  margin-bottom: 0.65rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 2px;
+  color: #4a4a4a;
+}
+.rich-editor .footnote-item:focus-within {
+  background: #f8fafc;
+}
+.rich-editor .footnote-item::before {
+  content: attr(data-n) ".";
+  grid-column: 2;
+  font-size: 12px;
+  color: #4a4a4a;
+  line-height: 1.65;
+}
+.rich-editor .footnote-item > .footnote-back {
+  grid-column: 1;
+  grid-row: 1;
+}
+.rich-editor .footnote-item > p {
+  grid-column: 3;
+  margin: 0;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #4a4a4a;
+}
+.rich-editor .footnote-item > p + p {
+  margin-top: 0.25rem;
+}
+.rich-editor .footnote-back {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-width: 28px;
+  min-height: 28px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #6b6b6b;
+}
+.rich-editor .footnote-back:hover {
+  color: var(--primary);
+}
+
 /* Yasal sayfa içeriği (LegalLayout) */
 .legal-content h2 {
   @apply mt-10 mb-4 text-[18px] font-semibold text-slate-900 scroll-mt-20 first:mt-0;

@@ -1,4 +1,5 @@
 import { toISO8601WithTimezone } from "@/lib/format-date";
+import { escapeJsonLd } from "@/lib/jsonLd";
 
 type ArticleSchemaProps = {
   headline: string;
@@ -12,6 +13,8 @@ type ArticleSchemaProps = {
   image?: string;
   /** Varsa BlogPosting + author kullanılır. */
   author?: { name: string; url?: string; sameAs?: string[]; jobTitle?: string };
+  /** Dipnot metinlerinden türetilen citation'lar. Boşsa hiç eklenmez. */
+  citations?: string[];
 };
 
 export function ArticleSchema({
@@ -22,6 +25,7 @@ export function ArticleSchema({
   url,
   image,
   author,
+  citations,
 }: ArticleSchemaProps) {
   const publishedIso = toISO8601WithTimezone(datePublished);
   const modifiedIso = toISO8601WithTimezone(
@@ -48,12 +52,19 @@ export function ArticleSchema({
         ...(author.sameAs && author.sameAs.length > 0 && { sameAs: author.sameAs }),
       },
     }),
+    ...(citations &&
+      citations.length > 0 && {
+        citation: citations.map((name) => ({
+          "@type": "CreativeWork",
+          name,
+        })),
+      }),
   };
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

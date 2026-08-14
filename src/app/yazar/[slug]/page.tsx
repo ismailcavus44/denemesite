@@ -17,6 +17,7 @@ import {
   type AuthorEeatFields,
 } from "@/lib/author-profile";
 import { AuthorPersonSchema } from "@/components/schemas/AuthorPersonSchema";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 const PAGE_SIZE = 6;
 
@@ -196,8 +197,9 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
             )}
           </div>
           <div className="min-w-0 flex-1 space-y-2 text-center sm:text-left">
-            <h1 className="font-bold text-slate-900" style={{ fontSize: "22px" }}>
+            <h1 className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-900 sm:justify-start" style={{ fontSize: "22px" }}>
               {displayName}
+              <VerifiedBadge size={22} className="shrink-0" />
             </h1>
             {barLine ? (
               <p className="text-sm font-medium text-slate-700">{barLine}</p>
