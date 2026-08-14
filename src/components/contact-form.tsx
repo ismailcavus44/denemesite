@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Mail, Send, User, Phone, MessageSquare } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { cn, formatPhoneInputDisplay } from "@/lib/utils";
 
 function FieldLabel({
@@ -19,15 +19,15 @@ function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label
-      htmlFor={htmlFor}
-      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.06em] text-slate-500"
-    >
+    <label htmlFor={htmlFor} className="text-[13px] text-slate-600">
       {children}
-      {req ? <span className="font-normal normal-case tracking-normal text-red-500">*</span> : null}
+      {req ? <span className="text-red-500"> *</span> : null}
     </label>
   );
 }
+
+const fieldClass =
+  "h-10 rounded-none border-0 border-b border-slate-300 bg-transparent px-0 text-[15px] shadow-none placeholder:text-slate-400 focus-visible:border-slate-900 focus-visible:ring-0";
 
 export function ContactForm() {
   const [fullName, setFullName] = useState("");
@@ -95,36 +95,12 @@ export function ContactForm() {
     }
   };
 
-  const fieldClass =
-    "h-11 rounded-lg border-slate-200/90 bg-slate-50/80 px-3.5 text-slate-900 shadow-none transition-colors placeholder:text-slate-400 focus-visible:border-[#1d293d]/30 focus-visible:bg-white focus-visible:ring-[#1d293d]/15";
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="relative w-full max-w-full overflow-hidden rounded-lg border border-border bg-white"
-    >
-      <div className="flex flex-col gap-6 p-6 sm:p-8">
-        <header className="flex gap-4">
-          <div
-            className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#1d293d]/[0.08] text-[#1d293d]"
-            aria-hidden
-          >
-            <Mail className="size-6" strokeWidth={1.75} />
-          </div>
-          <div className="min-w-0 space-y-1 pt-0.5">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-[1.35rem]">
-              Bize yazın
-            </h2>
-            <p className="text-sm leading-relaxed text-slate-500">
-              Mesajınızı iletin; ekibimiz en kısa sürede size dönüş yapacaktır.
-            </p>
-          </div>
-        </header>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-2">
+    <form onSubmit={handleSubmit} className="w-full max-w-full border-t border-slate-200 pt-8">
+      <div className="flex flex-col gap-8">
+        <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-12">
+          <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="contact-fullName" required>
-              <User className="size-3.5 text-slate-400" aria-hidden />
               İsim soyisim
             </FieldLabel>
             <Input
@@ -139,9 +115,8 @@ export function ContactForm() {
               className={fieldClass}
             />
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="contact-phone" required>
-              <Phone className="size-3.5 text-slate-400" aria-hidden />
               Telefon
             </FieldLabel>
             <Input
@@ -163,9 +138,8 @@ export function ContactForm() {
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-1.5">
           <FieldLabel htmlFor="contact-message" required>
-            <MessageSquare className="size-3.5 text-slate-400" aria-hidden />
             Mesajınız
           </FieldLabel>
           <Textarea
@@ -173,60 +147,19 @@ export function ContactForm() {
             name="message"
             required
             minLength={10}
-            rows={5}
+            rows={6}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Konuyu kısaca özetleyebilir, talebinizi veya geri bildiriminizi yazabilirsiniz…"
+            placeholder="Konuyu ve talebinizi yazabilirsiniz."
             className={cn(
               fieldClass,
-              "min-h-[140px] resize-y py-3 leading-relaxed"
+              "min-h-[148px] resize-y py-2 leading-relaxed"
             )}
           />
         </div>
 
-        <div className="flex justify-start">
-          <Button
-            type="submit"
-            disabled={loading}
-            className="h-11 rounded-lg bg-[#1d293d] px-6 text-[15px] font-medium text-white shadow-sm transition hover:bg-[#1d293d]/90"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Gönderiliyor…
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 size-4 opacity-90" />
-                Gönder
-              </>
-            )}
-          </Button>
-        </div>
-
-        {(showLegalError || showWhatsappError) ? (
-          <div className="space-y-3">
-            {showLegalError ? (
-              <p
-                className="rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-800"
-                role="alert"
-              >
-                Mesaj göndermek için KVKK Aydınlatma Metni ve Sorumluluk Reddi metnini kabul etmeniz gerekmektedir.
-              </p>
-            ) : null}
-            {showWhatsappError ? (
-              <p
-                className="rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-800"
-                role="alert"
-              >
-                Telefon numarası girdiğinizde iletişim ve veri işleme onayını işaretlemeniz gerekmektedir.
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
-        <div className="space-y-3">
-          <label className="flex cursor-pointer items-start gap-3 text-sm leading-snug">
+        <div className="space-y-3 border-t border-slate-100 pt-6">
+          <label className="flex cursor-pointer items-start gap-2.5 text-[13px] leading-snug text-slate-600">
             <input
               type="checkbox"
               checked={acceptedLegal}
@@ -234,20 +167,20 @@ export function ContactForm() {
                 setAcceptedLegal(e.target.checked);
                 if (e.target.checked) setShowLegalError(false);
               }}
-              className="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-slate-300 text-[#1d293d] focus:ring-[#1d293d]/20"
+              className="mt-0.5 size-3.5 shrink-0 cursor-pointer rounded-sm border-slate-300 text-slate-900 focus:ring-slate-900/20"
               aria-required
             />
-            <span className="text-slate-600">
+            <span>
               <Link
                 href="/kvkk"
-                className="font-medium text-[#1d293d] underline decoration-[#1d293d]/30 underline-offset-2 hover:decoration-[#1d293d]"
+                className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-700"
               >
                 KVKK Aydınlatma Metni
               </Link>
               &apos;ni okudum.{" "}
               <Link
                 href="/sorumluluk-reddi"
-                className="font-medium text-[#1d293d] underline decoration-[#1d293d]/30 underline-offset-2 hover:decoration-[#1d293d]"
+                className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-700"
               >
                 Sorumluluk Reddi ve Kullanım Şartları
               </Link>
@@ -257,7 +190,7 @@ export function ContactForm() {
           </label>
 
           {showWhatsappCheckbox ? (
-            <label className="flex cursor-pointer items-start gap-3 text-sm leading-snug">
+            <label className="flex cursor-pointer items-start gap-2.5 text-[13px] leading-snug text-slate-600">
               <input
                 type="checkbox"
                 checked={acceptedWhatsapp}
@@ -265,14 +198,14 @@ export function ContactForm() {
                   setAcceptedWhatsapp(e.target.checked);
                   if (e.target.checked) setShowWhatsappError(false);
                 }}
-                className="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-slate-300 text-[#1d293d] focus:ring-[#1d293d]/20"
+                className="mt-0.5 size-3.5 shrink-0 cursor-pointer rounded-sm border-slate-300 text-slate-900 focus:ring-slate-900/20"
                 aria-required={hasPhone}
               />
-              <span className="text-slate-600">
+              <span>
                 Formda belirttiğim numaram üzerinden benimle iletişime geçilmesini ve verilerimin{" "}
                 <Link
                   href="/kvkk"
-                  className="font-medium text-[#1d293d] underline decoration-[#1d293d]/30 underline-offset-2 hover:decoration-[#1d293d]"
+                  className="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-700"
                 >
                   Aydınlatma Metni
                 </Link>
@@ -281,6 +214,34 @@ export function ContactForm() {
               </span>
             </label>
           ) : null}
+
+          {showLegalError ? (
+            <p className="text-[13px] text-red-700" role="alert">
+              Mesaj göndermek için KVKK Aydınlatma Metni ve Sorumluluk Reddi metnini kabul etmeniz gerekmektedir.
+            </p>
+          ) : null}
+          {showWhatsappError ? (
+            <p className="text-[13px] text-red-700" role="alert">
+              Telefon numarası girdiğinizde iletişim ve veri işleme onayını işaretlemeniz gerekmektedir.
+            </p>
+          ) : null}
+        </div>
+
+        <div>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="h-11 min-w-[140px] rounded-sm bg-slate-900 px-8 text-[15px] font-medium text-white hover:bg-slate-800"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Gönderiliyor…
+              </>
+            ) : (
+              "Gönder"
+            )}
+          </Button>
         </div>
       </div>
     </form>

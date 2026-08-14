@@ -24,6 +24,7 @@ import {
   ArticleDocument,
   footnoteExtensions,
 } from "@/lib/tiptap/footnotes";
+import { TableKit } from "@tiptap/extension-table";
 import {
   Bold,
   Heading2,
@@ -38,6 +39,7 @@ import {
   Gavel,
   Download,
   Hash,
+  Table,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -106,6 +108,9 @@ export function ArticleEditor({
       CourtDecision,
       Petition,
       DownloadButton,
+      TableKit.configure({
+        table: { resizable: false, renderWrapper: true },
+      }),
       ...footnoteExtensions,
     ],
     content: value || "",
@@ -379,6 +384,79 @@ export function ArticleEditor({
           <Hash className="size-4" />
           Dipnot
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+              .run()
+          }
+          disabled={editor.isActive("table")}
+          title="Tablo ekle"
+          className={editor.isActive("table") ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90 hover:text-primary-foreground" : ""}
+        >
+          <Table className="size-4" />
+          Tablo
+        </Button>
+        {editor.isActive("table") ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              title="Satır ekle"
+            >
+              + Satır
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              title="Sütun ekle"
+            >
+              + Sütun
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              title="Satırı sil"
+            >
+              Satır sil
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+              title="Sütunu sil"
+            >
+              Sütun sil
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor.chain().focus().deleteTable().run()}
+              title="Tabloyu sil"
+            >
+              Tablo sil
+            </Button>
+          </>
+        ) : null}
         <Button
           type="button"
           variant="outline"

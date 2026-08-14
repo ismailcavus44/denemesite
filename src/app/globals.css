@@ -197,6 +197,53 @@ html.light .logo-switcher .logo-dark { display: none !important; }
 .rehber-icerik strong {
   font-weight: 600;
 }
+.rehber-icerik .tableWrapper,
+.rich-editor .tableWrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.rehber-icerik table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: inherit;
+}
+.rehber-icerik th,
+.rehber-icerik td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.rehber-icerik th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+.rehber-icerik td > p,
+.rehber-icerik th > p {
+  margin: 0;
+}
+.rich-editor .tiptap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  table-layout: fixed;
+  overflow: hidden;
+}
+.rich-editor .tiptap th,
+.rich-editor .tiptap td {
+  border: 1px solid #cbd5e1;
+  padding: 0.4rem 0.5rem;
+  min-width: 4rem;
+  vertical-align: top;
+}
+.rich-editor .tiptap th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+.rich-editor .tiptap .selectedCell {
+  background: #e2e8f0;
+}
 /* Başlık ile hemen altındaki paragraf arasındaki boşluğu azalt */
 .rehber-icerik h2 + *,
 .rehber-icerik h3 + * {

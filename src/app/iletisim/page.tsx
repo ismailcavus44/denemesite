@@ -21,11 +21,12 @@ export default function ContactPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
             İletişim
           </h1>
-          <p className="text-sm leading-relaxed text-slate-500 sm:text-[15px]">
-            Öneri ve geri bildirimlerinizi aşağıdaki formdan iletebilirsiniz.
+          <p className="max-w-xl text-sm leading-relaxed text-slate-500 sm:text-[15px]">
+            Düzeltme, öneri veya sitemizle ilgili bir notunuz varsa yazabilirsiniz. Mesajlar editör ekibine düşer.
           </p>
         </div>
 
+        <div className="flex w-full flex-col gap-16 sm:gap-20">
         <ContactForm />
 
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-6 sm:gap-8">
@@ -77,15 +78,15 @@ export default function ContactPage() {
           </Link>
         </div>
 
-        <section className="flex w-full max-w-full flex-row rounded-lg border border-border min-h-[200px] md:h-[313px]">
-          <div className="flex w-1/2 min-w-0 flex-col items-center justify-center gap-2 overflow-x-auto px-3 py-4 text-center sm:gap-3 sm:px-4 sm:py-5 md:px-6 md:pt-8">
+        <section className="flex w-full max-w-full flex-col overflow-hidden rounded-lg border border-border md:h-[313px] md:flex-row">
+          <div className="flex w-full min-w-0 flex-col items-center justify-center gap-2 px-4 py-6 text-center sm:gap-3 sm:px-5 md:w-1/2 md:px-6 md:py-5 md:pt-8">
             <h2 className="flex items-center gap-1.5 text-base font-semibold sm:gap-2 sm:text-xl">
               <Mail className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
               İletişime geçin
             </h2>
             <p className="text-xs text-muted-foreground sm:text-sm">
               Öneri, görüş ve taleplerinizi bize iletmek için{" "}
-              <a href={`mailto:${siteConfig.contactEmail}`} className="inline-block text-primary underline underline-offset-2 text-xs whitespace-nowrap sm:text-sm">
+              <a href={`mailto:${siteConfig.contactEmail}`} className="text-primary underline underline-offset-2 [overflow-wrap:anywhere]">
                 {siteConfig.contactEmail}
               </a>
               {" "}adresinden iletişime geçebilirsiniz.
@@ -108,7 +109,7 @@ export default function ContactPage() {
               </a>
             </div>
           </div>
-          <div className="relative h-[200px] w-full shrink-0 overflow-hidden md:h-full md:w-1/2 md:min-h-0">
+          <div className="relative h-[180px] w-full overflow-hidden md:h-full md:w-1/2">
             <img
               src="/iletisim.png"
               alt="İletişim"
@@ -116,6 +117,7 @@ export default function ContactPage() {
             />
           </div>
         </section>
+        </div>
     </div>
   );
 }
