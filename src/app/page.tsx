@@ -68,9 +68,14 @@ export default async function Home() {
     const cardImg = isBosanma ? "/rehber/bosanma-davasi-nasil-acilir-avukata-sor.webp" : isIsci ? "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp" : isMuris ? "/rehber/muris-muvazaasi-nedir-anasayfa-avukata-sor.webp" : undefined;
     const origImg = a.featured_image_url ?? undefined;
     const imageAlt = isBosanma ? "Boşanma davası nasıl açılır avukata sor" : isIsci ? "İşten çıkarılan işçinin hakları avukata sor" : isMuris ? "Muris muvazaası nedir avukata sor" : undefined;
+    const displayTitle =
+      a.slug === "isten-cikarilan-iscinin-haklari-nelerdir" ||
+      a.title.toLowerCase().includes("işten çıkarılan işçinin hakları")
+        ? "İşten Çıkarılan İşçinin Hakları"
+        : a.title;
     return {
       slug: a.slug,
-      title: a.title,
+      title: displayTitle,
       summary,
       categorySlug: a.category,
       image: origImg,
@@ -88,7 +93,7 @@ export default async function Home() {
       if (!g) return null;
       return {
         slug: g.slug,
-        title: g.title,
+        title: "İşten Çıkarılan İşçinin Hakları",
         summary: "İşten çıkarılan işçinin kıdem, ihbar tazminatı ve diğer hakları. Hak kaybına uğramamak için bilmeniz gerekenler.",
         categorySlug: g.categorySlug,
         image: "/rehber/isten-cikarilan-iscinin-haklari-avukata-sor.webp",
