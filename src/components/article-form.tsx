@@ -124,6 +124,7 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
         : null,
       faq: faqItems.filter((f) => f.question.trim() && f.answer.trim()),
       created_at: initialData?.created_at ?? new Date().toISOString(),
+      updated_at: initialData?.updated_at ?? initialData?.created_at ?? new Date().toISOString(),
     };
     try {
       localStorage.setItem(ARTICLE_PREVIEW_STORAGE_KEY, JSON.stringify(payload));
@@ -131,7 +132,7 @@ export function ArticleForm({ initialData, onSuccess }: ArticleFormProps) {
     } catch {
       toast.error("Önizleme açılamadı. Tarayıcı depolama izinlerini kontrol edin.");
     }
-  }, [title, content, slug, category, authorId, authors, faqItems, initialData?.created_at]);
+  }, [title, content, slug, category, authorId, authors, faqItems, initialData?.created_at, initialData?.updated_at]);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {

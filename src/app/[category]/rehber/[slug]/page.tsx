@@ -24,6 +24,7 @@ import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
 import { BackToTop } from "@/components/back-to-top";
 import { GuideArticleHeader } from "@/components/article/GuideArticleHeader";
+import { AiSummarizeMenu } from "@/components/article/AiSummarizeMenu";
 import { buildArticleAuthorSchema } from "@/lib/author-profile";
 
 const StickyCTA = dynamic(
@@ -283,9 +284,12 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           />
           <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,2fr)_300px]">
             <article className="min-w-0 max-w-[70ch] space-y-8">
+              <div className="space-y-4">
               <GuideArticleHeader
                 title={dbArticle.title}
-                date={dbArticle.created_at}
+                date={dbArticle.updated_at ?? dbArticle.created_at}
+                categoryName={categoryName}
+                categoryHref={`/${categorySlug}`}
                 author={
                   dbArticle.authors
                     ? {
@@ -297,6 +301,8 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                     : null
                 }
               />
+              <AiSummarizeMenu title={dbArticle.title} url={articleUrl} />
+              </div>
               {tocItems.length > 0 && <GuideToc items={tocItems} />}
               <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
@@ -317,7 +323,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               />
               {dbArticle.faq && dbArticle.faq.length > 0 && (
                 <section className="space-y-4">
-                  <h2 id="sik-sorulan-sorular" className="mt-8 text-[24px] font-semibold text-slate-900 scroll-mt-6">
+                  <h2
+                    id="sik-sorulan-sorular"
+                    className="flex scroll-mt-6 items-center gap-2 text-xl font-semibold text-slate-900"
+                  >
+                    <span className="h-5 w-1 rounded-full bg-slate-800" aria-hidden />
                     Sık Sorulan Sorular
                   </h2>
                   <div className="divide-y divide-slate-200 rounded-xl border border-slate-200">
@@ -449,9 +459,12 @@ export default async function CategoryGuidePage({ params }: PageProps) {
 
         <div className="grid gap-10 grid-cols-1 md:grid-cols-[minmax(0,2fr)_300px]">
           <article className="min-w-0 max-w-[70ch] space-y-8">
+            <div className="space-y-4">
             <GuideArticleHeader
               title={post.title}
               date={post.date}
+              categoryName={categoryName}
+              categoryHref={`/${categorySlug}`}
               author={
                 author
                   ? {
@@ -463,6 +476,8 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                   : null
               }
             />
+            <AiSummarizeMenu title={post.title} url={articleUrl} />
+            </div>
 
             {tocItems.length > 0 && <GuideToc items={tocItems} />}
 
@@ -489,7 +504,13 @@ export default async function CategoryGuidePage({ params }: PageProps) {
 
             {post.faq && post.faq.length > 0 && (
               <section className="space-y-3">
-                <h3 className="text-[19px] font-bold text-slate-900">Sık Sorulan Sorular</h3>
+                <h2
+                  id="sik-sorulan-sorular"
+                  className="flex scroll-mt-6 items-center gap-2 text-xl font-semibold text-slate-900"
+                >
+                  <span className="h-5 w-1 rounded-full bg-slate-800" aria-hidden />
+                  Sık Sorulan Sorular
+                </h2>
                 <Accordion type="single" collapsible className="w-full">
                   {post.faq.map((item, i) => (
                     <AccordionItem key={i} value={`faq-${i}`}>

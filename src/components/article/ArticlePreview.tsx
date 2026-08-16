@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { GuideArticleHeader } from "@/components/article/GuideArticleHeader";
+import { AiSummarizeMenu } from "@/components/article/AiSummarizeMenu";
 import { GuideToc } from "@/components/guide-toc";
 import { StickyCTA } from "@/components/question-detail/StickyCTA";
 import { addHeadingIdsAndGetToc, enhanceFootnoteHtml } from "@/lib/articleHtml";
@@ -11,6 +12,7 @@ import {
   ARTICLE_PREVIEW_STORAGE_KEY,
   type ArticlePreviewData,
 } from "@/lib/article-preview";
+import { siteConfig } from "@/lib/site";
 
 function slugifyForId(text: string): string {
   const t = text
@@ -129,11 +131,21 @@ export function ArticlePreview() {
         />
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,2fr)_300px]">
           <article className="min-w-0 max-w-[70ch] space-y-8">
+            <div className="space-y-4">
             <GuideArticleHeader
               title={title}
-              date={data.created_at}
+              date={data.updated_at ?? data.created_at}
+              categoryName={data.categoryLabel}
+              categoryHref={data.category ? `/${data.category}` : null}
               author={data.author}
             />
+            {data.category && data.slug ? (
+              <AiSummarizeMenu
+                title={title}
+                url={`${siteConfig.url.replace(/\/$/, "")}/${data.category}/rehber/${data.slug}`}
+              />
+            ) : null}
+            </div>
             {tocItems.length > 0 && <GuideToc items={tocItems} />}
             <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
               <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
@@ -158,7 +170,11 @@ export function ArticlePreview() {
             )}
             {data.faq.length > 0 && (
               <section className="space-y-4">
-                <h2 id="sik-sorulan-sorular" className="mt-8 text-[24px] font-semibold text-slate-900 scroll-mt-6">
+                <h2
+                  id="sik-sorulan-sorular"
+                  className="flex scroll-mt-6 items-center gap-2 text-xl font-semibold text-slate-900"
+                >
+                  <span className="h-5 w-1 rounded-full bg-slate-800" aria-hidden />
                   Sık Sorulan Sorular
                 </h2>
                 <div className="divide-y divide-slate-200 rounded-xl border border-slate-200">

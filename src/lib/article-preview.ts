@@ -17,4 +17,6 @@ export type ArticlePreviewData = {
   author: ArticlePreviewAuthor | null;
   faq: { question: string; answer: string }[];
   created_at: string;
+  /** Son kayıt; yoksa created_at kullanılır. */
+  updated_at?: string;
 };

@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { blogPosts } from "@/lib/blog-data";
 import { CtaBlock } from "@/lib/tiptap/cta-block";
 import { InfoBox } from "@/lib/tiptap/info-box";
 import { LawArticle } from "@/lib/tiptap/law-article";
@@ -42,6 +41,14 @@ import {
   Table,
 } from "lucide-react";
 import { toast } from "sonner";
+import { isGoogleDriveHref } from "@/lib/sanitize";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
+
+type RehberLinkItem = {
+  title: string;
+  slug: string;
+  categorySlug: string;
+};
 
 type ArticleEditorProps = {
   value: string;
@@ -64,6 +71,8 @@ export function ArticleEditor({
 }: ArticleEditorProps) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [rehberFilter, setRehberFilter] = useState("");
+  const [rehberItems, setRehberItems] = useState<RehberLinkItem[]>([]);
+  const [rehberLoading, setRehberLoading] = useState(false);
   const [customUrl, setCustomUrl] = useState("");
   const [linkNofollow, setLinkNofollow] = useState(false);
   const [linkNewTab, setLinkNewTab] = useState(false);
@@ -130,6 +139,37 @@ export function ArticleEditor({
     editor.commands.setContent(value, { emitUpdate: false });
   }, [value, editor]);
 
+  useEffect(() => {
+    if (!linkDialogOpen) return;
+    let cancelled = false;
+    (async () => {
+      setRehberLoading(true);
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data, error } = await supabase
+          .from("articles")
+          .select("title,slug,category")
+          .eq("status", "published")
+          .order("updated_at", { ascending: false });
+        if (cancelled || error) return;
+        setRehberItems(
+          (data ?? [])
+            .filter((a) => a.title && a.slug && a.category)
+            .map((a) => ({
+              title: a.title as string,
+              slug: a.slug as string,
+              categorySlug: a.category as string,
+            }))
+        );
+      } finally {
+        if (!cancelled) setRehberLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [linkDialogOpen]);
+
   const openLinkDialog = useCallback(() => {
     if (!editor) return;
     const { from, to } = editor.state.selection;
@@ -148,12 +188,14 @@ export function ArticleEditor({
     (href: string) => {
       if (!editor) return;
       const relParts: string[] = [];
+      const driveLink = isGoogleDriveHref(href);
       if (linkNewTab) relParts.push("noopener", "noreferrer");
-      if (linkNofollow) relParts.push("nofollow");
+      if (linkNofollow || driveLink) relParts.push("nofollow");
+      if (driveLink) relParts.push("noopener", "noreferrer");
       editor.chain().focus().setLink({
         href,
-        target: linkNewTab ? "_blank" : "_self",
-        rel: relParts.length ? relParts.join(" ") : undefined,
+        target: linkNewTab || driveLink ? "_blank" : "_self",
+        rel: relParts.length ? [...new Set(relParts)].join(" ") : undefined,
       }).run();
       setLinkDialogOpen(false);
     },
@@ -277,12 +319,13 @@ export function ArticleEditor({
   }, [editor, downloadButtonText, downloadHref]);
 
   const filteredRehber = rehberFilter.trim()
-    ? blogPosts.filter(
+    ? rehberItems.filter(
         (p) =>
           p.title.toLowerCase().includes(rehberFilter.toLowerCase()) ||
-          p.slug.toLowerCase().includes(rehberFilter.toLowerCase())
+          p.slug.toLowerCase().includes(rehberFilter.toLowerCase()) ||
+          p.categorySlug.toLowerCase().includes(rehberFilter.toLowerCase())
       )
-    : blogPosts;
+    : rehberItems;
 
   if (!editor) return null;
 
@@ -532,7 +575,11 @@ export function ArticleEditor({
               <Input
                 placeholder="/rehber/slug veya https://..."
                 value={customUrl}
-                onChange={(e) => setCustomUrl(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCustomUrl(v);
+                  if (isGoogleDriveHref(v)) setLinkNofollow(true);
+                }}
                 className="mt-1"
               />
             </div>
@@ -568,22 +615,28 @@ export function ArticleEditor({
                 className="mt-1"
               />
               <ul className="flex-1 overflow-y-auto rounded-md border p-1 space-y-0.5 max-h-[40vh]">
-                {filteredRehber.map((post) => (
-                  <li key={post.slug}>
-                    <button
-                      type="button"
-                      className="w-full text-left rounded px-3 py-2 text-sm hover:bg-muted"
-                      onClick={() => insertRehberLink(`/${post.categorySlug}/rehber/${post.slug}`)}
-                    >
-                      <span className="font-medium">{post.title}</span>
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        /{post.categorySlug}/rehber/{post.slug}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-                {filteredRehber.length === 0 && (
-                  <li className="px-3 py-4 text-sm text-muted-foreground">Eşleşen yazı yok.</li>
+                {rehberLoading ? (
+                  <li className="px-3 py-4 text-sm text-muted-foreground">Yazılar yükleniyor…</li>
+                ) : (
+                  <>
+                    {filteredRehber.map((post) => (
+                      <li key={`${post.categorySlug}/${post.slug}`}>
+                        <button
+                          type="button"
+                          className="w-full text-left rounded px-3 py-2 text-sm hover:bg-muted"
+                          onClick={() => insertRehberLink(`/${post.categorySlug}/rehber/${post.slug}`)}
+                        >
+                          <span className="font-medium">{post.title}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            /{post.categorySlug}/rehber/{post.slug}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                    {filteredRehber.length === 0 && (
+                      <li className="px-3 py-4 text-sm text-muted-foreground">Eşleşen yazı yok.</li>
+                    )}
+                  </>
                 )}
               </ul>
             </>

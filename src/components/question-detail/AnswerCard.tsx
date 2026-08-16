@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Copy, Check, ArrowRight } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type GuideCta = { href: string; label: string };
@@ -120,18 +120,15 @@ export function AnswerCard({ answerHtml, guideCta }: AnswerCardProps) {
         />
 
         {guideCta?.href && guideCta?.label ? (
-          <div className="mt-6 flex flex-row flex-wrap items-center gap-3">
-            <span className="text-sm font-medium text-slate-700">
-              Sorunuzla ilgili rehber yazımızı inceleyebilirsiniz:
-            </span>
+          <p className="mt-6 border-t border-slate-200 pt-4 text-sm leading-relaxed text-slate-600">
+            <span className="font-semibold text-slate-900">Sorunuzla İlgili Rehberimiz:</span>{" "}
             <Link
               href={guideCta.href}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[#1d293d] px-4 py-2 text-sm font-medium text-white no-underline transition-colors hover:bg-[#1d293d]/90 hover:text-white"
+              className="text-inherit underline decoration-primary decoration-[1.5px] underline-offset-2 transition-colors hover:text-slate-900"
             >
               {guideCta.label}
-              <ArrowRight className="size-3.5 shrink-0" aria-hidden />
             </Link>
-          </div>
+          </p>
         ) : null}
       </div>
 

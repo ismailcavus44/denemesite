@@ -6,6 +6,14 @@ import { KNOWN_CATEGORY_SLUGS } from "@/lib/content";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
+function latestDate(...values: (string | null | undefined)[]): Date {
+  const times = values
+    .filter((v): v is string => typeof v === "string" && v.length > 0)
+    .map((v) => new Date(v).getTime())
+    .filter((t) => Number.isFinite(t));
+  return times.length ? new Date(Math.max(...times)) : new Date();
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
 
@@ -65,7 +73,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ——— Sorular: /[category]/soru/[slug] (canonical) ———
   const { data: questions } = await supabase
     .from("questions")
-    .select("slug, published_at, category:categories(slug)")
+    .select(
+      "slug, published_at, seo_updated_at, category:categories(slug), answer:answers(updated_at)"
+    )
     .eq("status", "published");
 
   const questionEntries: SitemapEntry[] = (questions ?? [])
@@ -75,13 +85,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       return !!slug;
     })
     .map((q) => {
-      const cat = (q as { slug: string; published_at: string | null; category: { slug: string } | { slug: string }[] }).category;
-      const categorySlug = Array.isArray(cat) ? cat[0]?.slug : (cat as { slug: string })?.slug;
-      const slug = (q as { slug: string }).slug;
-      const publishedAt = (q as { published_at: string | null }).published_at;
+      const row = q as {
+        slug: string;
+        published_at: string | null;
+        seo_updated_at?: string | null;
+        category: { slug: string } | { slug: string }[];
+        answer?: { updated_at?: string } | { updated_at?: string }[] | null;
+      };
+      const cat = row.category;
+      const categorySlug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
+      const answer = Array.isArray(row.answer) ? row.answer[0] : row.answer;
       return {
-        url: `${base}/${categorySlug}/soru/${slug}`,
-        lastModified: publishedAt ? new Date(publishedAt) : new Date(),
+        url: `${base}/${categorySlug}/soru/${row.slug}`,
+        lastModified: latestDate(
+          answer?.updated_at,
+          row.seo_updated_at,
+          row.published_at
+        ),
         changeFrequency: "monthly" as const,
         priority: 0.7,
       };

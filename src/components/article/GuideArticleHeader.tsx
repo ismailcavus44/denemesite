@@ -17,13 +17,23 @@ type GuideArticleHeaderProps = {
   title: string;
   date: string;
   author?: GuideArticleAuthor | null;
+  categoryName?: string | null;
+  categoryHref?: string | null;
 };
 
-export function GuideArticleHeader({ title, date, author }: GuideArticleHeaderProps) {
+export function GuideArticleHeader({
+  title,
+  date,
+  author,
+  categoryName,
+  categoryHref,
+}: GuideArticleHeaderProps) {
   const formatted = formatTurkishLongDate(date);
   const displayName = author
     ? formatAuthorDisplayName(author.name, author.title)
     : undefined;
+  const categoryLabel = categoryName?.trim() || null;
+  const categoryLink = categoryHref?.trim() || null;
 
   return (
     <header>
@@ -61,9 +71,26 @@ export function GuideArticleHeader({ title, date, author }: GuideArticleHeaderPr
               </>
             ) : null}
           </div>
-          {formatted ? (
-            <p className="shrink-0 text-sm text-slate-500">
-              <time dateTime={date}>{formatted}</time>
+          {formatted || categoryLabel ? (
+            <p className="min-w-0 text-right text-sm text-slate-500">
+              {formatted ? (
+                <time dateTime={date}>{formatted}</time>
+              ) : null}
+              {formatted && categoryLabel ? (
+                <span aria-hidden> | </span>
+              ) : null}
+              {categoryLabel ? (
+                categoryLink ? (
+                  <Link
+                    href={categoryLink}
+                    className="text-slate-500 no-underline hover:text-slate-900 hover:underline"
+                  >
+                    {categoryLabel}
+                  </Link>
+                ) : (
+                  <span>{categoryLabel}</span>
+                )
+              ) : null}
             </p>
           ) : null}
         </div>

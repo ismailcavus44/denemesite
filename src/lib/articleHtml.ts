@@ -1,4 +1,5 @@
 import { collectFootnoteIdsFromHtml } from "@/lib/footnotes";
+import { ensureNofollowOnFileLinks } from "@/lib/sanitize";
 
 /** Başlık metninden id üretir (Türkçe uyumlu). */
 function slugifyForId(text: string): string {
@@ -66,14 +67,14 @@ export function enhanceFootnoteHtml(html: string): string {
 
   let out = html.replace(
     /<sup([^>]*data-type=["']footnoteReference["'][^>]*)>([\s\S]*?)<\/sup>/gi,
-    (_match, attrs: string, inner: string) => {
+    (_match, attrs: string) => {
       const id = attrs.match(/data-footnote-id=["']([^"']+)["']/i)?.[1];
       if (!id) return _match;
       const n = orderedIds.indexOf(id) + 1;
       const occ = (seen.get(id) ?? 0) + 1;
       seen.set(id, occ);
       const refId = occ === 1 ? `fnref-${n}` : `fnref-${n}-${occ}`;
-      const label = inner.trim() || String(n);
+      const label = `[${n}]`;
       return `<sup${attrs} id="${refId}" data-n="${n}"><a href="#fn-${n}" class="fn-mark">${label}</a></sup>`;
     }
   );
@@ -88,5 +89,5 @@ export function enhanceFootnoteHtml(html: string): string {
     }
   );
 
-  return out;
+  return ensureNofollowOnFileLinks(out);
 }

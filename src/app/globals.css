@@ -186,8 +186,10 @@ html.light .logo-switcher .logo-dark { display: none !important; }
   margin: 0.5rem 0;
 }
 .rehber-icerik a {
-  color: var(--primary);
+  color: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--primary);
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 2px;
 }
 .rehber-icerik [data-type="download-button"] a {
@@ -288,7 +290,7 @@ html.light .logo-switcher .logo-dark { display: none !important; }
   line-height: 1.65;
 }
 .rehber-icerik .footnote-list::before {
-  content: "Dipnotlar";
+  content: "Kaynaklar";
   display: block;
   margin-bottom: 0.85rem;
   font-size: 11px;
@@ -300,7 +302,7 @@ html.light .logo-switcher .logo-dark { display: none !important; }
 .rehber-icerik .footnote-item {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1.35rem 1fr;
+  grid-template-columns: auto 2rem 1fr;
   column-gap: 0.35rem;
   align-items: start;
   margin-bottom: 0.65rem;
@@ -308,7 +310,7 @@ html.light .logo-switcher .logo-dark { display: none !important; }
   color: #4a4a4a;
 }
 .rehber-icerik .footnote-item::before {
-  content: attr(data-n) ".";
+  content: "[" attr(data-n) "]";
   grid-column: 2;
   font-size: 12px;
   color: #4a4a4a;
@@ -355,7 +357,7 @@ html.light .logo-switcher .logo-dark { display: none !important; }
   vertical-align: super;
 }
 .rich-editor .footnote-reference::before {
-  content: attr(data-n);
+  content: "[" attr(data-n) "]";
   color: var(--primary);
   font-size: 0.75em;
   font-weight: 600;
@@ -381,7 +383,7 @@ html.light .logo-switcher .logo-dark { display: none !important; }
 .rich-editor .footnote-item {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1.35rem 1fr;
+  grid-template-columns: auto 2rem 1fr;
   column-gap: 0.35rem;
   align-items: start;
   margin-bottom: 0.65rem;
@@ -393,7 +395,7 @@ html.light .logo-switcher .logo-dark { display: none !important; }
   background: #f8fafc;
 }
 .rich-editor .footnote-item::before {
-  content: attr(data-n) ".";
+  content: "[" attr(data-n) "]";
   grid-column: 2;
   font-size: 12px;
   color: #4a4a4a;
