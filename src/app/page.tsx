@@ -10,6 +10,12 @@ import { WebSiteSchema } from "@/components/schemas/WebSiteSchema";
 import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { HomepageFAQ, HOMEPAGE_FAQ_ITEMS } from "@/components/homepage-faq";
 import { siteConfig } from "@/lib/site";
+import { getKnownCategoryName } from "@/lib/content";
+import { getAuthorBySlug } from "@/lib/authors";
+import { AuthorIntro, CategoryCards, LatestArticles } from "@/components/home-sections";
+
+/** Ana sayfadaki "Yazılarımızı kim hazırlıyor?" bölümünde gösterilen yazar. */
+const HOMEPAGE_AUTHOR_SLUG = "ismail-cavus";
 
 export const metadata: Metadata = {
   alternates: { canonical: siteConfig.url },
@@ -21,18 +27,18 @@ function stripHtml(html: string): string {
 
 export default async function Home() {
   const supabase = createSupabaseServerClient();
-  const [dynamicRehberRes] = await Promise.all([
-    HOMEPAGE_DYNAMIC_REHBER_TITLES.length > 0
-      ? supabase
-          .from("articles")
-          .select("title, slug, category, meta_description, content, featured_image_url")
-          .eq("status", "published")
-          .not("category", "is", null)
-          .limit(30)
-      : Promise.resolve({ data: [] }),
+  const [dynamicRehberRes, categoriesRes] = await Promise.all([
+    supabase
+      .from("articles")
+      .select("title, slug, category, meta_description, content, featured_image_url, created_at")
+      .eq("status", "published")
+      .not("category", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    supabase.from("categories").select("slug, name"),
   ]);
 
-  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; content?: string | null; featured_image_url?: string | null };
+  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; content?: string | null; featured_image_url?: string | null; created_at?: string | null };
   const allArticles = (dynamicRehberRes.data ?? []) as ArticleRow[];
   const usedIds = new Set<string>();
   const dynamicRehber = HOMEPAGE_DYNAMIC_REHBER_TITLES.map((titlePattern) => {
@@ -95,6 +101,32 @@ export default async function Home() {
   const homepageRehber = [...staticRehber, ...dynamicRehberMapped, ...(isciFallback ? [isciFallback] : [])];
   const finalRehber = homepageRehber.slice(0, 3);
 
+  const categoryNames = new Map(
+    ((categoriesRes.data ?? []) as { slug: string; name: string }[]).map((c) => [c.slug, c.name])
+  );
+  const categoryName = (slug: string) => categoryNames.get(slug) ?? getKnownCategoryName(slug) ?? slug;
+
+  const featuredSlugs = new Set(finalRehber.map((p) => p.slug));
+  const latestArticles = allArticles
+    .filter((a) => !featuredSlugs.has(a.slug))
+    .slice(0, 6)
+    .map((a) => ({
+      slug: a.slug,
+      title: a.title,
+      categorySlug: a.category,
+      categoryName: categoryName(a.category),
+      date: a.created_at ?? null,
+    }));
+
+  const categoryCounts = new Map<string, number>();
+  for (const a of allArticles) categoryCounts.set(a.category, (categoryCounts.get(a.category) ?? 0) + 1);
+  const categoryCards = [...categoryCounts.entries()]
+    .filter(([slug]) => slug !== "diger")
+    .sort((a, b) => b[1] - a[1])
+    .map(([slug, count]) => ({ slug, name: categoryName(slug), count }));
+
+  const homepageAuthor = getAuthorBySlug(HOMEPAGE_AUTHOR_SLUG);
+
   return (
     <>
       <OrganizationSchema />
@@ -126,8 +158,8 @@ export default async function Home() {
           {/* Sağ: LCP görseli (desktop) — next/image ile AVIF/WebP, priority */}
           <div className="hidden md:block relative aspect-[4/3] max-w-[800px] w-full">
             <Image
-              src="/yasalhaklariniz-avukata-soru-sor.webp"
-              alt="YasalHaklarınız hukuk rehberi"
+              src="/hakkimizda1.png"
+              alt="Hukuk rehberi okuyan kişi"
               width={800}
               height={600}
               priority
@@ -140,7 +172,26 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 text-xl font-semibold">
+          <span className="h-5 w-1 rounded-full bg-primary" />
+          Öne Çıkan Rehberler
+        </div>
+        <div className="grid gap-5 md:grid-cols-3 min-h-[300px]">
+          {finalRehber.map((post) => (
+            <BlogTeaserCard key={`${post.categorySlug}-${post.slug}`} post={post} />
+          ))}
+        </div>
+        <div className="flex justify-center pt-2">
+          <Button asChild size="lg" className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
+            <Link href="/rehber">Tümünü Gör</Link>
+          </Button>
+        </div>
+      </section>
 
+      <CategoryCards items={categoryCards} />
+
+      <LatestArticles items={latestArticles} />
 
       <section className="grid items-center gap-10 md:grid-cols-2">
         <div className="order-2 space-y-4 md:order-1">
@@ -158,8 +209,8 @@ export default async function Home() {
         </div>
         <div className="order-1 relative aspect-[4/3] w-full overflow-hidden rounded-2xl md:order-2">
           <Image
-            src="/avukata-sor.png"
-            alt="Hukuk rehberi - YasalHaklarınız"
+            src="/hakkimizda2.png"
+            alt="Hukukçu çizimi - YasalHaklarınız"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
@@ -170,22 +221,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center gap-2 text-xl font-semibold">
-          <span className="h-5 w-1 rounded-full bg-primary" />
-          Rehber
-        </div>
-        <div className="grid gap-5 md:grid-cols-3 min-h-[300px]">
-          {finalRehber.map((post) => (
-            <BlogTeaserCard key={`${post.categorySlug}-${post.slug}`} post={post} />
-          ))}
-        </div>
-        <div className="flex justify-center pt-2">
-          <Button asChild size="lg" className="bg-[#1d293d] text-white hover:bg-[#1d293d]/90">
-            <Link href="/rehber">Tümünü Gör</Link>
-          </Button>
-        </div>
-      </section>
+      {homepageAuthor && <AuthorIntro author={homepageAuthor} />}
 
       <div className="border-t border-slate-200/70" aria-hidden />
 
