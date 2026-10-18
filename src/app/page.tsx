@@ -11,11 +11,7 @@ import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { HomepageFAQ, HOMEPAGE_FAQ_ITEMS } from "@/components/homepage-faq";
 import { siteConfig } from "@/lib/site";
 import { getKnownCategoryName } from "@/lib/content";
-import { getAuthorBySlug } from "@/lib/authors";
-import { AuthorIntro, CategoryCards, LatestArticles } from "@/components/home-sections";
-
-/** Ana sayfadaki "Yazılarımızı kim hazırlıyor?" bölümünde gösterilen yazar. */
-const HOMEPAGE_AUTHOR_SLUG = "ismail-cavus";
+import { IntroSplit, LatestArticles, LegalRightsGrid } from "@/components/home-sections";
 
 export const metadata: Metadata = {
   alternates: { canonical: siteConfig.url },
@@ -118,15 +114,6 @@ export default async function Home() {
       date: a.created_at ?? null,
     }));
 
-  const categoryCounts = new Map<string, number>();
-  for (const a of allArticles) categoryCounts.set(a.category, (categoryCounts.get(a.category) ?? 0) + 1);
-  const categoryCards = [...categoryCounts.entries()]
-    .filter(([slug]) => slug !== "diger")
-    .sort((a, b) => b[1] - a[1])
-    .map(([slug, count]) => ({ slug, name: categoryName(slug), count }));
-
-  const homepageAuthor = getAuthorBySlug(HOMEPAGE_AUTHOR_SLUG);
-
   return (
     <>
       <OrganizationSchema />
@@ -158,8 +145,8 @@ export default async function Home() {
           {/* Sağ: LCP görseli (desktop) — next/image ile AVIF/WebP, priority */}
           <div className="hidden md:block relative aspect-[4/3] max-w-[800px] w-full">
             <Image
-              src="/hakkimizda1.png"
-              alt="Hukuk rehberi okuyan kişi"
+              src="/yasalhaklariniz-avukata-soru-sor.webp"
+              alt="YasalHaklarınız hukuk rehberi"
               width={800}
               height={600}
               priority
@@ -171,6 +158,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <IntroSplit />
 
       <section className="space-y-4">
         <div className="flex items-center gap-2 text-xl font-semibold">
@@ -189,39 +178,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <CategoryCards items={categoryCards} />
+      <LegalRightsGrid />
 
       <LatestArticles items={latestArticles} />
-
-      <section className="grid items-center gap-10 md:grid-cols-2">
-        <div className="order-2 space-y-4 md:order-1">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Hukuku Sade ve Anlaşılır Anlatıyoruz
-            </h2>
-            <span className="block h-1 w-10 rounded-full bg-primary" />
-          </div>
-          <p className="text-[15px] text-muted-foreground">
-            Hukuk karmaşık olmak zorunda değil.
-            <br />
-            Rehber yazılarımız; kanun maddelerini, süreleri ve uygulamadaki önemli noktaları günlük dille anlatır. Karmaşık hukuk dili yerine, bir konuda seni neyin beklediğini ve hangi risklerin olabileceğini açık ve sakin bir çerçevede öğrenebilirsin.
-          </p>
-        </div>
-        <div className="order-1 relative aspect-[4/3] w-full overflow-hidden rounded-2xl md:order-2">
-          <Image
-            src="/hakkimizda2.png"
-            alt="Hukukçu çizimi - YasalHaklarınız"
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover"
-            loading="lazy"
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBRIhMQYTQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ALnq2p3mn6ndW1rO0cMT7EUY4GKKKKVYz//Z"
-          />
-        </div>
-      </section>
-
-      {homepageAuthor && <AuthorIntro author={homepageAuthor} />}
 
       <div className="border-t border-slate-200/70" aria-hidden />
 
