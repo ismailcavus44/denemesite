@@ -26,12 +26,7 @@ function formatRssDate(d: Date): string {
 export async function GET() {
   const supabase = createSupabaseServerClient();
 
-  const [questionsRes, articlesRes] = await Promise.all([
-    supabase
-      .from("questions")
-      .select("title, body, slug, published_at, created_at, category:categories(slug)")
-      .eq("status", "published")
-      .order("published_at", { ascending: false, nullsFirst: false }),
+  const [articlesRes] = await Promise.all([
     supabase
       .from("articles")
       .select("title, meta_description, content, slug, category, updated_at, created_at")
@@ -50,21 +45,6 @@ export async function GET() {
 
   const items: FeedItem[] = [];
 
-  (questionsRes.data ?? []).forEach((q) => {
-    const cat = (q as { category?: { slug: string } | { slug: string }[] }).category;
-    const categorySlug = Array.isArray(cat) ? cat[0]?.slug : (cat as { slug: string })?.slug;
-    if (!categorySlug) return;
-    const slug = (q as { slug: string }).slug;
-    const publishedAt = (q as { published_at?: string | null }).published_at ?? (q as { created_at: string }).created_at;
-    const date = new Date(publishedAt);
-    items.push({
-      title: (q as { title: string }).title,
-      link: `${baseUrl}/${categorySlug}/soru/${slug}`,
-      description: stripHtml((q as { body: string }).body ?? ""),
-      date,
-      guid: `${baseUrl}/${categorySlug}/soru/${slug}`,
-    });
-  });
 
   (articlesRes.data ?? []).forEach((a) => {
     const slug = (a as { slug: string }).slug;

@@ -19,16 +19,15 @@ export function GuideSidebar({ category, dateLabel, readTime }: GuideSidebarProp
         <div className="space-y-1">
           <p className="text-[16px] font-semibold">YasalHaklariniz</p>
           <p className="text-[14px] text-muted-foreground">
-            Hukuki sorular için sade, anlaşılır ve yoruma açık olmayan bilgilendirme
-            içerikleri hazırlayan editör ekibi.
+            Hukuki konularda sade ve anlaşılır rehber yazıları hazırlayan editör ekibi.
           </p>
         </div>
         <div className="flex justify-center gap-2 pt-1 text-[14px]">
           <Link
-            href="/soru-sor"
+            href="/rehber"
             className="inline-flex h-8 items-center justify-center rounded-[4px] bg-primary px-3 text-primary-foreground"
           >
-            Soru Sor
+            Rehber
           </Link>
           <Link
             href="/hakkimizda"

@@ -15,22 +15,17 @@ const DEMO_SECTIONS: Section[] = [
   {
     title: "Bu kategori neyi kapsar?",
     content: (name) =>
-      `${name} alanı, bu hukuk dalıyla ilgili temel kavramları, sık karşılaşılan durumları ve genel bilgilendirme içeriklerini kapsar. Buradaki yazılar yalnızca bilgilendirme amaçlıdır; somut olayınız için mutlaka bir avukata danışmanız önerilir.`,
+      `${name} alanı, bu hukuk dalıyla ilgili temel kavramları, sık karşılaşılan durumları ve genel bilgilendirme içeriklerini kapsar. Buradaki yazılar yalnızca bilgilendirme amaçlıdır.`,
   },
   {
     title: "En sık karşılaşılan sorunlar",
     content: () =>
-      "Bu kategoride vatandaşların sıkça sorduğu konular rehber yazıları ve cevaplanmış sorularla ele alınır. Üst menüden rehberlere ve sorulara göz atarak ilgilendiğiniz başlıklara ulaşabilirsiniz.",
+      "Bu kategoride sık karşılaşılan konular rehber yazılarıyla ele alınır. Üst menüden rehberlere göz atarak ilgilendiğiniz başlıklara ulaşabilirsiniz.",
   },
   {
     title: "Hak kaybı yaşanmaması için dikkat edilmesi gerekenler",
     content: () =>
-      "Süreye tabi işlemlerde gecikmek hak kaybına yol açabilir. Kendi durumunuzu tam olarak anlamak ve doğru adımları atmak için profesyonel hukuki destek almanız önemlidir. Bu sitedeki içerikler genel bilgilendirme niteliğindedir.",
-  },
-  {
-    title: "Ne zaman profesyonel destek alınmalı?",
-    content: () =>
-      "Somut bir hukuki sorununuz, davaya dönüşebilecek bir uyuşmazlığınız veya süre riski taşıyan bir işleminiz varsa mutlaka bir avukata başvurun. Bu sayfa ve sitedeki diğer içerikler hukuki danışmanlık yerine geçmez.",
+      "Süreye tabi işlemlerde gecikmek hak kaybına yol açabilir. Bu sitedeki içerikler genel bilgilendirme niteliğindedir.",
   },
 ];
 

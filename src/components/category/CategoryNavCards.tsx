@@ -16,12 +16,6 @@ export function CategoryNavCards({ categorySlug }: CategoryNavCardsProps) {
       description: "Bu kategorideki rehber yazılarına göz atın.",
       image: "/kategori-rehber.png",
     },
-    {
-      title: "Soruları Gör",
-      href: `${base}/sorular`,
-      description: "Cevaplanmış soruları inceleyin.",
-      image: "/kategori-soru.png",
-    },
   ];
 
   return (

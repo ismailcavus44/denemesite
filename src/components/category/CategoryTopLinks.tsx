@@ -7,9 +7,7 @@ type CategoryTopLinksProps = {
 };
 
 function href(categorySlug: string, item: TopLinkItem): string {
-  return item.type === "rehber"
-    ? `/${categorySlug}/rehber/${item.slug}`
-    : `/${categorySlug}/soru/${item.slug}`;
+  return `/${categorySlug}/rehber/${item.slug}`;
 }
 
 export function CategoryTopLinks({ categorySlug, links }: CategoryTopLinksProps) {

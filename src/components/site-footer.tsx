@@ -7,7 +7,6 @@ import { FOOTER_POPULAR_GUIDES } from "@/lib/blog-data";
 /** Header ile aynı (İletişim ve Kariyer hariç) */
 const footerMenuLinks = [
   { href: "/rehber", label: "Rehber" },
-  { href: "/sorular", label: "Sorular" },
   { href: "/hakkimizda", label: "Hakkımızda" },
 ];
 

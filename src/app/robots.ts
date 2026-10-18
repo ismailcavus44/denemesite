@@ -9,11 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: ["/admin/", "/api/", "/private/", "/config/", "/temp/", "/search/", "/ara/", "/onizleme/"],
       },
-      {
-        userAgent: "Mediapartners-Google",
-        allow: "/",
-        disallow: ["/admin/", "/api/", "/private/"],
-      },
       { userAgent: "GPTBot", allow: "/" },
       { userAgent: "ChatGPT-User", allow: "/" },
       { userAgent: "Google-Extended", allow: "/" },

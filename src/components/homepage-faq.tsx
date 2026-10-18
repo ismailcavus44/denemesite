@@ -10,33 +10,32 @@ import {
 const FAQ_ITEMS = [
   {
     id: "soru-1",
-    question: "Platform üzerinden nasıl hukuki soru sorabilirim?",
+    question: "YasalHaklarınız nedir?",
     answer:
-      "Ana sayfamızda bulunan \"Hemen Soru Sor\" butonuna tıklayarak karşınıza çıkan forma yaşadığınız hukuki durumu yazabilirsiniz. Sistemimiz, herkesin kolayca hukuki soru sorabilmesi için son derece sade tasarlanmıştır.",
+      "YasalHaklarınız; miras, aile, iş, icra ve gayrimenkul hukuku gibi alanlarda genel hukuki bilgilendirme amacıyla hazırlanan rehber yazılarının yayımlandığı bir hukuk bloğudur.",
   },
   {
     id: "soru-2",
-    question: "Sorduğum hukuki sorular gizli kalıyor mu?",
+    question: "Rehber yazıları hukuki danışmanlık yerine geçer mi?",
     answer:
-      "Evet. Gizliliğiniz bizim için önceliklidir. Platforma ilettiğiniz olaylar ve sorular, kişisel verilerinizden (isim, kurum adı vb.) arındırılarak tamamen anonim bir şekilde yayınlanır.",
+      "Hayır. Yazılar yalnızca genel bilgilendirme amacı taşır; avukatlık hizmeti veya hukuki danışmanlık niteliğinde değildir. Her olayın koşulları farklıdır.",
   },
   {
     id: "soru-3",
-    question: "Sorularıma verilen cevaplar yasal tavsiye niteliği taşır mı?",
+    question: "Yazılar güncel mi?",
     answer:
-      "Hayır. Platformumuz genel hukuki bilgilendirme sunar. Verilen cevaplar karmaşık hukuk dilini sadeleştirmeyi amaçlar ancak resmi bir avukatlık hizmeti veya birebir hukuki danışmanlık niteliği taşımaz.",
+      "Yazılar mevzuat ve Yargıtay uygulamasındaki değişikliklere göre düzenli olarak gözden geçirilir; her yazının üzerinde son güncelleme tarihi yer alır.",
   },
   {
     id: "soru-4",
-    question: "Daha önce sorulan hukuki soruları nasıl inceleyebilirim?",
+    question: "Aradığım konuyu nasıl bulabilirim?",
     answer:
-      "Sitemizdeki \"Sorular\" sekmesini ziyaret ederek, sizinle benzer durumları yaşamış kişilerin sorduğu güncel hukuki soruları ve bu sorulara verilen net cevapları inceleyebilirsiniz.",
+      "Rehber sayfasındaki arama kutusunu kullanabilir veya kategori sayfalarından ilgili hukuk alanındaki tüm yazılara ulaşabilirsiniz.",
   },
   {
     id: "soru-5",
-    question: "Hukuki soru sormak ücretli mi?",
-    answer:
-      "Platformumuzda yer alan içerikleri okumak, benzer hukuki sorunlara verilen genel bilgilendirme cevaplarını incelemek tamamen ücretsizdir.",
+    question: "İçerikleri okumak ücretli mi?",
+    answer: "Hayır. Sitedeki tüm rehber yazıları ücretsiz okunabilir.",
   },
 ] as const;
 

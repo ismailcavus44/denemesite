@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { GuideArticleHeader } from "@/components/article/GuideArticleHeader";
 import { AiSummarizeMenu } from "@/components/article/AiSummarizeMenu";
 import { GuideToc } from "@/components/guide-toc";
-import { StickyCTA } from "@/components/question-detail/StickyCTA";
 import { addHeadingIdsAndGetToc, enhanceFootnoteHtml } from "@/lib/articleHtml";
 import {
   ARTICLE_PREVIEW_STORAGE_KEY,
@@ -147,18 +145,6 @@ export function ArticlePreview() {
             ) : null}
             </div>
             {tocItems.length > 0 && <GuideToc items={tocItems} />}
-            <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
-              <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
-              <p className="mt-0.5 text-xs text-slate-600 leading-snug">
-                Uzman ekibimize iletin; yayınlanan cevaplardan faydalanın.
-              </p>
-              <Link
-                href="/soru-sor"
-                className="mt-3 flex w-full items-center justify-center rounded-[8px] bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-900"
-              >
-                Soru sor
-              </Link>
-            </aside>
             {data.content ? (
               <div
                 id="rehber-icerik"
@@ -200,7 +186,6 @@ export function ArticlePreview() {
             )}
           </article>
           <div className="hidden md:flex flex-col gap-6 overflow-visible">
-            <StickyCTA />
           </div>
         </div>
       </div>

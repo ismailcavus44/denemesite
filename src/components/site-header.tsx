@@ -4,11 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { href: "/rehber", label: "Makaleler" },
-  { href: "/sorular", label: "Sorular" },
   { href: "/hakkimizda", label: "Hakkımızda" },
 ];
 
@@ -86,9 +84,6 @@ export function SiteHeader() {
             </nav>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Button asChild className="hidden md:inline-flex">
-              <Link href="/soru-sor">Soru Sor</Link>
-            </Button>
             <button
               type="button"
               className="inline-flex size-10 items-center justify-center rounded-md text-foreground hover:bg-muted md:hidden"
@@ -131,17 +126,6 @@ export function SiteHeader() {
                   {label}
                 </Link>
               ))}
-            </div>
-            <div className="mt-2 flex justify-center">
-              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link
-                  href="/soru-sor"
-                  onClick={() => setMobileOpen(false)}
-                  className="inline-flex items-center justify-center px-5 py-2.5 text-base"
-                >
-                  Soru Sor
-                </Link>
-              </Button>
             </div>
           </nav>
         )}

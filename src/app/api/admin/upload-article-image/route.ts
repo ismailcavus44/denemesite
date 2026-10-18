@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
+import { validateImageFile } from "@/lib/imageUpload";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 
 // Supabase Dashboard > Storage içinde "article-images" adında public bucket oluşturun.
@@ -16,15 +17,19 @@ export async function POST(request: Request) {
   if (!file || !file.size) {
     return NextResponse.json({ message: "Dosya gerekli." }, { status: 400 });
   }
+  const check = validateImageFile(file);
+  if (!check.ok) {
+    return NextResponse.json({ message: check.message }, { status: 400 });
+  }
 
   const supabase = createSupabaseAdminClient();
-  const ext = file.name.replace(/^.*\./, "") || "jpg";
+  const ext = check.ext;
   const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const path = name;
 
   const buf = await file.arrayBuffer();
   const { error } = await supabase.storage.from(BUCKET).upload(path, buf, {
-    contentType: file.type || "image/jpeg",
+    contentType: file.type,
     upsert: true,
   });
 

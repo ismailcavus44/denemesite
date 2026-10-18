@@ -42,7 +42,7 @@ export async function generateMetadata({
   const description =
     category.meta_description?.trim() ||
     (category.intro && category.intro.slice(0, 150).trim()) ||
-    `${category.name} kategorisinde hukuki rehber ve cevaplanmış sorular. Sade ve anlaşılır bilgilendirme.`;
+    `${category.name} kategorisinde hukuki rehber yazıları. Sade ve anlaşılır bilgilendirme.`;
   const url = `${siteConfig.url}/${slug}`;
   return {
     title,

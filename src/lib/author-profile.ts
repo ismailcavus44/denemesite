@@ -59,9 +59,9 @@ export function parseSameAsLinks(
 
   if (socials?.linkedin?.trim()) urls.push(socials.linkedin.trim());
   if (socials?.instagram?.trim()) urls.push(socials.instagram.trim());
-  if (socials?.whatsapp?.trim()) urls.push(socials.whatsapp.trim());
 
-  return [...new Set(urls)];
+  // WhatsApp gibi doğrudan iletişim linkleri yayınlanmaz.
+  return [...new Set(urls)].filter((u) => !/wa\.me|whatsapp/i.test(u));
 }
 
 export function resolveAuthorEeat(
@@ -81,7 +81,6 @@ export function resolveAuthorEeat(
   const sameAs = parseSameAsLinks(db?.sameas_links, {
     linkedin: db?.linkedin_url ?? staticAuthor?.socials?.linkedin,
     instagram: db?.instagram_url ?? staticAuthor?.socials?.instagram,
-    whatsapp: db?.whatsapp_url ?? staticAuthor?.socials?.whatsapp,
   });
 
   return { title, barName, barRegistration, sameAs };

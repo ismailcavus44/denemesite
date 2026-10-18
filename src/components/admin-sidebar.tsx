@@ -6,8 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Inbox,
-  MessageSquare,
   Mail,
   FolderTree,
   FileText,
@@ -20,13 +18,11 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browserClient";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/inbox", label: "Bekleyenler", icon: Inbox },
   {
     href: "/admin/iletisim-mesajlari",
     label: "İletişim mesajları",
     icon: Mail,
   },
-  { href: "/admin/sorular", label: "Tüm Sorular", icon: MessageSquare },
   { href: "/admin/categories", label: "Kategoriler", icon: FolderTree },
   { href: "/admin/articles", label: "Makaleler", icon: FileText },
   { href: "/admin/authors", label: "Yazarlar", icon: Users },

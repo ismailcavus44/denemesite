@@ -9,15 +9,15 @@ type SearchBarProps = {
   placeholder?: string;
   size?: "sm" | "md";
   initialQuery?: string;
-  /** Arama yapılacak sayfa (örn. "/rehber"). Yoksa "/sorular" kullanılır. */
+  /** Arama yapılacak sayfa. Yoksa "/rehber" kullanılır. */
   searchPath?: string;
 };
 
 export function SearchBar({
-  placeholder = "Aradığınız soruyu yazın",
+  placeholder = "Aradığınız konuyu yazın",
   size = "md",
   initialQuery = "",
-  searchPath = "/sorular",
+  searchPath = "/rehber",
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();

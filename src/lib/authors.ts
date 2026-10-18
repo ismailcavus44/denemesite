@@ -23,7 +23,6 @@ export const authors: Author[] = [
     socials: {
       linkedin: "https://www.linkedin.com/in/ismail-cavus/",
       instagram: "https://www.instagram.com/av.ismailcavus/",
-      whatsapp: "https://wa.me/905102206945",
     },
   },
   {
@@ -33,7 +32,6 @@ export const authors: Author[] = [
     bio: "Hukuk dünyasındaki gelişmeleri yakından takip eden Av. Kaan Karayaka, özellikle İş ve Aile Hukuku disiplinlerinde edindiği tecrübeyi akademik bir titizlikle pratiğe dökmektedir. Hazırladığı rehber yazılarla toplumu hukuki hakları konusunda bilinçlendirmeyi görev edinen Karayaka, uyuşmazlıkların çözümünde stratejik ve sonuç odaklı bir yaklaşım benimsemektedir.",
     socials: {
       linkedin: "https://www.linkedin.com/in/avukat-kaan-karayaka/",
-      whatsapp: "https://wa.me/90",
     },
   },
 ];
@@ -43,3 +41,4 @@ const bySlug = new Map(authors.map((a) => [a.slug, a]));
 export function getAuthorBySlug(slug: string): Author | undefined {
   return bySlug.get(slug);
 }
+

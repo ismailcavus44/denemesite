@@ -54,7 +54,7 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
 
         <div className="mt-20 border-t border-slate-200/60 pt-12">
           <p className="text-sm text-slate-600">
-            Sorularınız için bizimle iletişime geçin.
+            Site hakkındaki görüşleriniz için bizimle iletişime geçin.
           </p>
           <Link
             href="/iletisim"

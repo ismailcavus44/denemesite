@@ -6,13 +6,6 @@ import { KNOWN_CATEGORY_SLUGS } from "@/lib/content";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
-function latestDate(...values: (string | null | undefined)[]): Date {
-  const times = values
-    .filter((v): v is string => typeof v === "string" && v.length > 0)
-    .map((v) => new Date(v).getTime())
-    .filter((t) => Number.isFinite(t));
-  return times.length ? new Date(Math.max(...times)) : new Date();
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
@@ -20,8 +13,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ——— Statik sayfalar ———
   const staticPages: SitemapEntry[] = [
     { url: `${base}/`, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-    { url: `${base}/sorular`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${base}/soru-sor`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
     { url: `${base}/rehber`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/hakkimizda`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/iletisim`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
@@ -31,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/sorumluluk-reddi`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  // ——— Kategoriler (topic silo: /[category], /[category]/rehber, /[category]/sorular) ———
+  // ——— Kategoriler (topic silo: /[category], /[category]/rehber) ———
   const supabase = createSupabaseServerClient();
   const { data: categoriesFromDb } = await supabase
     .from("categories")
@@ -46,7 +37,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
       { url: `${base}/${slug}`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.9 },
       { url: `${base}/${slug}/rehber`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.8 },
-      { url: `${base}/${slug}/sorular`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.8 },
     ];
   });
 
@@ -70,42 +60,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
   const rehberEntries = [...rehberStatic, ...rehberDb];
 
-  // ——— Sorular: /[category]/soru/[slug] (canonical) ———
-  const { data: questions } = await supabase
-    .from("questions")
-    .select(
-      "slug, published_at, seo_updated_at, category:categories(slug), answer:answers(updated_at)"
-    )
-    .eq("status", "published");
 
-  const questionEntries: SitemapEntry[] = (questions ?? [])
-    .filter((q) => {
-      const cat = (q as { category?: { slug: string } | { slug: string }[] }).category;
-      const slug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
-      return !!slug;
-    })
-    .map((q) => {
-      const row = q as {
-        slug: string;
-        published_at: string | null;
-        seo_updated_at?: string | null;
-        category: { slug: string } | { slug: string }[];
-        answer?: { updated_at?: string } | { updated_at?: string }[] | null;
-      };
-      const cat = row.category;
-      const categorySlug = Array.isArray(cat) ? cat[0]?.slug : cat?.slug;
-      const answer = Array.isArray(row.answer) ? row.answer[0] : row.answer;
-      return {
-        url: `${base}/${categorySlug}/soru/${row.slug}`,
-        lastModified: latestDate(
-          answer?.updated_at,
-          row.seo_updated_at,
-          row.published_at
-        ),
-        changeFrequency: "monthly" as const,
-        priority: 0.7,
-      };
-    });
-
-  return [...staticPages, ...categoryEntries, ...rehberEntries, ...questionEntries];
+  return [...staticPages, ...categoryEntries, ...rehberEntries];
 }

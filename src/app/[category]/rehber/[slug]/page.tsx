@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { addHeadingIdsAndGetToc, enhanceFootnoteHtml } from "@/lib/articleHtml";
 import { extractCitations } from "@/lib/footnotes";
 import { blogPosts, type ContentBlock } from "@/lib/blog-data";
 import { getAuthorBySlug } from "@/lib/authors";
-import { getCategoryBySlug, getKnownCategoryName, getRelatedQuestions, getRelatedGuides } from "@/lib/content";
+import { getCategoryBySlug, getKnownCategoryName, getRelatedGuides } from "@/lib/content";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
-import { QuestionCard } from "@/components/question-card";
 import { siteConfig } from "@/lib/site";
 import {
   Accordion,
@@ -27,14 +25,9 @@ import { GuideArticleHeader } from "@/components/article/GuideArticleHeader";
 import { AiSummarizeMenu } from "@/components/article/AiSummarizeMenu";
 import { buildArticleAuthorSchema } from "@/lib/author-profile";
 
-const StickyCTA = dynamic(
-  () => import("@/components/question-detail/StickyCTA").then((m) => ({ default: m.StickyCTA })),
-  { ssr: true }
-);
-
 const CategoryGuidesSidebar = dynamic(
   () =>
-    import("@/components/question-detail/CategoryGuidesSidebar").then((m) => ({
+    import("@/components/category/CategoryGuidesSidebar").then((m) => ({
       default: m.CategoryGuidesSidebar,
     })),
   { ssr: true }
@@ -239,10 +232,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
     const articleUrl = `${baseUrl}/${categorySlug}/rehber/${slug}`;
     const { html: rawHtml, tocItems: contentToc } = addHeadingIdsAndGetToc(dbArticle.content);
     const contentWithIds = enhanceFootnoteHtml(sanitizeHtml(rawHtml));
-    const [categoryGuides, relatedQuestions] = await Promise.all([
-      getRelatedGuides(categorySlug, 5, slug),
-      getRelatedQuestions(categorySlug, 2),
-    ]);
+    const categoryGuides = await getRelatedGuides(categorySlug, 5, slug);
 
     const usedIds = new Set(contentToc.map((t) => t.id));
     const tocItems: TocItem[] = [...contentToc];
@@ -304,18 +294,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               <AiSummarizeMenu title={dbArticle.title} url={articleUrl} />
               </div>
               {tocItems.length > 0 && <GuideToc items={tocItems} />}
-              <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
-                <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
-                <p className="mt-0.5 text-xs text-slate-600 leading-snug">
-                  Uzman ekibimize iletin; yayınlanan cevaplardan faydalanın.
-                </p>
-                <Link
-                  href="/soru-sor"
-                  className="mt-3 flex w-full items-center justify-center rounded-[8px] bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-900"
-                >
-                  Soru sor
-                </Link>
-              </aside>
               <div
                 id="rehber-icerik"
                 className="rehber-icerik space-y-4 text-[14px] text-black text-justify"
@@ -351,7 +329,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               )}
             </article>
             <div className="hidden md:flex flex-col gap-6 overflow-visible">
-              <StickyCTA />
               {categoryGuides.length > 0 && (
                 <CategoryGuidesSidebar
                   guides={categoryGuides.map((g) => ({ title: g.title, href: `/${g.categorySlug}/rehber/${g.slug}`, slug: g.slug }))}
@@ -362,34 +339,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
             </div>
           </div>
 
-          {relatedQuestions.length > 0 && (
-            <section className="mt-12 space-y-4">
-              <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
-                <span className="h-5 w-1 rounded-full bg-slate-800" />
-                Bu Konuda Sorulan Sorular
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
-                {relatedQuestions.map((q) => (
-                  <QuestionCard
-                    key={q.id}
-                    title={q.title}
-                    slug={q.slug}
-                    category={Array.isArray(q.category) ? (q.category[0] ?? null) : q.category}
-                    createdAt={q.created_at}
-                    summaryText={(q as { ai_card_summary?: string | null }).ai_card_summary ?? null}
-                    categorySlug={categorySlug}
-                    compact
-                  />
-                ))}
-              </div>
-              <Link
-                href={`/${categorySlug}/sorular`}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-background px-4 text-sm font-medium text-slate-700 hover:bg-muted"
-              >
-                Devamını gör
-              </Link>
-            </section>
-          )}
         </div>
         <ArticleSchema
           headline={dbArticle.title}
@@ -426,10 +375,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
     notFound();
   }
 
-  const [relatedQuestions, categoryGuides] = await Promise.all([
-    getRelatedQuestions(categorySlug, 2),
-    getRelatedGuides(categorySlug, 5, slug),
-  ]);
+  const categoryGuides = await getRelatedGuides(categorySlug, 5, slug);
   const author = post.authorSlug ? getAuthorBySlug(post.authorSlug) : undefined;
 
   const baseUrl = siteConfig.url.replace(/\/$/, "");
@@ -481,18 +427,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
 
             {tocItems.length > 0 && <GuideToc items={tocItems} />}
 
-            <aside className="md:hidden rounded-[8px] border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
-              <p className="text-sm font-semibold text-slate-900">Sorunuz mu var?</p>
-              <p className="mt-0.5 text-xs text-slate-600 leading-snug">
-                Uzman ekibimize iletin; yayınlanan cevaplardan faydalanın.
-              </p>
-              <Link
-                href="/soru-sor"
-                className="mt-3 flex w-full items-center justify-center rounded-[8px] bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-900"
-              >
-                Soru sor
-              </Link>
-            </aside>
 
             <div id="rehber-icerik" className="rehber-icerik space-y-4 text-[14px] text-black text-justify">
               {post.contentBlocks
@@ -524,7 +458,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           </article>
 
           <div className="hidden md:flex flex-col gap-6 overflow-visible">
-            <StickyCTA />
             {categoryGuides.length > 0 && (
               <CategoryGuidesSidebar
                 guides={categoryGuides.map((g) => ({ title: g.title, href: `/${g.categorySlug}/rehber/${g.slug}`, slug: g.slug }))}
@@ -535,34 +468,6 @@ export default async function CategoryGuidePage({ params }: PageProps) {
           </div>
         </div>
 
-        {relatedQuestions.length > 0 && (
-          <section className="mt-12 space-y-4">
-            <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
-              <span className="h-5 w-1 rounded-full bg-slate-800" />
-              Bu Konuda Sorulan Sorular
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
-              {relatedQuestions.map((q) => (
-                <QuestionCard
-                  key={q.id}
-                  title={q.title}
-                  slug={q.slug}
-                  category={Array.isArray(q.category) ? (q.category[0] ?? null) : q.category}
-                  createdAt={q.created_at}
-                  summaryText={(q as { ai_card_summary?: string | null }).ai_card_summary ?? null}
-                  categorySlug={categorySlug}
-                  compact
-                />
-              ))}
-            </div>
-            <Link
-              href={`/${categorySlug}/sorular`}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-background px-4 text-sm font-medium text-slate-700 hover:bg-muted"
-            >
-              Devamını gör
-            </Link>
-          </section>
-        )}
       </div>
       <ArticleSchema
         headline={post.title}

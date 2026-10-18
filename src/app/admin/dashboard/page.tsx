@@ -5,17 +5,13 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   LayoutDashboard,
-  Inbox,
   Mail,
-  FileText,
   FolderTree,
   Loader2,
   ArrowRight,
 } from "lucide-react";
 
 type Stats = {
-  pending: number;
-  totalQuestions: number;
   categories: number;
 };
 
@@ -71,14 +67,12 @@ export default function AdminDashboardPage() {
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
       try {
-        const [pending, totalQuestions, categories] = await Promise.all([
-          fetchCount(url, key, token, "questions?status=eq.pending"),
-          fetchCount(url, key, token, "questions"),
+        const [categories] = await Promise.all([
           fetchCount(url, key, token, "categories"),
         ]);
 
         if (!cancelled) {
-          setStats({ pending, totalQuestions, categories });
+          setStats({ categories });
         }
       } catch {
         if (!cancelled) toast.error("İstatistikler yüklenemedi.");
@@ -95,26 +89,10 @@ export default function AdminDashboardPage() {
 
   const links = [
     {
-      href: "/admin/inbox",
-      label: "Inbox",
-      description: "Yanıt bekleyen sorular",
-      icon: Inbox,
-      stat: stats?.pending,
-      accent: "primary",
-    },
-    {
       href: "/admin/iletisim-mesajlari",
       label: "İletişim mesajları",
       description: "İletişim formundan gelen kayıtlar",
       icon: Mail,
-      accent: "muted",
-    },
-    {
-      href: "/admin/sorular",
-      label: "Tüm Sorular",
-      description: "Listele, düzenle, sil",
-      icon: FileText,
-      stat: stats?.totalQuestions,
       accent: "muted",
     },
     {
@@ -150,24 +128,6 @@ export default function AdminDashboardPage() {
           {/* İstatistik kartları — Dribbble tarzı */}
           {stats && (
             <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">Bekleyen soru</span>
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-                    <Inbox className="size-4" />
-                  </span>
-                </div>
-                <p className="mt-2 sm:mt-3 text-2xl sm:text-4xl font-bold tabular-nums text-slate-900">{stats.pending}</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">Toplam soru</span>
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-sky-100 text-sky-600">
-                    <FileText className="size-4" />
-                  </span>
-                </div>
-                <p className="mt-2 sm:mt-3 text-2xl sm:text-4xl font-bold tabular-nums text-slate-900">{stats.totalQuestions}</p>
-              </div>
               <div className="col-span-2 lg:col-span-1 rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-500">Kategori</span>

@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     apple: "/hukuki-sor-logo.png",
   },
   title: {
-    default: "YasalHaklarınız | Hukuki Soru Sor",
+    default: "YasalHaklarınız | Hukuk Rehberi",
     template: "YasalHaklarınız | %s",
   },
   description: siteConfig.description,
@@ -49,14 +49,14 @@ export const metadata: Metadata = {
     type: "website",
     siteName: siteConfig.name,
     locale: "tr_TR",
-    title: "YasalHaklarınız | Hukuki Soru Sor",
+    title: "YasalHaklarınız | Hukuk Rehberi",
     description: siteConfig.description,
     url: siteConfig.url,
     images: [{ url: "/images/default-og.jpg", width: 1200, height: 630, alt: "YasalHaklarınız" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "YasalHaklarınız | Hukuki Soru Sor",
+    title: "YasalHaklarınız | Hukuk Rehberi",
     description: siteConfig.description,
     images: ["/images/default-og.jpg"],
   },
@@ -72,7 +72,6 @@ export default function RootLayout({
     <html lang="tr" suppressHydrationWarning className={manrope.variable}>
       <head>
         <meta name="google-site-verification" content="fM2izkySnfaPccXh7h5bGHboOjCRdw-i9YDbkFfEgec" />
-        <meta name="google-adsense-account" content="ca-pub-7049968584342279" />
         <link
           rel="alternate"
           type="application/rss+xml"
@@ -93,11 +92,6 @@ export default function RootLayout({
             gtag('config', 'G-3N0SZSS7XN');
           `}
         </Script>
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7049968584342279"
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SiteShell>
             <ConditionalMain>{children}</ConditionalMain>

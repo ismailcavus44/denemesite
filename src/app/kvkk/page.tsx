@@ -6,7 +6,7 @@ const _t = "KVKK Aydınlatma Metni | YasalHaklarınız";
 const _d = "Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni. Veri sorumlusu olarak kişisel verilerin işlenmesi ve korunması.";
 const _u = `${siteConfig.url}/kvkk`;
 
-const LAST_UPDATED = "24 Mart 2025";
+const LAST_UPDATED = "18 Ekim 2026";
 
 export const metadata: Metadata = {
   title: { absolute: "KVKK Aydınlatma Metni | YasalHaklarınız" },
@@ -24,17 +24,18 @@ export default function KvkkPage() {
     >
       <h2 id={slugifyId("Veri Sorumlusunun Kimliği")}>1. Veri Sorumlusunun Kimliği</h2>
       <p>
-        6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) ve ilgili mevzuat uyarınca, Yasal Haklarınız Platformu (&quot;yasalhaklariniz.com&quot; veya &quot;Veri Sorumlusu&quot;) olarak, kişisel verilerinizin güvenliğine azami özen göstermekteyiz. İşbu aydınlatma metni; sitemizi ziyaret eden kullanıcıların, sitede yer alan başvuru ve değerlendirme formları aracılığıyla veri paylaşanların ile soru soranların ve gönüllü yazar/editör adaylarının kişisel verilerinin hangi kapsamda ve hangi hukuki çerçevede işlendiği konusunda şeffaflık sağlamak amacıyla hazırlanmıştır.
+        6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) ve ilgili mevzuat uyarınca, Yasal Haklarınız Platformu (&quot;yasalhaklariniz.com&quot; veya &quot;Veri Sorumlusu&quot;) olarak, kişisel verilerinizin güvenliğine azami özen göstermekteyiz. İşbu aydınlatma metni; sitemizi ziyaret eden kullanıcıların, sitede yer alan iletişim ve başvuru formları aracılığıyla veri paylaşanların ve gönüllü yazar/editör adaylarının kişisel verilerinin hangi kapsamda ve hangi hukuki çerçevede işlendiği konusunda şeffaflık sağlamak amacıyla hazırlanmıştır.
       </p>
 
       <h2 id={slugifyId("İşlenen Kişisel Veri Kategorileri")}>2. İşlenen Kişisel Veri Kategorileri</h2>
       <p>
-        Platformumuz içerik sunumunda öncelikle anonimlik ilkesini gözetmekle birlikte, hizmetin niteliği ve yasal yükümlülükler gereği aşağıdaki kişisel veri kategorileri işlenebilmektedir:
+        Sitemizde üyelik sistemi bulunmamakla birlikte, hizmetin niteliği ve yasal yükümlülükler gereği aşağıdaki kişisel veri kategorileri işlenebilmektedir:
       </p>
       <ul>
         <li><strong>İşlem Güvenliği Verileri (Tüm Ziyaretçiler):</strong> 5651 sayılı Kanun gereği tutulması zorunlu olan IP adresi, erişim tarih/saat bilgileri, log kayıtları ve tarayıcı (browser) bilgileri.</li>
         <li><strong>Kimlik ve İletişim Verileri (Form Dolduran Kullanıcılar):</strong> Sitede yer alan iletişim, başvuru ve benzeri formlar üzerinden tarafınızca paylaşılan <strong>Ad, Soyad ve Telefon Numarası</strong> ile formlarda istenen diğer içerikler (örneğin mesaj metni). Bu veriler, güvenli bulut veritabanı altyapımız (<strong>Supabase</strong>) üzerinde saklanmaktadır.</li>
         <li><strong>Kimlik, İletişim ve Mesleki Deneyim Verileri (Yazar/Editör Adayları):</strong> Gönüllülük başvurusu yapan kişilerin adı, soyadı, e-posta adresi, telefon numarası, eğitim bilgileri ve özgeçmiş (CV) içeriklerinde kendi hür iradeleriyle paylaştıkları diğer kişisel veriler.</li>
+        <li><strong>Kullanım Verileri (Tüm Ziyaretçiler):</strong> Ziyaret edilen sayfalar, ziyaret süresi, cihaz ve tarayıcı türü gibi bilgiler, Google LLC tarafından sağlanan Google Analytics hizmeti aracılığıyla çerezler yoluyla toplanır.</li>
       </ul>
 
       <h2 id={slugifyId("Kişisel Verilerin İşlenme Amaçları")}>3. Kişisel Verilerin İşlenme Amaçları</h2>
@@ -49,7 +50,7 @@ export default function KvkkPage() {
 
       <h2 id={slugifyId("Kişisel Veri Toplamanın Yöntemi ve Hukuki Sebebi")}>4. Kişisel Veri Toplamanın Yöntemi ve Hukuki Sebebi</h2>
       <p>
-        Kişisel verileriniz; web sitemizdeki başvuru ve iletişim formları, soru sorma süreçlerindeki ilgili alanlar ve sistem altyapımız (çerezler ve log kayıtları) aracılığıyla tamamen veya kısmen otomatik yollarla elektronik ortamda toplanmaktadır.
+        Kişisel verileriniz; web sitemizdeki başvuru ve iletişim formları ile sistem altyapımız (çerezler ve log kayıtları) aracılığıyla tamamen veya kısmen otomatik yollarla elektronik ortamda toplanmaktadır.
       </p>
       <p>
         Bu veriler, KVKK&apos;nın 5. maddesinde yer alan aşağıdaki hukuki sebeplere dayanılarak işlenmektedir:
@@ -70,7 +71,7 @@ export default function KvkkPage() {
         Veri Sorumlusu, kişisel verilerinizi ticari amaçla satmaz veya pazarlamada kullanmak üzere üçüncü kişilere devretmez. Kişisel verilerinizin güvenli bir şekilde saklanması için site altyapımızda <strong>Supabase, Inc.</strong> tarafından sunulan bulut tabanlı veritabanı hizmetinden yararlanılmaktadır. Bu hizmet, verilerin şifreli ve erişim kontrollü ortamlarda tutulmasına imkân sağlar.
       </p>
       <p>
-        Supabase&apos;in sunucularının bir kısmı yurtdışında bulunduğundan, formlar ve sistem kayıtları kapsamında işlenen verileriniz teknik olarak yurtdışındaki sunucularda muhafaza edilebilir. Bu durum, mesajlaşma platformlarına veya reklam/ticari iletişim sağlayıcılarına veri aktarımı anlamına gelmez; amaç yalnızca verilerin güvenli depolanması ve platformun çalışmasının sağlanmasıdır. Yurtdışına aktarımın hukuki dayanağı, ilgili veri kategorileri için işbu metinde belirtilen açık rıza ve diğer şartlarla sınırlıdır.
+        Supabase&apos;in sunucularının bir kısmı yurtdışında bulunduğundan, formlar ve sistem kayıtları kapsamında işlenen verileriniz teknik olarak yurtdışındaki sunucularda muhafaza edilebilir. Bu durum, mesajlaşma platformlarına veya reklam/ticari iletişim sağlayıcılarına veri aktarımı anlamına gelmez; amaç yalnızca verilerin güvenli depolanması ve platformun çalışmasının sağlanmasıdır. Yurtdışına aktarımın hukuki dayanağı, ilgili veri kategorileri için işbu metinde belirtilen açık rıza ve diğer şartlarla sınırlıdır. Ayrıca site trafiğinin analizi amacıyla kullanım verileri, sunucuları yurtdışında bulunan Google LLC&apos;ye (Google Analytics) aktarılabilir.
       </p>
       <ul>
         <li><strong>Yetkili Kurumlar:</strong> Hukuki uyuşmazlıklar veya adli/idari makamların usulüne uygun talepleri halinde, talep konusu veriler (örneğin IP kayıtları) kanuni yükümlülüklerin yerine getirilmesi amacıyla ilgili resmi makamlara aktarılabilir.</li>

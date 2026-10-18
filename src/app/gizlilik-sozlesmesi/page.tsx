@@ -7,7 +7,7 @@ const _t = "Gizlilik Politikası | YasalHaklarınız";
 const _d = "YasalHaklarınız gizlilik ve veri koruma politikası. Toplanan veriler, kullanım amaçları ve kullanıcı hakları hakkında bilgi.";
 const _u = `${siteConfig.url}/gizlilik-sozlesmesi`;
 
-const LAST_UPDATED = "24 Mart 2025";
+const LAST_UPDATED = "18 Ekim 2026";
 
 export const metadata: Metadata = {
   title: { absolute: "Gizlilik Politikası | YasalHaklarınız" },
@@ -25,12 +25,12 @@ export default function GizlilikSozlesmesiPage() {
     >
       <h2 id={slugifyId("Amaç ve Kapsam")}>1. Amaç ve Kapsam</h2>
       <p>
-        yasalhaklariniz.com (&quot;Site&quot;), kullanıcıların hukuki konularda genel ve temel düzeyde bilgiye ulaşabilmesi amacıyla kurulan anonim bir soru-cevap platformudur. İşbu Gizlilik Politikası, sitemizi ziyaret eden tüm kullanıcıların, soru soranların ve yazar/editör adaylarının sitemizi kullanırken paylaştıkları verilerin nasıl toplandığını, korunduğunu, işlendiğini ve imha edildiğini şeffaf bir şekilde açıklamak amacıyla hazırlanmıştır. Sitemizi kullanarak bu politikada yer alan şartları kabul etmiş sayılırsınız.
+        yasalhaklariniz.com (&quot;Site&quot;), kullanıcıların hukuki konularda genel ve temel düzeyde bilgiye ulaşabilmesi amacıyla kurulan bir hukuk bilgilendirme bloğudur. İşbu Gizlilik Politikası, sitemizi ziyaret eden tüm kullanıcıların, iletişim formunu kullananların ve yazar/editör adaylarının sitemizi kullanırken paylaştıkları verilerin nasıl toplandığını, korunduğunu, işlendiğini ve imha edildiğini şeffaf bir şekilde açıklamak amacıyla hazırlanmıştır. Sitemizi kullanarak bu politikada yer alan şartları kabul etmiş sayılırsınız.
       </p>
 
-      <h2 id={slugifyId("Temel Prensibimiz Anonimlik")}>2. Temel Prensibimiz: Anonimlik</h2>
+      <h2 id={slugifyId("Temel Prensibimiz Asgari Veri")}>2. Temel Prensibimiz: Asgari Veri</h2>
       <p>
-        Platformumuzun temel yapı taşı &quot;anonimliktir&quot;. Sitemizde soru sormak, yanıtları okumak veya platformda gezinmek için üyelik açmanız, adınızı veya e-posta adresinizi vermeniz zorunlu değildir. Kullanıcılar, kimliklerini ifşa etmeden hukuki sorularını özgürce iletebilirler. Soru içeriklerinde kullanıcıların kendi istekleriyle ad-soyad veya kişisel detay paylaşmaları halinde, sitemiz bu verileri yayınlamadan önce sansürleme/anonimleştirme hakkını saklı tutar.
+        Sitemizdeki içerikleri okumak için üyelik açmanız, adınızı veya e-posta adresinizi vermeniz gerekmez. Kişisel veri yalnızca iletişim ve başvuru formlarını kendi isteğinizle doldurduğunuzda ve aşağıda açıklanan teknik kayıtlar kapsamında işlenir.
       </p>
 
       <h2 id={slugifyId("Toplanan Veriler ve Toplanma Yöntemleri")}>3. Toplanan Veriler ve Toplanma Yöntemleri</h2>
@@ -39,13 +39,14 @@ export default function GizlilikSozlesmesiPage() {
       </p>
       <ul>
         <li><strong>Pasif/Teknik Veriler:</strong> 5651 sayılı Kanun gereği yasal zorunluluk olan IP adresiniz, siteye giriş-çıkış saatleriniz, tarayıcı (browser) türünüz ve cihaz bilgileriniz otomatik olarak loglanır.</li>
-        <li><strong>Formlar Aracılığıyla Sunulan Veriler:</strong> İletişim, başvuru ve soru süreçlerinde formlar üzerinden kendi rızanızla paylaştığınız <strong>ad, soyad, telefon numarası</strong> ve ilgili formda istenen diğer içerikler (örneğin mesaj metni). Bu veriler, uygun bulunan başvurular için Veri Sorumlusunun kendi telefon hattından sesli iletişim kurulması amacıyla da kullanılabilir; otomatik mesajlaşma veya anlık bildirim uygulamaları üzerinden toplu ileti gönderilmez.</li>
+        <li><strong>Formlar Aracılığıyla Sunulan Veriler:</strong> İletişim ve başvuru formları üzerinden kendi rızanızla paylaştığınız <strong>ad, soyad, telefon numarası</strong> ve ilgili formda istenen diğer içerikler (örneğin mesaj metni). Bu veriler, uygun bulunan başvurular için Veri Sorumlusunun kendi telefon hattından sesli iletişim kurulması amacıyla da kullanılabilir; otomatik mesajlaşma veya anlık bildirim uygulamaları üzerinden toplu ileti gönderilmez.</li>
         <li><strong>Yazar/Editör Başvuru Verileri:</strong> Gönüllü yazar veya editör olmak amacıyla başvuru formumuz üzerinden kendi hür iradenizle ilettiğiniz Özgeçmiş (CV), ad-soyad ve iletişim bilgileri.</li>
+        <li><strong>Kullanım Verileri:</strong> Ziyaret edilen sayfalar, ziyaret süresi, cihaz ve tarayıcı türü gibi bilgiler, Google LLC tarafından sağlanan Google Analytics hizmeti aracılığıyla çerezler yoluyla toplanır.</li>
       </ul>
 
       <h2 id={slugifyId("Üçüncü Taraf Altyapılar ve Yurtdışı Veri Aktarımı")}>4. Üçüncü Taraf Altyapılar ve Yurtdışı Veri Aktarımı (Önemli)</h2>
       <p>
-        Sitemiz, kesintisiz ve güvenli bir hizmet sunabilmek için verilerinizi öncelikle <strong>Supabase, Inc.</strong> tarafından sağlanan bulut tabanlı veritabanında saklamaktadır. Form verileri, soru ve başvuru kayıtları ile teknik loglar bu altyapı üzerinde şifreli ve erişim kontrollü ortamlarda tutulur.
+        Sitemiz, kesintisiz ve güvenli bir hizmet sunabilmek için verilerinizi öncelikle <strong>Supabase, Inc.</strong> tarafından sağlanan bulut tabanlı veritabanında saklamaktadır. Form verileri, başvuru kayıtları ve teknik loglar bu altyapı üzerinde şifreli ve erişim kontrollü ortamlarda tutulur.
       </p>
       <p>
         Supabase&apos;in sunucularının bir kısmı yurtdışında bulunduğundan, kişisel verileriniz teknik olarak yurtdışındaki sunucularda muhafaza edilebilir. Bu kullanım, reklam veya mesajlaşma platformlarına veri satışı anlamına gelmez; amaç veri güvenliği ve platformun çalışmasıdır. Yurtdışına aktarımın hukuki çerçevesi için{" "}
@@ -85,12 +86,8 @@ export default function GizlilikSozlesmesiPage() {
         <li>Siteyi ziyaret eden tüm kullanıcılara ait IP adresleri, siteye giriş-çıkış (erişim) tarih ve saatleri ile cihaz/tarayıcı bilgileri, 5651 sayılı İnternet Ortamında Yapılan Yayınların Düzenlenmesi ve Bu Yayınlar Yoluyla İşlenen Suçlarla Mücadele Edilmesi Hakkında Kanun uyarınca, veri bütünlüğü (hash) sağlanmış bir şekilde kanuni yükümlülük olarak 2 (iki) yıl süreyle saklanmak zorundadır. Bu süre dolduğunda kayıtlar sistemden periyodik olarak silinir.</li>
       </ul>
 
-      <h3 id={slugifyId("Soru ve Cevap İçerikleri")}>6.4. Soru ve Cevap İçerikleri (Anonim Veriler)</h3>
-      <ul>
-        <li>Platformumuzun doğası gereği, isim belirtilmeden veya platform tarafından anonimleştirilerek yayınlanan hukuki sorular ve bunlara verilen cevaplar &quot;kişisel veri&quot; niteliği taşımamaktadır. Bu nedenle anonim soru-cevap içerikleri, platform yayında kaldığı sürece süresiz olarak saklanabilir ve kamuya açık olarak sergilenebilir. Ancak kullanıcının sorunun içinde yanlışlıkla kimliğini ifşa edecek veriler (TCKN, isim, tam adres vb.) paylaşması durumunda, tespit edildiği an veya kullanıcının talebi üzerine bu spesifik veriler derhal sansürlenir/silinir.</li>
-      </ul>
 
-      <h3 id={slugifyId("Veri Saklama Çerezler")}>6.5. Çerezler (Cookies)</h3>
+      <h3 id={slugifyId("Veri Saklama Çerezler")}>6.4. Çerezler (Cookies)</h3>
       <ul>
         <li><strong>Oturum Çerezleri:</strong> Kullanıcı tarayıcıyı kapattığı anda otomatik olarak silinir.</li>
         <li><strong>Performans ve Analitik Çerezleri:</strong> Çerezin türüne göre en fazla 6 (altı) ay ile 1 (bir) yıl arasında tarayıcınızda saklanır. (Kullanıcı dilediği zaman tarayıcı ayarlarından bu çerezleri silebilir).</li>
@@ -99,7 +96,7 @@ export default function GizlilikSozlesmesiPage() {
 
       <h2 id={slugifyId("Çerezler")}>7. Çerezler (Cookies)</h2>
       <p>
-        Sitemiz, kullanıcı deneyimini optimize etmek, site trafiğini analiz etmek ve güvenliği sağlamak amacıyla temel/zorunlu çerezler (cookies) kullanmaktadır. Tarayıcı ayarlarınızı değiştirerek çerezleri reddedebilir veya silebilirsiniz; ancak bu durumda sitenin bazı fonksiyonları tam olarak çalışmayabilir.
+        Sitemiz, kullanıcı deneyimini optimize etmek, site trafiğini analiz etmek ve güvenliği sağlamak amacıyla temel/zorunlu çerezler (cookies) ile Google Analytics analitik çerezleri kullanmaktadır. Tarayıcı ayarlarınızı değiştirerek çerezleri reddedebilir veya silebilirsiniz; ancak bu durumda sitenin bazı fonksiyonları tam olarak çalışmayabilir.
       </p>
 
       <h2 id={slugifyId("Dış Bağlantılar")}>8. Dış Bağlantılar (Linkler)</h2>

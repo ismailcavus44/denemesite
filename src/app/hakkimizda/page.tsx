@@ -41,11 +41,9 @@ export default function AboutPage() {
             <h2 className="text-2xl font-semibold">Biz?</h2>
             <p className="text-[15px] text-muted-foreground">
               Burası, hukuki terimlerin ve uzun kanun maddelerinin arasında kaybolan
-              insanlar için tasarlanmış sade bir rehber alanı. Sorulan gerçek soruları,
-              benzer durumlar ve örneklerle harmanlayarak, okuyanın kendi durumunu daha
-              net görmesini amaçlıyoruz. Ne bir forumuz ne de otomatik cevap üreten bir
-              bot; sadece sakin, anlaşılır ve yol gösterici bilgilendirme sunmaya
-              odaklanan küçük bir ekip.
+              insanlar için hazırlanmış bir hukuk rehberi. Miras, aile, iş, icra ve
+              gayrimenkul hukukundaki temel konuları; kanun maddeleri, süreler ve
+              uygulamadaki önemli noktalarla birlikte sade bir dille anlatıyoruz.
             </p>
           </div>
           <div className="relative h-full min-h-[240px] overflow-hidden rounded-2xl">
@@ -67,9 +65,8 @@ export default function AboutPage() {
               </h2>
               <p className="text-[15px] text-muted-foreground">
                 YasalHaklariniz, karmaşık hukuk dilini günlük hayata çeviren bir
-                soru-cevap rehberidir. Amacımız; okuyan herkesin, kendi durumunu
-                daha net görebilmesini sağlamak ve atacağı adımlar konusunda sakin
-                bir çerçeve sunmaktır.
+                hukuk bloğudur. Amacımız; okuyan herkesin haklarını ve hukuki
+                süreçlerin genel işleyişini daha iyi anlamasını sağlamaktır.
               </p>
             </div>
             <div className="hidden h-full md:block">
@@ -89,8 +86,8 @@ export default function AboutPage() {
                   </h3>
                 </div>
                 <p>
-                  Burası forum değil, otomatik cevap üreten bir bot da değil. Somut
-                  olaya özel hukuki danışmanlık vermiyoruz.
+                  Soru-cevap, bireysel değerlendirme veya hukuki danışmanlık
+                  hizmeti sunmuyoruz. İçeriklerimiz genel bilgilendirme amaçlıdır.
                 </p>
               </CardContent>
             </Card>
@@ -105,8 +102,8 @@ export default function AboutPage() {
                   </h3>
                 </div>
                 <p>
-                  Benzer durumlarda sorulmuş gerçek sorular ve onlara verilen kısa
-                  yanıtlar üzerinden, okuyana net bir çerçeve sunmak.
+                  Güncel mevzuat ve yargı uygulamasına dayanan, kaynaklı ve
+                  anlaşılır rehber yazılarıyla okuyana net bir çerçeve sunmak.
                 </p>
               </CardContent>
             </Card>
@@ -134,17 +131,16 @@ export default function AboutPage() {
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold">Hukuki Süreç ve Biz</h2>
             <p className="text-[15px] text-muted-foreground">
-              YasalHaklariniz’de yer alan yanıtlar, yalnızca yürürlükteki mevzuat ve
+              YasalHaklariniz’de yer alan yazılar, yalnızca yürürlükteki mevzuat ve
               genel uygulama pratiği çerçevesinde hazırlanmış, genel bilgilendirme
               metinleridir. Somut olayın tüm detaylarına hâkim olunmadan verilen hiçbir
               açıklama, hukuki görüş veya avukatlık hizmeti yerine geçmez.
             </p>
             <p className="text-[15px] text-muted-foreground">
-              Hak kaybı yaşamamak için; özellikle süreli işlemler, icra–dava süreçleri
-              veya önemli mali sonuçlar doğurabilecek kararlar öncesinde bir avukattan
-              profesyonel destek almanızı kuvvetle öneriyoruz. Bu platformu, süreci
-              anlamak için ilk adım; nihai kararı ise her zaman bir hukuk
-              profesyoneliyle birlikte vereceğiniz bir rehber olarak düşünün.
+              Her olayın kendine özgü koşulları vardır; süreli işlemler, icra–dava
+              süreçleri veya önemli mali sonuçlar doğurabilecek kararlar söz konusu
+              olduğunda yazılardaki genel bilgilerin olayınıza birebir uymayabileceğini
+              göz önünde bulundurun.
             </p>
           </div>
           <div className="relative h-full min-h-[240px] overflow-hidden rounded-2xl">

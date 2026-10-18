@@ -58,9 +58,9 @@ export async function getCategoryBySlug(
   }
 }
 
-export type TopLinkItem = { type: "rehber" | "soru"; slug: string; title: string };
+export type TopLinkItem = { type: "rehber"; slug: string; title: string };
 
-/** En çok görüntülenen sorular + rehberlerden 6–10 internal link (kategori pillar sayfası). */
+/** Kategorideki rehberlerden 6–10 internal link (kategori pillar sayfası). */
 export async function getTopLinksForCategory(
   categorySlug: string,
   limit = 10
@@ -68,23 +68,15 @@ export async function getTopLinksForCategory(
   const category = await getCategoryBySlug(categorySlug);
   if (!category) return [];
 
-  const [questions, guides] = await Promise.all([
-    getRelatedQuestions(categorySlug, limit),
-    getRelatedGuides(categorySlug, limit),
-  ]);
+  const guides = await getRelatedGuides(categorySlug, limit);
 
-  const fromQuestions: TopLinkItem[] = (questions ?? []).map((q) => ({
-    type: "soru" as const,
-    slug: q.slug,
-    title: q.title,
-  }));
   const fromGuides: TopLinkItem[] = guides.map((g) => ({
     type: "rehber" as const,
     slug: g.slug,
     title: g.title,
   }));
 
-  const merged = [...fromQuestions, ...fromGuides].slice(0, limit);
+  const merged = fromGuides.slice(0, limit);
   return merged;
 }
 
@@ -105,133 +97,6 @@ export async function ensureCategoryPillar(categorySlug: string): Promise<void> 
   }
 }
 
-export async function getRelatedQuestions(
-  categorySlug: string,
-  limit: number,
-  excludeQuestionId?: string
-) {
-  const supabase = createSupabaseAdminClient();
-  // Kategori slug üzerinden join ile soruları al (kategori satırı yoksa da çalışır)
-  let q = supabase
-    .from("questions")
-    .select("id,title,slug,created_at,views,ai_card_summary,category:categories!inner(name,slug)")
-    .eq("status", "published")
-    .eq("categories.slug", categorySlug)
-    .order("views", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (excludeQuestionId) {
-    q = q.neq("id", excludeQuestionId);
-  }
-
-  const { data } = await q;
-  return data ?? [];
-}
-
-const QUESTIONS_SELECT =
-  "id,title,slug,created_at,views,ai_card_summary,category:categories!inner(name,slug)";
-
-export type RelatedQuestionItem = {
-  id: string;
-  title: string;
-  slug: string;
-  created_at: string;
-  ai_card_summary?: string | null;
-  category?: { name: string; slug: string } | null;
-};
-
-const RELATED_POOL_SIZE = 8;
-const RELATED_DISPLAY_LIMIT = 3;
-
-function hashSeed(input: string): number {
-  let hash = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    hash ^= input.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-}
-
-function seededShuffle<T>(items: T[], seed: number): T[] {
-  const arr = [...items];
-  let state = seed;
-  const next = () => {
-    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-    return state / 0x100000000;
-  };
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(next() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-type RelatedQuestionRow = Omit<RelatedQuestionItem, "category"> & {
-  category?: { name: string; slug: string } | { name: string; slug: string }[] | null;
-};
-
-function normalizeRelatedQuestion(row: RelatedQuestionRow): RelatedQuestionItem {
-  const { category, ...rest } = row;
-  return {
-    ...rest,
-    category: Array.isArray(category) ? (category[0] ?? null) : (category ?? null),
-  };
-}
-
-/** Aynı kategorideki son sorulardan havuz oluşturup mevcut soruya göre dönüşümlü 1–3 ilgili soru seçer. */
-export async function getRotatingRelatedQuestions(
-  categorySlug: string,
-  excludeQuestionId: string,
-  options?: { poolSize?: number; limit?: number }
-): Promise<RelatedQuestionItem[]> {
-  const poolSize = options?.poolSize ?? RELATED_POOL_SIZE;
-  const limit = options?.limit ?? RELATED_DISPLAY_LIMIT;
-  const supabase = createSupabaseAdminClient();
-
-  const { data } = await supabase
-    .from("questions")
-    .select(QUESTIONS_SELECT)
-    .eq("status", "published")
-    .eq("categories.slug", categorySlug)
-    .neq("id", excludeQuestionId)
-    .order("created_at", { ascending: false })
-    .limit(poolSize);
-
-  const pool = (data ?? []).map((row) =>
-    normalizeRelatedQuestion(row as unknown as RelatedQuestionRow)
-  );
-
-  if (pool.length === 0) return [];
-
-  const take = Math.min(limit, pool.length);
-  return seededShuffle(pool, hashSeed(excludeQuestionId)).slice(0, take);
-}
-
-/** Kategori soruları sayfalı (liste sayfası için). */
-export async function getRelatedQuestionsPaginated(
-  categorySlug: string,
-  page: number,
-  pageSize: number
-): Promise<{ questions: Awaited<ReturnType<typeof getRelatedQuestions>>; total: number }> {
-  const supabase = createSupabaseAdminClient();
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  const { data, count } = await supabase
-    .from("questions")
-    .select(QUESTIONS_SELECT, { count: "exact" })
-    .eq("status", "published")
-    .eq("categories.slug", categorySlug)
-    .order("views", { ascending: false })
-    .order("created_at", { ascending: false })
-    .range(from, to);
-
-  const total = count ?? 0;
-  return { questions: (data ?? []) as Awaited<ReturnType<typeof getRelatedQuestions>>, total };
-}
-
-/** Liste/sidebar için rehber öğesi (statik + DB birleşik). */
 export type GuideListItem = {
   slug: string;
   title: string;

@@ -22,17 +22,11 @@ export function AdminHeader() {
             Admin Paneli
           </Link>
           <nav className="hidden items-center gap-3 text-sm text-muted-foreground md:flex">
-            <Link href="/admin/inbox" className="hover:text-foreground">
-              Bekleyenler
-            </Link>
             <Link
               href="/admin/iletisim-mesajlari"
               className="hover:text-foreground"
             >
               İletişim
-            </Link>
-            <Link href="/admin/sorular" className="hover:text-foreground">
-              Tüm Sorular
             </Link>
             <Link href="/admin/categories" className="hover:text-foreground">
               Kategoriler

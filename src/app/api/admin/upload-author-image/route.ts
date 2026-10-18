@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
+import { validateImageFile } from "@/lib/imageUpload";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 
 const BUCKET = "author-images";
@@ -14,6 +15,10 @@ export async function POST(request: Request) {
   const file = formData?.get("file") as File | null;
   if (!file || !file.size) {
     return NextResponse.json({ message: "Dosya gerekli." }, { status: 400 });
+  }
+  const check = validateImageFile(file);
+  if (!check.ok) {
+    return NextResponse.json({ message: check.message }, { status: 400 });
   }
 
   const supabase = createSupabaseAdminClient();
@@ -30,12 +35,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const ext = file.name.replace(/^.*\./, "") || "jpg";
+  const ext = check.ext;
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   const buf = await file.arrayBuffer();
   const { error } = await supabase.storage.from(BUCKET).upload(path, buf, {
-    contentType: file.type || "image/jpeg",
+    contentType: file.type,
     upsert: true,
   });
 
