@@ -1,16 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Briefcase,
-  FileText,
-  Gavel,
-  Home,
-  Landmark,
-  Scale,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { formatTurkishLongDate } from "@/lib/format-date";
 
 export type LatestArticleItem = {
@@ -73,7 +63,6 @@ type RightItem = {
   title: string;
   description: string;
   basis: string;
-  icon: React.ComponentType<{ className?: string }>;
   href?: string;
 };
 
@@ -82,98 +71,72 @@ const LEGAL_RIGHTS: RightItem[] = [
     title: "Hak Arama ve Dava Açma Hakkı",
     description: "Herkes, hakkını korumak için yargı mercilerine başvurabilir; davacı veya davalı olarak iddia ve savunmada bulunabilir.",
     basis: "Anayasa m. 36",
-    icon: Gavel,
   },
   {
     title: "Adil Yargılanma Hakkı",
     description: "Davanın bağımsız ve tarafsız bir mahkemede, makul sürede ve hakkaniyete uygun biçimde görülmesini isteme hakkı.",
     basis: "Anayasa m. 36 · AİHS m. 6",
-    icon: Scale,
   },
   {
     title: "Susma ve Savunma Hakkı",
     description: "Kimse kendisini veya yakınlarını suçlayan bir beyanda bulunmaya zorlanamaz; ifade sırasında susma hakkı hatırlatılır.",
     basis: "Anayasa m. 38 · CMK m. 147",
-    icon: ShieldCheck,
   },
   {
     title: "Mülkiyet ve Miras Hakkı",
     description: "Herkes mülkiyet ve miras haklarına sahiptir; yasal mirasçıların saklı payı kanunla korunur.",
     basis: "Anayasa m. 35 · TMK m. 506",
-    icon: Home,
     href: "/miras-hukuku",
   },
   {
     title: "Aile ve Çocuk Hakları",
     description: "Aile, toplumun temelidir; boşanmada nafaka, velayet ve mal paylaşımı gibi haklar kanunla düzenlenir.",
     basis: "Anayasa m. 41",
-    icon: Users,
     href: "/aile-hukuku",
   },
   {
     title: "Çalışma Hakkı",
     description: "Herkes çalışma hakkına sahiptir; işçinin ücret, izin, kıdem ve ihbar tazminatı gibi hakları güvence altındadır.",
     basis: "Anayasa m. 49",
-    icon: Briefcase,
     href: "/is-hukuku",
   },
   {
     title: "Dilekçe ve Bilgi Edinme Hakkı",
     description: "Kendinizle veya kamuyla ilgili dilek ve şikâyetlerinizi yetkili makamlara yazılı olarak iletebilir, bilgi talep edebilirsiniz.",
     basis: "Anayasa m. 74",
-    icon: FileText,
   },
   {
     title: "Adli Yardım Hakkı",
     description: "Yargılama giderlerini karşılayamayacak durumda olanlar, harç ve masraflardan geçici olarak muaf tutulmayı isteyebilir.",
     basis: "HMK m. 334",
-    icon: Landmark,
   },
 ];
 
-/** "Yasal Haklarınız Nelerdir?" — temel hakların kısa kartları ve dayanakları. */
+/** "Yasal Haklarınız Nelerdir?" — temel haklar ve dayanakları (sade liste). */
 export function LegalRightsGrid() {
   return (
-    <section className="space-y-6 rounded-3xl bg-[#1d293d] px-5 py-10 text-white sm:px-8 md:py-12">
-      <header className="mx-auto max-w-2xl space-y-3 text-center">
-        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          Yasal Haklarınız Nelerdir?
-        </h2>
-        <p className="text-[15px] text-slate-300">
-          Anayasa ve kanunlarla güvence altına alınan temel haklardan bazıları.
-          Her kartta hakkın dayandığı düzenleme yer alır.
-        </p>
-      </header>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {LEGAL_RIGHTS.map(({ title, description, basis, icon: Icon, href }) => {
-          const body = (
-            <>
-              <span className="flex size-10 items-center justify-center rounded-xl bg-primary/20 text-primary">
-                <Icon className="size-5" />
-              </span>
-              <h3 className="text-[16px] font-semibold text-white">{title}</h3>
-              <p className="flex-1 text-sm leading-relaxed text-slate-300">{description}</p>
-              <span className="flex items-center justify-between gap-2 pt-1">
-                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
-                  {basis}
-                </span>
-                {href && <ArrowRight className="size-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />}
-              </span>
-            </>
-          );
-          const className =
-            "group flex h-full flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors";
-          return href ? (
-            <Link key={title} href={href} className={`${className} hover:border-primary/50 hover:bg-white/10`}>
-              {body}
-            </Link>
-          ) : (
-            <div key={title} className={className}>
-              {body}
-            </div>
-          );
-        })}
-      </div>
+    <section className="space-y-4">
+      <SectionTitle>Yasal Haklarınız Nelerdir?</SectionTitle>
+      <p className="max-w-2xl text-[15px] text-muted-foreground">
+        Anayasa ve kanunlarla güvence altına alınan temel haklardan bazıları.
+      </p>
+      <ul className="grid gap-x-10 md:grid-cols-2">
+        {LEGAL_RIGHTS.map(({ title, description, basis, href }) => (
+          <li key={title} className="border-b border-slate-200/70 py-4">
+            <h3 className="text-[16px] font-semibold text-foreground">
+              {href ? (
+                <Link href={href} className="hover:underline">
+                  {title}
+                </Link>
+              ) : (
+                title
+              )}
+            </h3>
+            <p className="mt-1 text-[15px] leading-relaxed text-muted-foreground">{description}</p>
+            <p className="mt-1 text-xs text-slate-500">Dayanak: {basis}</p>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
