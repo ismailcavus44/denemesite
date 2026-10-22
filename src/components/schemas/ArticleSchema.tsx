@@ -1,5 +1,6 @@
 import { toISO8601WithTimezone } from "@/lib/format-date";
 import { escapeJsonLd } from "@/lib/jsonLd";
+import { buildPublisherNode, WEBSITE_ID } from "@/lib/organization-schema";
 
 type ArticleSchemaProps = {
   headline: string;
@@ -11,8 +12,8 @@ type ArticleSchemaProps = {
   url?: string;
   /** Öne çıkan görsel; mutlaka tam absolute URL (https://...). */
   image?: string;
-  /** Varsa BlogPosting + author kullanılır. */
-  author?: { name: string; url?: string; sameAs?: string[]; jobTitle?: string };
+  /** Varsa BlogPosting + author kullanılır. buildAuthorPersonSchema çıktısı (Person düğümü). */
+  author?: Record<string, unknown>;
   /** Dipnot metinlerinden türetilen citation'lar. Boşsa hiç eklenmez. */
   citations?: string[];
 };
@@ -39,19 +40,14 @@ export function ArticleSchema({
     description,
     datePublished: publishedIso,
     dateModified: modifiedIso,
-    ...(url && { mainEntityOfPage: { "@type": "WebPage", "@id": url } }),
+    inLanguage: "tr-TR",
+    ...(url && { mainEntityOfPage: { "@type": "WebPage", "@id": url }, url }),
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: buildPublisherNode(),
     ...(image && image.startsWith("http") && {
       image: { "@type": "ImageObject", url: image },
     }),
-    ...(author && {
-      author: {
-        "@type": "Person",
-        name: author.name,
-        ...(author.url && { url: author.url }),
-        ...(author.jobTitle && { jobTitle: author.jobTitle }),
-        ...(author.sameAs && author.sameAs.length > 0 && { sameAs: author.sameAs }),
-      },
-    }),
+    ...(author && { author }),
     ...(citations &&
       citations.length > 0 && {
         citation: citations.map((name) => ({

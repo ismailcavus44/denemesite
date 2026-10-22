@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
-import { getKnownCategoryName } from "@/lib/content";
+import { getKnownCategoryName, REHBER_CACHE_TAG } from "@/lib/content";
 import { blogPosts, type BlogPost } from "@/lib/blog-data";
 import { SearchBar } from "@/components/search-bar";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage } from "@/lib/site";
+import { CollectionPageSchema } from "@/components/schemas/CollectionPageSchema";
 
 const _title = "Rehber | YasalHaklarınız";
 const _desc = "Miras, boşanma, iş hukuku ve icra konularında sade ve anlaşılır hukuki rehber yazıları. Editör onaylı bilgilendirme içerikleri.";
 const _url = `${siteConfig.url}/rehber`;
 
-export const metadata: Metadata = {
-  title: { absolute: "Rehber | YasalHaklarınız" },
-  description: _desc,
-  openGraph: { title: _title, description: _desc, url: _url },
-  twitter: { card: "summary_large_image", title: _title, description: _desc },
-  alternates: { canonical: _url },
-};
+export async function generateMetadata({ searchParams }: GuidePageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const query = (params?.q ?? "").trim();
+  const page = Math.max(1, Number(params?.page ?? "1") || 1);
+  const url = page > 1 && !query ? `${_url}?page=${page}` : _url;
+  return {
+    title: { absolute: page > 1 ? `Rehber (Sayfa ${page}) | YasalHaklarınız` : _title },
+    description: _desc,
+    openGraph: { title: _title, description: _desc, url, images: [defaultOgImage] },
+    twitter: { card: "summary_large_image", title: _title, description: _desc, images: [defaultOgImage.url] },
+    alternates: { canonical: url },
+    // Site içi arama sonuçları indekslenmez; linkler takip edilir.
+    ...(query && { robots: { index: false, follow: true } }),
+  };
+}
 
 export const revalidate = 3600;
 
@@ -37,7 +47,12 @@ function stripHtml(html: string): string {
 }
 
 /** Supabase'den yayındaki makaleleri çeker (kategorisi olanlar). */
-async function getPublishedArticles(): Promise<GuideListItem[]> {
+const getPublishedArticles = unstable_cache(fetchPublishedArticles, ["published-articles"], {
+  revalidate: 3600,
+  tags: [REHBER_CACHE_TAG],
+});
+
+async function fetchPublishedArticles(): Promise<GuideListItem[]> {
   const supabase = createSupabaseAdminClient();
   const { data } = await supabase
     .from("articles")
@@ -128,8 +143,22 @@ export default async function GuidePage({ searchParams }: GuidePageProps) {
   const start = (currentPage - 1) * pageSize;
   const visiblePosts = filteredPosts.slice(start, start + pageSize);
 
+  const baseUrl = siteConfig.url.replace(/\/$/, "");
+
   return (
     <div className="space-y-8 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
+      {!query && (
+        <CollectionPageSchema
+          name="Hukuk Rehberi"
+          description={_desc}
+          url={_url}
+          items={visiblePosts.map((p) => ({ name: p.title, url: `${baseUrl}/${p.categorySlug}/rehber/${p.slug}` }))}
+          breadcrumb={[
+            { name: "Anasayfa", url: baseUrl },
+            { name: "Rehber", url: _url },
+          ]}
+        />
+      )}
       <section className="space-y-3">
         <BreadcrumbBlock
           items={[

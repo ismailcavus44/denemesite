@@ -1,3 +1,4 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
 type WebPageSchemaProps = {
   name: string;
   description: string;
@@ -17,7 +18,7 @@ export function WebPageSchema({ name, description, url }: WebPageSchemaProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

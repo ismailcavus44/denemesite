@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import { Button } from "@/components/ui/button";
 import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
 import { blogPosts, FOOTER_POPULAR_GUIDES, HOMEPAGE_REHBER_SLUGS, HOMEPAGE_DYNAMIC_REHBER_TITLES } from "@/lib/blog-data";
@@ -17,16 +17,23 @@ export const metadata: Metadata = {
   alternates: { canonical: siteConfig.url },
 };
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
+/** Yeni yazıların anasayfaya deploy beklemeden düşmesi için saatlik yenileme. */
+export const revalidate = 3600;
+
+const { props: heroImage } = getImageProps({
+  src: "/yasalhaklariniz-avukata-soru-sor.webp",
+  alt: "YasalHaklarınız hukuk rehberi",
+  width: 800,
+  height: 600,
+  sizes: "(max-width: 1200px) 50vw, 800px",
+});
 
 export default async function Home() {
   const supabase = createSupabaseServerClient();
   const [dynamicRehberRes, categoriesRes] = await Promise.all([
     supabase
       .from("articles")
-      .select("title, slug, category, meta_description, content, featured_image_url, created_at")
+      .select("title, slug, category, meta_description, featured_image_url, created_at")
       .eq("status", "published")
       .not("category", "is", null)
       .order("created_at", { ascending: false })
@@ -34,7 +41,7 @@ export default async function Home() {
     supabase.from("categories").select("slug, name"),
   ]);
 
-  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; content?: string | null; featured_image_url?: string | null; created_at?: string | null };
+  type ArticleRow = { title: string; slug: string; category: string; meta_description?: string | null; featured_image_url?: string | null; created_at?: string | null };
   const allArticles = (dynamicRehberRes.data ?? []) as ArticleRow[];
   const usedIds = new Set<string>();
   const dynamicRehber = HOMEPAGE_DYNAMIC_REHBER_TITLES.map((titlePattern) => {
@@ -50,9 +57,8 @@ export default async function Home() {
     .filter((p): p is (typeof blogPosts)[number] => p != null);
 
   const dynamicRehberMapped = dynamicRehber.map((a) => {
-    const metaDesc = a.meta_description?.trim() || "";
-    const contentText = a.content ? stripHtml(a.content) : "";
-    const raw = metaDesc || contentText;
+    // Makale gövdesi (content) anasayfada çekilmiyor; özet meta açıklamadan gelir.
+    const raw = a.meta_description?.trim() || "";
     const summary = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
     const isBosanma = a.title.toLowerCase().includes("boşanma") || a.title.toLowerCase().includes("bosanma");
     const isIsci = a.title.toLowerCase().includes("işçi") || a.title.toLowerCase().includes("isci");
@@ -142,19 +148,30 @@ export default async function Home() {
 
           </div>
 
-          {/* Sağ: LCP görseli (desktop) — next/image ile AVIF/WebP, priority */}
+          {/* Sağ: LCP görseli (desktop) — next/image optimizasyonu, sadece md+ yüklenir */}
           <div className="hidden md:block relative aspect-[4/3] max-w-[800px] w-full">
-            <Image
-              src="/yasalhaklariniz-avukata-soru-sor.webp"
-              alt="YasalHaklarınız hukuk rehberi"
-              width={800}
-              height={600}
-              priority
-              sizes="(max-width: 768px) 0px, (max-width: 1200px) 50vw, 800px"
-              className="rounded-2xl object-cover w-full h-full"
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBRIhMQYTQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ALnq2p3mn6ndW1rO0cMT7EUY4GKKKKVYz//Z"
+            {/* Görsel yalnız masaüstünde görünür; mobilde indirilmesin diye <picture> + media'lı preload. */}
+            <link
+              rel="preload"
+              as="image"
+              media="(min-width: 768px)"
+              imageSrcSet={heroImage.srcSet}
+              imageSizes={heroImage.sizes}
+              fetchPriority="high"
             />
+            <picture>
+              <source media="(min-width: 768px)" srcSet={heroImage.srcSet} sizes={heroImage.sizes} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                alt={heroImage.alt}
+                width={heroImage.width}
+                height={heroImage.height}
+                fetchPriority="high"
+                decoding="async"
+                className="rounded-2xl object-cover w-full h-full"
+              />
+            </picture>
           </div>
         </div>
       </section>

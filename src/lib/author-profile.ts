@@ -3,15 +3,24 @@ import { getAuthorBySlug, type Author as StaticAuthor } from "@/lib/authors";
 /** Statik yazarlar için baro/unvan yedekleri (migration öncesi veya boş DB alanları). */
 const STATIC_EEAT: Record<
   string,
-  { title?: string; barName?: string; barRegistration?: string }
+  { title?: string; barName?: string; barRegistration?: string; knowsAbout?: string[] }
 > = {
   "ismail-cavus": {
     title: "Av.",
     barName: "Ankara 2 No'lu Barosu",
     barRegistration: "3289",
+    knowsAbout: [
+      "İş hukuku",
+      "Trafik tazminat davaları",
+      "Aile ve miras hukuku",
+      "Askeri davalar",
+      "Sağlık hukuku",
+      "Malpraktis",
+    ],
   },
   "kaan-karayaka": {
     title: "Av.",
+    knowsAbout: ["İş hukuku", "Aile hukuku"],
   },
 };
 
@@ -83,7 +92,9 @@ export function resolveAuthorEeat(
     instagram: db?.instagram_url ?? staticAuthor?.socials?.instagram,
   });
 
-  return { title, barName, barRegistration, sameAs };
+  const knowsAbout = staticEeat?.knowsAbout ?? [];
+
+  return { title, barName, barRegistration, sameAs, knowsAbout };
 }
 
 export function formatAuthorDisplayName(
@@ -106,6 +117,53 @@ export function formatBarRegistrationLine(
   return bar ? `${bar} - Sicil No: ${reg}` : `Sicil No: ${reg}`;
 }
 
+/** "Av." gibi kısaltmaları şemada okunur meslek adına çevirir. */
+function jobTitleFromTitle(title?: string | null): string | null {
+  const t = title?.trim();
+  if (!t) return null;
+  return /^av\.?$/i.test(t) ? "Avukat" : t;
+}
+
+/**
+ * Yazar için JSON-LD Person düğümü (makale, yazar sayfası ve hakkımızda ortak).
+ * Baro sicili hasCredential, uzmanlık alanları knowsAbout olarak verilir.
+ */
+export function buildAuthorPersonSchema(
+  slug: string,
+  name: string,
+  baseUrl: string,
+  db?: AuthorEeatFields | null,
+  extra?: { description?: string | null; image?: string | null }
+): Record<string, unknown> {
+  const base = baseUrl.replace(/\/$/, "");
+  const staticAuthor = getAuthorBySlug(slug);
+  const eeat = resolveAuthorEeat(slug, db, staticAuthor);
+  const url = `${base}/yazar/${slug}`;
+  const jobTitle = jobTitleFromTitle(eeat.title);
+  const image = extra?.image?.trim();
+
+  return {
+    "@type": "Person",
+    "@id": `${url}#person`,
+    name: formatAuthorDisplayName(name, eeat.title),
+    url,
+    ...(jobTitle && { jobTitle }),
+    ...(extra?.description?.trim() && { description: extra.description.trim() }),
+    ...(image && { image: image.startsWith("http") ? image : `${base}${image}` }),
+    ...(eeat.sameAs.length > 0 && { sameAs: eeat.sameAs }),
+    ...(eeat.knowsAbout.length > 0 && { knowsAbout: eeat.knowsAbout }),
+    ...(eeat.barRegistration && {
+      hasCredential: {
+        "@type": "EducationalOccupationalCredential",
+        credentialCategory: "Avukatlık ruhsatı",
+        name: formatBarRegistrationLine(eeat.barName, eeat.barRegistration),
+        ...(eeat.barName && { recognizedBy: { "@type": "Organization", name: eeat.barName } }),
+      },
+    }),
+    worksFor: { "@id": `${base}/#organization` },
+  };
+}
+
 /** Makale JSON-LD author nesnesi. */
 export function buildArticleAuthorSchema(
   slug: string,
@@ -113,15 +171,5 @@ export function buildArticleAuthorSchema(
   baseUrl: string,
   db?: AuthorEeatFields | null
 ) {
-  const staticAuthor = getAuthorBySlug(slug);
-  const eeat = resolveAuthorEeat(slug, db, staticAuthor);
-  const displayName = formatAuthorDisplayName(name, eeat.title);
-  const sameAs = eeat.sameAs.length > 0 ? eeat.sameAs : undefined;
-
-  return {
-    name: displayName,
-    url: `${baseUrl.replace(/\/$/, "")}/yazar/${slug}`,
-    ...(eeat.title && { jobTitle: eeat.title }),
-    ...(sameAs && { sameAs }),
-  };
+  return buildAuthorPersonSchema(slug, name, baseUrl, db);
 }

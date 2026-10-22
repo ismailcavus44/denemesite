@@ -38,8 +38,6 @@ export function SiteHeader() {
                 width={200}
                 height={40}
                 className="logo-dark hidden h-12 w-auto object-contain dark:block"
-                priority
-                fetchPriority="high"
                 unoptimized
               />
             </Link>

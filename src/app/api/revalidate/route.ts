@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { REHBER_CACHE_TAG } from "@/lib/content";
 
 export async function POST(request: Request) {
   const secret = request.headers.get("x-revalidate-secret");
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
   }
 
   if (body.type === "rehber" || body.type === "all") {
+    revalidateTag(REHBER_CACHE_TAG, { expire: 0 });
     revalidatePath("/rehber");
     revalidatePath("/[category]/rehber", "page");
     revalidatePath("/[category]/rehber/[slug]", "page");

@@ -1,3 +1,4 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
 import { siteConfig } from "@/lib/site";
 
 const BASE_URL = siteConfig.url.replace(/\/$/, "");
@@ -11,13 +12,14 @@ export function WebSiteSchema() {
     name: siteConfig.name,
     url: BASE_URL,
     description: siteConfig.description,
+    inLanguage: "tr-TR",
     publisher: { "@id": `${BASE_URL}/#organization` },
   };
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

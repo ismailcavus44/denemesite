@@ -4,12 +4,11 @@ import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import {
   getCategoryBySlug,
   getKnownCategoryName,
-  ensureCategoryExists,
-  ensureCategoryPillar,
   KNOWN_CATEGORY_SLUGS,
+  getCategoryGuideCount,
 } from "@/lib/content";
 import type { CategoryRow } from "@/lib/content";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage, toMetaDescription } from "@/lib/site";
 import { CategoryHubSchemas } from "@/components/schemas/CategoryHubSchemas";
 import { CategoryHero } from "@/components/category/CategoryHero";
 import { CategoryPillar } from "@/components/category/CategoryPillar";
@@ -29,7 +28,6 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { category: slug } = await params;
-  await ensureCategoryExists(slug);
   let category = await getCategoryBySlug(slug);
   const fallbackName = getKnownCategoryName(slug);
   if (!category && fallbackName) {
@@ -38,18 +36,22 @@ export async function generateMetadata({
   if (!category) {
     return { title: "Kategori bulunamadı" };
   }
-  const title = category.meta_title?.trim() || category.name;
-  const description =
+  const title = category.meta_title?.trim() || `${category.name} Rehberi: Haklarınız ve Davalar`;
+  const description = toMetaDescription(
     category.meta_description?.trim() ||
-    (category.intro && category.intro.slice(0, 150).trim()) ||
-    `${category.name} kategorisinde hukuki rehber yazıları. Sade ve anlaşılır bilgilendirme.`;
+      `${category.name} hakkında avukatlar tarafından hazırlanan güncel rehber: haklarınız, dava süreçleri, süreler, masraflar ve sık sorulan sorular.`
+  );
   const url = `${siteConfig.url}/${slug}`;
+  const ogTitle = `${title} | ${siteConfig.name}`;
+  const hasGuides = (await getCategoryGuideCount(slug)) > 0;
   return {
     title,
-    description: description.slice(0, 160),
-    openGraph: { title: `YasalHaklarınız | ${title}`, description, url },
-    twitter: { card: "summary_large_image", title, description },
+    description,
+    openGraph: { title: ogTitle, description, url, images: [defaultOgImage] },
+    twitter: { card: "summary_large_image", title: ogTitle, description, images: [defaultOgImage.url] },
     alternates: { canonical: url },
+    // Henüz rehberi olmayan kategoriler ince içerik sayılmasın diye indekslenmez.
+    ...(!hasGuides && { robots: { index: false, follow: true } }),
   };
 }
 
@@ -66,7 +68,6 @@ export async function generateStaticParams() {
 
 export default async function CategoryPillarPage({ params }: PageProps) {
   const { category: categorySlug } = await params;
-  await ensureCategoryExists(categorySlug);
   let category: CategoryRow | null = await getCategoryBySlug(categorySlug);
   const fallbackName = getKnownCategoryName(categorySlug);
   if (!category && fallbackName) {
@@ -76,11 +77,6 @@ export default async function CategoryPillarPage({ params }: PageProps) {
     notFound();
   }
 
-  if (category.id) {
-    await ensureCategoryPillar(categorySlug);
-    const fromDb = await getCategoryBySlug(categorySlug);
-    if (fromDb?.pillar_md ?? fromDb?.intro) category = fromDb;
-  }
 
   const breadcrumbItems = [
     { label: "Anasayfa", href: "/" },

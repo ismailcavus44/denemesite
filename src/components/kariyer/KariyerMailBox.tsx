@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Mail } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 
@@ -22,10 +23,12 @@ export function KariyerMailBox() {
         </p>
       </div>
       <div className="relative h-[200px] w-1/2 shrink-0 overflow-hidden md:h-full md:min-h-0">
-        <img
+        <Image
           src="/kariyer-gorsel.png"
           alt="Kariyer başvurusu"
-          className="h-full w-full object-cover"
+          fill
+          sizes="(max-width: 768px) 50vw, 400px"
+          className="object-cover"
         />
       </div>
     </section>

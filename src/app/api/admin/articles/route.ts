@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { REHBER_CACHE_TAG } from "@/lib/content";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { notifyGoogleIndexing } from "@/lib/googleIndexing";
@@ -80,6 +81,9 @@ export async function POST(request: Request) {
     revalidatePath(`/${categoryVal}/rehber/${row.slug}`);
     revalidatePath(`/${categoryVal}/rehber`);
     revalidatePath("/rehber");
+    revalidatePath("/");
+    revalidatePath("/sitemap.xml");
+    revalidateTag(REHBER_CACHE_TAG, { expire: 0 });
     const fullUrl = `${siteConfig.url.replace(/\/$/, "")}/${categoryVal}/rehber/${row.slug}`;
     notifyGoogleIndexing(fullUrl).catch(() => {});
   }

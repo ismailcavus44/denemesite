@@ -8,7 +8,7 @@ import { blogPosts, type ContentBlock } from "@/lib/blog-data";
 import { getAuthorBySlug } from "@/lib/authors";
 import { getCategoryBySlug, getKnownCategoryName, getRelatedGuides } from "@/lib/content";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage, toMetaDescription } from "@/lib/site";
 import {
   Accordion,
   AccordionContent,
@@ -22,6 +22,7 @@ import { FAQSchema } from "@/components/schemas/FAQSchema";
 import { GuideToc } from "@/components/guide-toc";
 import { BackToTop } from "@/components/back-to-top";
 import { GuideArticleHeader } from "@/components/article/GuideArticleHeader";
+import { RelatedGuidesInline } from "@/components/article/RelatedGuidesInline";
 import { AiSummarizeMenu } from "@/components/article/AiSummarizeMenu";
 import { buildArticleAuthorSchema } from "@/lib/author-profile";
 
@@ -198,16 +199,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const baseTitle = dbArticle.meta_title?.trim() || dbArticle.title;
     const title = baseTitle.endsWith("| YasalHaklarınız") ? baseTitle : `${baseTitle} | YasalHaklarınız`;
     const rawDesc = dbArticle.meta_description?.trim();
-    const description = rawDesc ? `${rawDesc} | YasalHaklarınız` : undefined;
+    const description = rawDesc ? toMetaDescription(rawDesc, 160) : undefined;
     const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
     const images = dbArticle.featured_image_url
       ? [{ url: dbArticle.featured_image_url, width: 1200, height: 630, alt: dbArticle.featured_image_alt ?? title }]
-      : undefined;
+      : [defaultOgImage];
     return {
       title: { absolute: title },
       description,
       openGraph: { title, description, url, images },
-      twitter: { card: "summary_large_image" as const, title, description, images: images ? [images[0].url] : undefined },
+      twitter: { card: "summary_large_image" as const, title, description, images: [images[0].url] },
       alternates: { canonical: url },
     };
   }
@@ -216,7 +217,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = post.seoTitle ?? `${post.title} | ${siteConfig.name}`;
   const description = post.seoDescription ?? (post.summary.length > 160 ? `${post.summary.slice(0, 157)}...` : post.summary);
   const url = `${siteConfig.url}/${categorySlug}/rehber/${slug}`;
-  return { title: { absolute: title }, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
+  return {
+    title: { absolute: title },
+    description,
+    openGraph: { title, description, url, images: [defaultOgImage] },
+    twitter: { card: "summary_large_image", title, description, images: [defaultOgImage.url] },
+    alternates: { canonical: url },
+  };
 }
 
 export default async function CategoryGuidePage({ params }: PageProps) {
@@ -328,6 +335,11 @@ export default async function CategoryGuidePage({ params }: PageProps) {
                 </section>
               )}
             </article>
+            <RelatedGuidesInline
+              guides={categoryGuides.map((g) => ({ title: g.title, href: `/${g.categorySlug}/rehber/${g.slug}` }))}
+              allGuidesUrl={`/${categorySlug}/rehber`}
+              categoryName={categoryName}
+            />
             <div className="hidden md:flex flex-col gap-6 overflow-visible">
               {categoryGuides.length > 0 && (
                 <CategoryGuidesSidebar
@@ -342,11 +354,7 @@ export default async function CategoryGuidePage({ params }: PageProps) {
         </div>
         <ArticleSchema
           headline={dbArticle.title}
-          description={
-            dbArticle.meta_description?.trim()
-              ? `${dbArticle.meta_description.trim()} | YasalHaklarınız`
-              : dbArticle.title
-          }
+          description={dbArticle.meta_description?.trim() || dbArticle.title}
           datePublished={schemaDate(dbArticle.created_at)}
           dateModified={schemaDate(dbArticle.updated_at ?? dbArticle.created_at)}
           url={articleUrl}
@@ -456,6 +464,12 @@ export default async function CategoryGuidePage({ params }: PageProps) {
               </section>
             )}
           </article>
+
+          <RelatedGuidesInline
+            guides={categoryGuides.map((g) => ({ title: g.title, href: `/${g.categorySlug}/rehber/${g.slug}` }))}
+            allGuidesUrl={`/${categorySlug}/rehber`}
+            categoryName={categoryName}
+          />
 
           <div className="hidden md:flex flex-col gap-6 overflow-visible">
             {categoryGuides.length > 0 && (

@@ -1,3 +1,4 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
 import { getAboutPageSchemaData } from "@/lib/about-schema";
 
 /** Hakkımızda sayfası: AboutPage + mainEntity (Organization: founder + employee). */
@@ -10,7 +11,7 @@ export function AboutPageSchema() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

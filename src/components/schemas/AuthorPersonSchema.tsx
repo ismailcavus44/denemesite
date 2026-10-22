@@ -1,29 +1,27 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
+
 type AuthorPersonSchemaProps = {
-  name: string;
+  /** Yazar sayfasının tam URL'i. */
   url: string;
-  jobTitle?: string | null;
-  sameAs?: string[];
+  /** buildAuthorPersonSchema çıktısı. */
+  person: Record<string, unknown>;
 };
 
-export function AuthorPersonSchema({
-  name,
-  url,
-  jobTitle,
-  sameAs,
-}: AuthorPersonSchemaProps) {
-  const schema: Record<string, unknown> = {
+/** Yazar sayfası: ProfilePage + mainEntity Person (Google profil sayfası önerisi). */
+export function AuthorPersonSchema({ url, person }: AuthorPersonSchemaProps) {
+  const schema = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name,
+    "@type": "ProfilePage",
+    "@id": `${url}#profilepage`,
     url,
-    ...(jobTitle?.trim() && { jobTitle: jobTitle.trim() }),
-    ...(sameAs && sameAs.length > 0 && { sameAs }),
+    inLanguage: "tr-TR",
+    mainEntity: person,
   };
 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

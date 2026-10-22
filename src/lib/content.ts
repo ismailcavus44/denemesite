@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { blogPosts } from "@/lib/blog-data";
 import { generateCategoryPillar } from "@/lib/ai/generateCategoryPillar";
@@ -24,6 +25,9 @@ const KNOWN_CATEGORIES: Record<string, string> = {
 };
 
 export const KNOWN_CATEGORY_SLUGS = Object.keys(KNOWN_CATEGORIES);
+
+/** Rehber listelerinin veri önbelleği etiketi. */
+export const REHBER_CACHE_TAG = "rehber";
 
 /** Bilinen slug için isim döner (DB yokken de sayfa açılsın). */
 export function getKnownCategoryName(slug: string): string | null {
@@ -52,7 +56,10 @@ export async function getCategoryBySlug(
       .select("id,name,slug,intro,pillar_md,updated_at,meta_title,meta_description")
       .eq("slug", slug)
       .maybeSingle();
-    return data as CategoryRow | null;
+    if (!data) return null;
+    const row = data as CategoryRow;
+    // DB'deki isimlerde sondaki boşluklar başlıkta çift boşluk üretiyordu.
+    return { ...row, name: row.name.replace(/\s+/g, " ").trim() };
   } catch {
     return null;
   }
@@ -134,6 +141,15 @@ async function getArticlesByCategory(categorySlug: string): Promise<(GuideListIt
   });
 }
 
+/**
+ * Rehber listeleri ?page= kullandığı için her istekte render ediliyor; DB sorgusu önbellekten gelir.
+ * Admin kaydında "rehber" etiketi temizlenir.
+ */
+const getArticlesByCategoryCached = unstable_cache(getArticlesByCategory, ["articles-by-category"], {
+  revalidate: 3600,
+  tags: [REHBER_CACHE_TAG],
+});
+
 /** Statik + DB rehberleri birleştirir, tarihe göre sıralar (yeni önce). Aynı slug varsa DB öncelikli. */
 async function getMergedGuidesForCategory(categorySlug: string): Promise<(GuideListItem & { _sortDate: string })[]> {
   const staticPosts = blogPosts
@@ -147,7 +163,7 @@ async function getMergedGuidesForCategory(categorySlug: string): Promise<(GuideL
       cardImage: p.cardImage ?? p.image,
       _sortDate: p.date,
     }));
-  const dbArticles = await getArticlesByCategory(categorySlug);
+  const dbArticles = await getArticlesByCategoryCached(categorySlug);
   const dbSlugs = new Set(dbArticles.map((a) => a.slug));
   const staticOnly = staticPosts.filter((p) => !dbSlugs.has(p.slug));
   const merged = [...staticOnly, ...dbArticles];
@@ -167,6 +183,11 @@ export async function getRelatedGuides(
 }
 
 /** Rehber listesi sayfalama: statik + DB birleşik, sayfa başına pageSize adet. */
+/** Kategorideki yayındaki rehber sayısı (statik + DB). 0 ise kategori sayfaları noindex olur. */
+export async function getCategoryGuideCount(categorySlug: string): Promise<number> {
+  return (await getMergedGuidesForCategory(categorySlug)).length;
+}
+
 export async function getRelatedGuidesPaginated(
   categorySlug: string,
   page: number,

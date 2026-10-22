@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PenLine, Pencil, ArrowRight } from "lucide-react";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage } from "@/lib/site";
 
 const _t = "Kariyer | YasalHaklarınız";
 const _d = "YasalHaklarınız ekibine gönüllü yazar veya editör olarak başvurun. Hukuki bilgilendirme içerikleri üretmek isteyenler için başvuru sayfaları.";
@@ -10,8 +10,8 @@ const _u = `${siteConfig.url}/kariyer`;
 export const metadata: Metadata = {
   title: { absolute: "Kariyer | YasalHaklarınız" },
   description: _d,
-  openGraph: { title: _t, description: _d, url: _u },
-  twitter: { card: "summary_large_image", title: _t, description: _d },
+  openGraph: { title: _t, description: _d, url: _u, images: [defaultOgImage] },
+  twitter: { card: "summary_large_image", title: _t, description: _d, images: [defaultOgImage.url] },
   alternates: { canonical: _u },
 };
 

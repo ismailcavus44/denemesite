@@ -3,8 +3,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/serverClient";
 import { siteConfig } from "@/lib/site";
 import { blogPosts } from "@/lib/blog-data";
 import { KNOWN_CATEGORY_SLUGS } from "@/lib/content";
+import { authors as staticAuthors } from "@/lib/authors";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
+
+/** Yeni yazılar deploy beklemeden sitemap'e düşsün. */
+export const revalidate = 3600;
 
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -31,15 +35,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categorySlugs =
     categoriesFromDb?.length ? categoriesFromDb : KNOWN_CATEGORY_SLUGS.map((slug) => ({ slug, updated_at: null as string | null }));
 
-  const categoryEntries: SitemapEntry[] = categorySlugs.flatMap((cat) => {
-    const lastMod = cat.updated_at ? new Date(cat.updated_at) : new Date();
-    const slug = cat.slug;
-    return [
-      { url: `${base}/${slug}`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.9 },
-      { url: `${base}/${slug}/rehber`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.8 },
-    ];
-  });
-
   // ——— Rehber: statik blog + DB makaleleri /[category]/rehber/[slug] ———
   const rehberStatic: SitemapEntry[] = blogPosts.map((post) => ({
     url: `${base}/${post.categorySlug}/rehber/${post.slug}`,
@@ -60,6 +55,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
   const rehberEntries = [...rehberStatic, ...rehberDb];
 
+  // Rehberi olmayan kategoriler noindex olduğu için sitemap'e girmez.
+  const categoriesWithGuides = new Set([
+    ...blogPosts.map((p) => p.categorySlug),
+    ...(articles ?? []).map((a) => (a as { category: string }).category),
+  ]);
+  const categoryEntries: SitemapEntry[] = categorySlugs
+    .filter((cat) => categoriesWithGuides.has(cat.slug))
+    .flatMap((cat) => {
+      const lastMod = cat.updated_at ? new Date(cat.updated_at) : new Date();
+      const slug = cat.slug;
+      return [
+        { url: `${base}/${slug}`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.9 },
+        { url: `${base}/${slug}/rehber`, lastModified: lastMod, changeFrequency: "weekly" as const, priority: 0.8 },
+      ];
+    });
 
-  return [...staticPages, ...categoryEntries, ...rehberEntries];
+  // ——— Yazar profilleri (E-E-A-T) ———
+  const { data: authorsFromDb } = await supabase.from("authors").select("slug");
+  const authorSlugs = new Set([
+    ...staticAuthors.map((a) => a.slug),
+    ...((authorsFromDb ?? []) as { slug: string | null }[]).map((a) => a.slug).filter((s): s is string => !!s),
+  ]);
+  const authorEntries: SitemapEntry[] = [...authorSlugs].map((slug) => ({
+    url: `${base}/yazar/${slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+
+
+  return [...staticPages, ...categoryEntries, ...rehberEntries, ...authorEntries];
 }

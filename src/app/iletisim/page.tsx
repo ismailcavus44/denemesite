@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Mail, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { siteConfig } from "@/lib/site";
@@ -32,12 +33,12 @@ export default function ContactPage() {
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-6 sm:gap-8">
           <Link href="/gizlilik-sozlesmesi" className="group block min-w-0 sm:w-[315px]">
             <Card className="relative h-[260px] w-full min-w-0 overflow-hidden transition-transform duration-200 group-hover:scale-[1.02] sm:h-[420px] md:h-[480px]">
-              <img
+              <Image
                 src="/gizlilik-sozlesmesi.png"
                 alt="Gizlilik Sözleşmesi"
-                width={315}
-                height={480}
-                className="absolute inset-0 h-full w-full object-cover"
+                fill
+                sizes="(max-width: 640px) 50vw, 315px"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-transparent" />
               <div className="absolute inset-0 bg-black/45 sm:hidden" aria-hidden />
@@ -55,12 +56,12 @@ export default function ContactPage() {
           </Link>
           <Link href="/kvkk" className="group block min-w-0 sm:w-[315px]">
             <Card className="relative h-[260px] w-full min-w-0 overflow-hidden transition-transform duration-200 group-hover:scale-[1.02] sm:h-[420px] md:h-[480px]">
-              <img
+              <Image
                 src="/kullanıcı-sozlesmesi.png"
                 alt="KVKK ve Kullanıcı Sözleşmesi"
-                width={315}
-                height={480}
-                className="absolute inset-0 h-full w-full object-cover"
+                fill
+                sizes="(max-width: 640px) 50vw, 315px"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-transparent" />
               <div className="absolute inset-0 bg-black/45 sm:hidden" aria-hidden />
@@ -110,10 +111,12 @@ export default function ContactPage() {
             </div>
           </div>
           <div className="relative h-[180px] w-full overflow-hidden md:h-full md:w-1/2">
-            <img
+            <Image
               src="/iletisim.png"
               alt="İletişim"
-              className="h-full w-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
             />
           </div>
         </section>

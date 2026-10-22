@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AboutPageSchema } from "@/components/schemas/AboutPageSchema";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage } from "@/lib/site";
 
 const _t = "Hakkımızda | YasalHaklarınız";
 const _d = "YasalHaklarınız ekibi ve misyonu. Hukuki bilgilendirmeyi sade ve anlaşılır kılmak için çalışıyoruz.";
@@ -12,8 +13,8 @@ const _u = `${siteConfig.url}/hakkimizda`;
 export const metadata: Metadata = {
   title: { absolute: "Hakkımızda | YasalHaklarınız" },
   description: _d,
-  openGraph: { title: _t, description: _d, url: _u },
-  twitter: { card: "summary_large_image", title: _t, description: _d },
+  openGraph: { title: _t, description: _d, url: _u, images: [defaultOgImage] },
+  twitter: { card: "summary_large_image", title: _t, description: _d, images: [defaultOgImage.url] },
   alternates: { canonical: _u },
 };
 
@@ -25,11 +26,13 @@ export default function AboutPage() {
       <div className="space-y-20">
       {/* Üst görsel alanı — public/avukata-sor-hakkimizda.png (1905×675) */}
       <section className="w-full">
-        <img
+        <Image
           src="/avukata-sor-hakkimizda.png"
           alt="Hakkımızda"
           width={1905}
           height={675}
+          priority
+          sizes="(max-width: 1280px) 100vw, 1280px"
           className="h-auto w-full rounded-[6px] object-cover"
         />
       </section>
@@ -47,10 +50,12 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative h-full min-h-[240px] overflow-hidden rounded-2xl">
-            <img
+            <Image
               src="/hakkimizda1.png"
               alt="Hakkımızda"
-              className="h-full w-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 512px"
+              className="object-cover"
             />
           </div>
         </section>
@@ -144,10 +149,12 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative h-full min-h-[240px] overflow-hidden rounded-2xl">
-            <img
+            <Image
               src="/hakkimizda2.png"
               alt="Hukuki Süreç ve Biz"
-              className="h-full w-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 512px"
+              className="object-cover"
             />
           </div>
         </section>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { REHBER_CACHE_TAG } from "@/lib/content";
 import { requireAdminFromRequest } from "@/lib/auth/adminGuard";
 import { createSupabaseAdminClient } from "@/lib/supabase/adminClient";
 import { notifyGoogleIndexing } from "@/lib/googleIndexing";
@@ -82,6 +83,9 @@ export async function PATCH(
     revalidatePath(`/${finalCategory}/rehber/${finalSlug}`);
     revalidatePath(`/${finalCategory}/rehber`);
     revalidatePath("/rehber");
+    revalidatePath("/");
+    revalidatePath("/sitemap.xml");
+    revalidateTag(REHBER_CACHE_TAG, { expire: 0 });
     if (existing?.slug && existing.slug !== finalSlug) {
       revalidatePath(`/${finalCategory}/rehber/${existing.slug}`);
     }

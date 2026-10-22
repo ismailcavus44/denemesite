@@ -1,3 +1,4 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
 import { siteConfig } from "@/lib/site";
 
 const BASE_URL = siteConfig.url.replace(/\/$/, "");
@@ -47,7 +48,7 @@ export function JobPostingSchema({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

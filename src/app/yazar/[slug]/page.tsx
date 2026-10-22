@@ -8,12 +8,13 @@ import { getAuthorBySlug } from "@/lib/authors";
 import { getGuidesByAuthor } from "@/lib/content";
 import { BreadcrumbBlock } from "@/components/breadcrumb";
 import { BlogTeaserCard } from "@/components/blog-teaser-card";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage, toMetaDescription } from "@/lib/site";
 import type { BlogPost } from "@/lib/blog-data";
 import {
   formatAuthorDisplayName,
   formatBarRegistrationLine,
   resolveAuthorEeat,
+  buildAuthorPersonSchema,
   type AuthorEeatFields,
 } from "@/lib/author-profile";
 import { AuthorPersonSchema } from "@/components/schemas/AuthorPersonSchema";
@@ -77,24 +78,24 @@ async function getArticlesByAuthorId(authorId: string): Promise<BlogPost[]> {
   }) as BlogPost[];
 }
 
-const META_SITE_NAME = "Yasal Haklarınız";
+const META_SITE_NAME = siteConfig.name;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const dbAuthor = await getAuthorFromDb(slug);
   if (dbAuthor) {
     const title = `${dbAuthor.name} | ${META_SITE_NAME}`;
-    const description = dbAuthor.bio ?? undefined;
+    const description = dbAuthor.bio ? toMetaDescription(dbAuthor.bio) : undefined;
     const url = `${siteConfig.url}/yazar/${slug}`;
-    return { title: { absolute: title }, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
+    return { title: { absolute: title }, description, openGraph: { title, description, url, type: "profile", images: [defaultOgImage] }, twitter: { card: "summary_large_image", title, description, images: [defaultOgImage.url] }, alternates: { canonical: url } };
   }
   const author = getAuthorBySlug(slug);
   if (!author) return { title: { absolute: "Yazar bulunamadı" } };
   const displayName = (author.title ? `${author.title} ` : "") + author.name;
   const title = `${displayName} | ${META_SITE_NAME}`;
-  const description = author.bio;
+  const description = toMetaDescription(author.bio);
   const url = `${siteConfig.url}/yazar/${slug}`;
-  return { title: { absolute: title }, description, openGraph: { title, description, url }, twitter: { card: "summary_large_image", title, description }, alternates: { canonical: url } };
+  return { title: { absolute: title }, description, openGraph: { title, description, url, type: "profile", images: [defaultOgImage] }, twitter: { card: "summary_large_image", title, description, images: [defaultOgImage.url] }, alternates: { canonical: url } };
 }
 
 export default async function AuthorPage({ params, searchParams }: PageProps) {
@@ -171,10 +172,14 @@ export default async function AuthorPage({ params, searchParams }: PageProps) {
   return (
     <>
       <AuthorPersonSchema
-        name={displayName}
         url={authorPageUrl}
-        jobTitle={eeat.title}
-        sameAs={eeat.sameAs.length > 0 ? eeat.sameAs : undefined}
+        person={buildAuthorPersonSchema(
+          slug,
+          isDbAuthor ? dbAuthor.name : staticAuthor!.name,
+          siteConfig.url,
+          isDbAuthor ? dbAuthor : { title: staticAuthor!.title, linkedin_url: staticAuthor!.socials?.linkedin, instagram_url: staticAuthor!.socials?.instagram },
+          { description: bio, image: photoUrl }
+        )}
       />
       <div className="mx-auto max-w-6xl space-y-8 px-4 pt-4 pb-10 sm:px-6 sm:pt-6 lg:px-8 lg:pt-10">
       <header>

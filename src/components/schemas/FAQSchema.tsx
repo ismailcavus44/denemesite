@@ -1,3 +1,4 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
 type FAQItem = { question: string; answer: string };
 
 type FAQSchemaProps = {
@@ -23,7 +24,7 @@ export function FAQSchema({ items }: FAQSchemaProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

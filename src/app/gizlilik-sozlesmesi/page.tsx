@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, defaultOgImage } from "@/lib/site";
 import { LegalLayout, slugifyId } from "@/components/legal-layout";
 
 const _t = "Gizlilik Politikası | YasalHaklarınız";
@@ -12,8 +12,8 @@ const LAST_UPDATED = "18 Ekim 2026";
 export const metadata: Metadata = {
   title: { absolute: "Gizlilik Politikası | YasalHaklarınız" },
   description: _d,
-  openGraph: { title: _t, description: _d, url: _u },
-  twitter: { card: "summary_large_image", title: _t, description: _d },
+  openGraph: { title: _t, description: _d, url: _u, images: [defaultOgImage] },
+  twitter: { card: "summary_large_image", title: _t, description: _d, images: [defaultOgImage.url] },
   alternates: { canonical: _u },
 };
 

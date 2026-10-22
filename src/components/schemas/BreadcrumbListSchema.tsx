@@ -1,3 +1,4 @@
+import { escapeJsonLd } from "@/lib/jsonLd";
 type BreadcrumbItem = { name: string; url?: string };
 
 type BreadcrumbListSchemaProps = {
@@ -22,7 +23,7 @@ export function BreadcrumbListSchema({ items }: BreadcrumbListSchemaProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: escapeJsonLd(schema) }}
     />
   );
 }

@@ -147,7 +147,7 @@ export function SiteFooter() {
             />
             <Image
               src="/hukuki-sor-logo-dark.png"
-              alt=""
+              alt="YasalHaklarınız"
               width={120}
               height={24}
               className="logo-dark hidden h-6 w-auto object-contain dark:block"
